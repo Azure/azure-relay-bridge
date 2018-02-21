@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  To use Hybrid Connections Group Policy Definitions with Local Group Policy Editor:
+    -Copy the ADMX file(s) into %SystemRoot%\PolicyDefinitions\
+    -Copy the ADML file(s) into %SystemRoot%\PolicyDefinitions\en-us\
+    -Run "Local Group Policy Editor" (gpedit.msc)
+    -Navigate in the tree to "Computer Configuration" -> "Administrative Templates" -> "Microsoft Azure"
+  -->
+<policyDefinitionResources xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns=
+   "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions"
+   revision="1.0" schemaVersion="1.0">
+  <displayName>Microsoft Azure category strings</displayName>
+  <description>This file contains Microsoft Azure category strings</description>
+  <resources>
+    <stringTable>
+      <string id="MicrosoftAzureCategory">Microsoft Azure</string>
+      <string id="MicrosoftAzureCategoryHelp">Microsoft Azure Category Help</string>
+    </stringTable>
+  </resources>
+</policyDefinitionResources>

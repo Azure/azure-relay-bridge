@@ -1,0 +1,14 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft_Web_Hosting_Forwarding_Common_razzle_csproj", "Microsoft.Web.Hosting.Forwarding.Common.razzle.csproj", "{24772607-58DF-4C1B-9AFB-9AE165954F62}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		VSMSBuild|Any CPU = VSMSBuild|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{24772607-58DF-4C1B-9AFB-9AE165954F62}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{24772607-58DF-4C1B-9AFB-9AE165954F62}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+	EndGlobalSection
+EndGlobal

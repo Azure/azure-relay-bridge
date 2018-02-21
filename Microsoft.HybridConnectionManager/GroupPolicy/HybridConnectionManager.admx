@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  To use Hybrid Connections Group Policy Definitions with Local Group Policy Editor:
+    -Copy the ADMX file(s) into %SystemRoot%\PolicyDefinitions\
+    -Copy the ADML file(s) into %SystemRoot%\PolicyDefinitions\en-us\
+    -Run "Local Group Policy Editor" (gpedit.msc)
+    -Navigate in the tree to "Computer Configuration" -> "Administrative Templates" -> "Microsoft Azure"
+  -->
+<policyDefinitions
+ xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ revision="1.0"
+ schemaVersion="1.0"
+ xmlns="http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions">
+  <policyNamespaces>
+    <target prefix="hc" namespace="Microsoft.Policies.Products.Azure.HybridConnections" />
+    <using prefix="azure" namespace="Microsoft.Policies.Products.Azure" />
+    <using prefix="windows" namespace="Microsoft.Policies.Windows" />
+  </policyNamespaces>
+  <resources minRequiredRevision="1.0" />
+    <categories>
+       <category name="WABSCategory" displayName="$(string.WABSCategory)" explainText="$(string.WABSCategoryHelp)">
+         <parentCategory ref="azure:MicrosoftAzure" />
+       </category>
+  </categories>
+  <policies>
+    <policy
+		name="HybridConnectionsPolicyName"
+		class="Machine"
+		displayName="$(string.AllowHybridConnections)"
+		explainText="$(string.AllowHybridConnectionsHelp)"
+		key="Software\Policies\Microsoft\Azure\HybridConnections\1.0"
+		valueName="AllowHybridConnections"
+		presentation="$(presentation.HybridConnectionsMultiTextbox)">
+	  <parentCategory ref="WABSCategory" />
+      <supportedOn ref="windows:SUPPORTED_Win2k" />
+	    <enabledValue><decimal value="1" /></enabledValue>
+	    <!-- Define disabledValue as '0' because we want an explicit '0', if disabled (for us key not present means enabled).-->
+	    <disabledValue><decimal value="0" /></disabledValue>
+      <elements>
+        <multiText id="HybridConnectionsMultiTextboxPrompt" valueName="AllowedHybridConnectionsServers" maxStrings="1000" maxLength="1000"/>
+      </elements>
+    </policy>
+  </policies>
+</policyDefinitions>

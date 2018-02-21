@@ -1,0 +1,53 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Microsoft_HybridConnectionManager_csproj", "Microsoft.HybridConnectionManager.csproj", "{7EB0F88E-5DB9-455D-B2C9-70A942529271}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "____________build_CommonDefinition_CommonDefinition_csproj", "..\..\..\..\build\CommonDefinition\CommonDefinition.csproj", "{1FD1920E-9DC5-4C74-8C87-961459EAFCAB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "..\..\..\..", "{A599CC52-A5F2-4240-985B-D9026EBB0556}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "..\..\..\..\build", "{BF6B7037-00F3-4116-84AC-1AD690D0643F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonDefinition", "..\..\..\..\build\CommonDefinition", "{3E35B11C-4820-45B5-88DE-E1C589A15620}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "______Microsoft_ServiceBus_Messaging_Microsoft_ServiceBus_csproj", "..\..\Microsoft.ServiceBus.Messaging\Microsoft.ServiceBus.csproj", "{7FB33193-F32A-4859-98C6-E918F7CC6AD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "..\..", "{1E3AE0FD-4797-4D10-A349-448B0C4AA58F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ServiceBus.Messaging", "..\..\Microsoft.ServiceBus.Messaging", "{E6C03C75-7F92-4944-99D0-82A9357683B4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "______Microsoft_ServiceBus_Client_EventDefinitions_Microsoft_ServiceBus_Client_EventDefinitions_csproj", "..\..\Microsoft.ServiceBus.Client.EventDefinitions\Microsoft.ServiceBus.Client.EventDefinitions.csproj", "{9B039278-4DA0-4C9F-B980-08CB7A48DEAD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.ServiceBus.Client.EventDefinitions", "..\..\Microsoft.ServiceBus.Client.EventDefinitions", "{BA51682E-A5FC-4136-B7D7-9C7E48BD1BB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "______Microsoft_Azure_Relay_Microsoft_Azure_Relay_csproj", "..\..\Microsoft.Azure.Relay\Microsoft.Azure.Relay.csproj", "{C1746881-1BA9-4EB6-9507-C849CFE04113}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Microsoft.Azure.Relay", "..\..\Microsoft.Azure.Relay", "{34F76C69-D651-4FDB-932D-84559010DD26}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		VSMSBuild|Any CPU = VSMSBuild|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7EB0F88E-5DB9-455D-B2C9-70A942529271}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EB0F88E-5DB9-455D-B2C9-70A942529271}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+		{1FD1920E-9DC5-4C74-8C87-961459EAFCAB}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FD1920E-9DC5-4C74-8C87-961459EAFCAB}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+		{7FB33193-F32A-4859-98C6-E918F7CC6AD9}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FB33193-F32A-4859-98C6-E918F7CC6AD9}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+		{9B039278-4DA0-4C9F-B980-08CB7A48DEAD}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B039278-4DA0-4C9F-B980-08CB7A48DEAD}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+		{C1746881-1BA9-4EB6-9507-C849CFE04113}.VSMSBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1746881-1BA9-4EB6-9507-C849CFE04113}.VSMSBuild|Any CPU.Build.0 = Debug|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BF6B7037-00F3-4116-84AC-1AD690D0643F} = {A599CC52-A5F2-4240-985B-D9026EBB0556}
+		{3E35B11C-4820-45B5-88DE-E1C589A15620} = {BF6B7037-00F3-4116-84AC-1AD690D0643F}
+		{1FD1920E-9DC5-4C74-8C87-961459EAFCAB} = {3E35B11C-4820-45B5-88DE-E1C589A15620}
+		{E6C03C75-7F92-4944-99D0-82A9357683B4} = {1E3AE0FD-4797-4D10-A349-448B0C4AA58F}
+		{7FB33193-F32A-4859-98C6-E918F7CC6AD9} = {E6C03C75-7F92-4944-99D0-82A9357683B4}
+		{BA51682E-A5FC-4136-B7D7-9C7E48BD1BB7} = {1E3AE0FD-4797-4D10-A349-448B0C4AA58F}
+		{9B039278-4DA0-4C9F-B980-08CB7A48DEAD} = {BA51682E-A5FC-4136-B7D7-9C7E48BD1BB7}
+		{34F76C69-D651-4FDB-932D-84559010DD26} = {1E3AE0FD-4797-4D10-A349-448B0C4AA58F}
+		{C1746881-1BA9-4EB6-9507-C849CFE04113} = {34F76C69-D651-4FDB-932D-84559010DD26}
+	EndGlobalSection
+EndGlobal

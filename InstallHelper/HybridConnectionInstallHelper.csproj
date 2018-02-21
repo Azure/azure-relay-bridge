@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(EnvironmentConfig)" />
+  <Import Project="$(REPOROOT)\src\product\Microsoft.Build.AppFabric.Product.props" />
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <!--  Solves a VS problem locating FileTracker.dll, which is used by the MSBuild GenerateResource task -->
+    <ResGenTrackerFrameworkPath>$(MSBuildToolsPath_40)</ResGenTrackerFrameworkPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CoverageDisabled>false</CoverageDisabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{5A86ACC1-2EE7-460E-8496-73A05DFFCC39}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HybridConnectionInstallHelper</RootNamespace>
+    <AssemblyName>HybridConnectionInstallHelper</AssemblyName>
+     <InstallerPlatform>x86</InstallerPlatform>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--<DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>-->
+    <FileAlignment>512</FileAlignment>
+    <TargetDestination>Hosting</TargetDestination>
+    <AssemblyIdentityVersionName>websites</AssemblyIdentityVersionName>
+  </PropertyGroup>
+  <!--<Import Condition=" '$(BuildingInsideVisualStudio)'!='true' AND Exists('$(MSBuildToolsPath)\Razzle.Settings.targets')" Project="$(MSBuildToolsPath)\Razzle.Settings.targets" />-->
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.Deployment.WindowsInstaller">
+     <HintPath>$(PkgWix_Corext)\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Binplace Include="$(OBJECT_ROOT)\$(RelativePath)$(O)HybridConnectionInstallHelper.CA.dll">
+      <Destination>$(HostingDestination)</Destination>
+      <NoSymbols>True</NoSymbols>
+    </Binplace>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CustomAction.cs" />
+    <Content Include="CustomAction.config" />
+  </ItemGroup>
+  <Import Project="$(CONFROOT)\.targets\Build.Common.targets" />
+  <Import Project="$(CONFROOT)\.targets\Microsoft.Build.ServiceBus.Babel.targets" />
+  <!-- <Import Project="$(MSBuildExtensionsPath32)\Override\wix.targets" /> -->
+</Project>

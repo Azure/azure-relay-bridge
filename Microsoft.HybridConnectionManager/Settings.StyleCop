@@ -1,0 +1,68 @@
+<StyleCopSettings Version="105">
+  <Parsers>
+    <Parser ParserId="StyleCop.CSharp.CsParser">
+      <ParserSettings>
+        <!-- No Rules enforced on *.Designer.cs files -->
+        <BooleanProperty Name="AnalyzeDesignerFiles">False</BooleanProperty>
+      </ParserSettings>
+    </Parser>
+  </Parsers>
+  <GlobalSettings>
+    <BooleanProperty Name="RulesEnabledByDefault">True</BooleanProperty>
+    <StringProperty Name="LinkedSettingsFile">%REPOROOT%\src\Legacy.StyleCop</StringProperty>
+    <StringProperty Name="MergeSettingsFiles">Linked</StringProperty>
+  </GlobalSettings>
+  
+  <!-- Legacy Files - No Rules enforced -->
+  <SourceFileList>
+    <Settings>
+      <GlobalSettings>
+        <BooleanProperty Name="RulesEnabledByDefault">False</BooleanProperty>
+      </GlobalSettings>
+    </Settings>    
+    <SourceFile>Action.lex.cs</SourceFile>
+    <SourceFile>Action.y.cs</SourceFile>
+    <SourceFile>EventSource.cs</SourceFile>
+    <SourceFile>Filter.lex.cs</SourceFile>
+    <SourceFile>Filter.y.cs</SourceFile>
+  </SourceFileList>
+    
+  <!-- Legacy Files - Turn off "Do not use comparison where value goes first" -->
+  <SourceFileList>
+    <Settings>
+      <Analyzers>
+        <Analyzer AnalyzerId="Microsoft.StyleCop.CSharp.OrderingRules">
+          <Rules>
+            <Rule Name="NoValueFirstComparison">
+              <RuleSettings>
+                <BooleanProperty Name="Enabled">False</BooleanProperty>
+              </RuleSettings>
+            </Rule>
+          </Rules>
+        </Analyzer>
+      </Analyzers>
+    </Settings>
+    <SourceFile>BasicHttpRelayMessageSecurity.cs</SourceFile>
+    <SourceFile>BrokeredMessage.cs</SourceFile>
+    <SourceFile>ByteArrayComparer.cs</SourceFile>
+    <SourceFile>ConfigurationHelpers.cs</SourceFile>
+    <SourceFile>DuplexMessageCorrelator.cs</SourceFile>
+    <SourceFile>EventData.cs</SourceFile>
+    <SourceFile>EventProvider.cs</SourceFile>
+    <SourceFile>IRelayedConnectionConnectionControl.cs</SourceFile>
+    <SourceFile>MessageCollection.cs</SourceFile>
+    <SourceFile>MessageSecurityOverRelayHttp.cs</SourceFile>
+    <SourceFile>MruCache.cs</SourceFile>
+    <SourceFile>RelayedHttpUtility.cs</SourceFile>
+    <SourceFile>SendAvailabilityMessagePump.cs</SourceFile>
+    <SourceFile>ServiceBusClientWebSocket.cs</SourceFile>
+    <SourceFile>ServiceBusInputChannel.cs</SourceFile>
+    <SourceFile>ServiceBusInputSessionChannelListener.cs</SourceFile>
+    <SourceFile>ServiceBusUriHelper.cs</SourceFile>
+    <SourceFile>SocketConnectionPoolSettingsElement.cs</SourceFile>
+    <SourceFile>TransportChannelFactory.cs</SourceFile>
+    <SourceFile>TransportChannelListener.cs</SourceFile>
+    <SourceFile>UriPrefixTable.cs</SourceFile>
+    <SourceFile>WSHttpRelayBindingBase.cs</SourceFile>
+  </SourceFileList>
+</StyleCopSettings>

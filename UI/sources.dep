@@ -1,0 +1,4 @@
+BUILD_PASS1_CONSUMES= \
+    services\websites\src4\hosting\hybridconnectivity\hybridconnectionmanager\commands|PASS1 \
+    services\websites\src4\hosting\hybridconnectivity\hybridconnectionmanager\microsoft.hybridconnectionmanager|PASS1 \
+

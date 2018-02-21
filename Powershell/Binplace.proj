@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Razzle4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup> 
+    <IsAzure>True</IsAzure>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Razzle.Settings.targets" />
+  <PropertyGroup>
+    <MSBuildPasses>4</MSBuildPasses>
+  </PropertyGroup>
+  <ItemGroup>
+    <Binplace Include="$(HostingPath)\HybridConnectivity\HybridConnectionManager\Powershell\Scripts\ConfigureHybridConnectionManager.ps1">
+        <Destination>$(HostingDestination)\HybridConnectionManager</Destination>
+        <NoSymbols>True</NoSymbols>
+    </Binplace>
+    <Binplace Include="$(HostingPath)\HybridConnectivity\HybridConnectionManager\Powershell\Scripts\HybridConnectionManager.psd1">
+        <Destination>$(HostingDestination)\HybridConnectionManager</Destination>
+        <NoSymbols>True</NoSymbols>
+    </Binplace>
+    <Binplace Include="$(HostingPath)\HybridConnectivity\HybridConnectionManager\Powershell\Scripts\Microsoft.HybridConnectionManager.Commands.dll-help.xml">
+        <Destination>$(HostingDestination)\HybridConnectionManager</Destination>
+        <NoSymbols>True</NoSymbols>
+    </Binplace>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Razzle.Binplace.targets" />
+</Project>

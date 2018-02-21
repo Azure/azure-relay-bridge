@@ -1,0 +1,303 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(EnvironmentConfig)" />
+  <Import Project="$(REPOROOT)\src\product\Microsoft.Build.AppFabric.Product.props" />
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <!--  Solves a VS problem locating FileTracker.dll, which is used by the MSBuild GenerateResource task -->
+    <ResGenTrackerFrameworkPath>$(MSBuildToolsPath_40)</ResGenTrackerFrameworkPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CoverageDisabled>false</CoverageDisabled>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{46ED0ACC-66FD-4F4B-A365-F23AFEC13D92}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HybridConnectionManagerIbizaUi</RootNamespace>
+    <AssemblyName>HybridConnectionManagerUi</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup>
+    <!--<DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>-->
+    <FileAlignment>512</FileAlignment>
+    <TargetDestination>Hosting\HybridConnectionManager</TargetDestination>
+    <AssemblyIdentityVersionName>websites</AssemblyIdentityVersionName>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|amd64'">
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|amd64'">
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.HybridConnectionManager\Microsoft.HybridConnectionManager.csproj">
+      <Project>{7EB0F88E-5DB9-455D-B2C9-70A942529271}</Project>
+      <Name>Microsoft.HybridConnectionManager</Name>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\build\CommonDefinition\CommonDefinition.csproj">
+      <Project>{1FD1920E-9DC5-4C74-8C87-961459EAFCAB}</Project>
+      <Name>CommonDefinition</Name>
+      <Private>True</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Microsoft.Azure.Relay\Microsoft.Azure.Relay.csproj">
+      <Name>Microsoft.Azure.Relay</Name>
+      <Private>True</Private>
+    </ProjectReference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory">
+      <HintPath>$(PkgMicrosoft_IdentityModel_Clients_ActiveDirectory_2)\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms">
+      <HintPath>$(PkgMicrosoft_IdentityModel_Clients_ActiveDirectory_2)\lib\net45\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(JSONdotNetRefPath)\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddHybridConnection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AddHybridConnection.Designer.cs">
+      <DependentUpon>AddHybridConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AddHybridConnectionIbizaItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ArmClient\ArmClient.cs" />
+    <Compile Include="ArmClient\ArmCollectionEnvelope.cs" />
+    <Compile Include="ArmClient\ArmEnvelope.cs" />
+    <Compile Include="ArmClient\ArmAuthorization.cs" />
+    <Compile Include="ArmClient\AuthorizationRuleProperties.cs" />
+    <Compile Include="ArmClient\EmptyProperties.cs" />
+    <Compile Include="ArmClient\RelayHybridConnectionProperties.cs" />
+    <Compile Include="ArmClient\RelayNamespaceProperties.cs" />
+    <Compile Include="ArmClient\ServiceBusListKeysResponse.cs" />
+    <Compile Include="ArmClient\Subscription.cs" />
+    <Compile Include="ConfirmBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ConfirmBox.Designer.cs">
+      <DependentUpon>ConfirmBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CustomButton.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DataLayer\CacheEntry.cs" />
+    <Compile Include="DataLayer\HybridConnectionCacheEntity.cs" />
+    <Compile Include="DataLayer\HybridConnectionConstants.cs" />
+    <Compile Include="DataLayer\HybridConnectionDataManager.cs" />
+    <Compile Include="DataLayer\HybridConnectionKey.cs" />
+    <Compile Include="DataLayer\SubscriptionCacheEntity.cs" />
+    <Compile Include="HybridConnectionDetailItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="HybridConnectionDetails.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="HybridConnectionDetails.Designer.cs">
+      <DependentUpon>HybridConnectionDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="HybridConnectionIbizaItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IbizaStyleTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IbizaStyleTableHeader.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="IbizaStyleTableItem.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Main.Designer.cs">
+      <DependentUpon>Main.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ManualAddHybridConnection.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ManualAddHybridConnection.Designer.cs">
+      <DependentUpon>ManualAddHybridConnection.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <!--<Compile Include="Properties\AssemblyInfo.cs" />-->
+    <Compile Include="TableColumn.cs" />
+    <Compile Include="TableField.cs" />
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="AddHybridConnection.resx">
+      <DependentUpon>AddHybridConnection.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ConfirmBox.resx">
+      <DependentUpon>ConfirmBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="HybridConnectionDetails.resx">
+      <DependentUpon>HybridConnectionDetails.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Main.resx">
+      <DependentUpon>Main.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ManualAddHybridConnection.resx">
+      <DependentUpon>ManualAddHybridConnection.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.manifest" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\AddNewButton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BlueButton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\BlueButton-Disabled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CancelButton.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CloseButton-Blue.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CloseButton-Click.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CloseButton-Hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\CloseButton-Unselected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HybridConnectionIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HybridConnectionManagerAbout.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MinimizeButton-Click.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MinimizeButton-Hover.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\MinimizeButton-Unselected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SaveButton-Activated.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\SaveButton-Deactivated.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\loading.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\loading-small.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\HybridConnectionIcon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icon.ico" />
+    <None Include="Resources\BlueButtonLarge.png" />
+    <None Include="Resources\BlueButtonLarge.bmp" />
+  </ItemGroup>
+  <Import Project="$(CONFROOT)\.targets\Build.Common.targets" />
+  <Import Project="$(CONFROOT)\.targets\Microsoft.Build.ServiceBus.Babel.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(EnvironmentConfig)" />
+  <Import Project="$(REPOROOT)\src\product\Microsoft.Build.AppFabric.Product.props" />
+  <PropertyGroup Condition="'$(BuildingInsideVisualStudio)' == 'true'">
+    <!--  Solves a VS problem locating FileTracker.dll, which is used by the MSBuild GenerateResource task -->
+    <ResGenTrackerFrameworkPath>$(MSBuildToolsPath_40)</ResGenTrackerFrameworkPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <CoverageDisabled>false</CoverageDisabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{24772607-58DF-4C1B-9AFB-9AE165954F62}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Microsoft.Web.Hosting.Forwarding.Common</RootNamespace>
+    <AssemblyName>Microsoft.Web.Hosting.Forwarding.Common</AssemblyName>
+    <TargetDestination>Hosting</TargetDestination>
+    <AssemblyIdentityVersionName>websites</AssemblyIdentityVersionName>
+  </PropertyGroup>
+   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|amd64'">
+    <DefineConstants>TRACE;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|amd64'">
+    <DefineConstants>TRACE;DEBUG;NET45;SERIALIZATION</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <!--
+  <ItemGroup>
+    <ProjectReference Include="..\..\Microsoft.Web.Hosting\Microsoft.Web.Hosting.razzle.csproj">
+      <Name>Microsoft.Web.Hosting</Name>
+      <Project>{5506CBDA-6586-431C-B5E4-8F30AAB44D11}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  -->
+  <ItemGroup>
+    <Compile Include="ConfigReader.cs" />
+    <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigurationBinding.cs" />
+    <Compile Include="Logger.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <!--Standard targets required for building in Razzle - do not remove.-->
+ <Import Project="$(CONFROOT)\.targets\Build.Common.targets" />
+  <Import Project="$(CONFROOT)\.targets\Microsoft.Build.ServiceBus.Babel.targets" />
+  <!--Import local targets file if present.-->
+</Project>
