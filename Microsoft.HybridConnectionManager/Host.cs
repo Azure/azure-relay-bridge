@@ -1,10 +1,11 @@
-﻿
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 namespace Microsoft.HybridConnectionManager
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
-    using System.Text;
+
     public class Host
     {
         readonly string LinuxConfigFileName = "/etc/mshcmsvc/mshcmsvc.config";
@@ -16,7 +17,6 @@ namespace Microsoft.HybridConnectionManager
 
         public Host()
         {
-
         }
 
         public void Start(string[] args)
@@ -35,7 +35,7 @@ namespace Microsoft.HybridConnectionManager
 
             if (!File.Exists(configFileName))
             {
-                // TODO log
+                EventSource.Log.HybridConnectionManagerConfigurationFileError(null, "");
                 throw new FileNotFoundException(configFileName);
             }
 

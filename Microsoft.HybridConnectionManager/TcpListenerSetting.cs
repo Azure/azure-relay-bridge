@@ -1,9 +1,11 @@
-﻿
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 namespace Microsoft.HybridConnectionManager
 {
     using Microsoft.HybridConnectionManager.Configuration;
 
-    public class TcpListenerSetting : SettingsBase
+    sealed class TcpListenerSetting : SettingsBase
     {
         public TcpListenerSetting(TcpListenerElement cfg):base(cfg.RelayConnectionString)
         {

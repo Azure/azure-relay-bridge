@@ -1,5 +1,5 @@
-﻿// // Copyright (c) Microsoft. All rights reserved.
-// // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.HybridConnectionManager
 {
@@ -10,7 +10,7 @@ namespace Microsoft.HybridConnectionManager
     using System.Threading.Tasks;
     using Microsoft.Azure.Relay;
 
-    public sealed class TcpListenerBridge : IDisposable
+    sealed class TcpListenerBridge : IDisposable
     {
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -130,8 +130,8 @@ namespace Microsoft.HybridConnectionManager
             {
                 var hybridConnectionStream = await hybridConnectionClient.CreateConnectionAsync();
                 await Task.WhenAll(
-                    Util.StreamPumpAsync(hybridConnectionStream, tcpClient.GetStream(), cancellationTokenSource.Token),
-                    Util.StreamPumpAsync(tcpClient.GetStream(), hybridConnectionStream, cancellationTokenSource.Token));
+                    StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(), cancellationTokenSource.Token),
+                    StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream, cancellationTokenSource.Token));
             }
             catch (Exception e)
             {

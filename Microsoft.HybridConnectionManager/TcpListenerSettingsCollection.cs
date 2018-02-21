@@ -1,11 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using Microsoft.HybridConnectionManager.Configuration;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.HybridConnectionManager
 {
-    class TcpListenerSettingsCollection : SettingsCollection<TcpListenerSetting>
+    using System.Collections.Generic;
+    using System.Configuration;
+    using System.IO;
+    using Microsoft.HybridConnectionManager.Configuration;
+
+    sealed class TcpListenerSettingsCollection : SettingsCollection<TcpListenerSetting>
     {
         public TcpListenerSettingsCollection(string configFileName) : base(configFileName)
         {

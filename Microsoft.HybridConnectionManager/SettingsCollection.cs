@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.HybridConnectionManager
 {
-    public abstract class SettingsCollection<T> : Dictionary<string, T> where T : SettingsBase
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+
+    abstract class SettingsCollection<T> : Dictionary<string, T> where T : SettingsBase
     {
         private string configFileName;
         FileSystemWatcher settingsFileWatcher;

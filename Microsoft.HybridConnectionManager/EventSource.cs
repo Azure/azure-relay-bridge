@@ -8,7 +8,7 @@ namespace Microsoft.HybridConnectionManager
     using System.Diagnostics.Tracing;
 
     /// <summary>
-    /// EventSource for the new Dynamic EventSource type of Microsoft-Azure-Relay traces.
+    /// EventSource for the new Dynamic EventSource type of Microsoft-HybridConnectionManager traces.
     /// 
     /// The default Level is Informational
     /// 

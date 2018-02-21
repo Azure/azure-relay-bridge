@@ -1,5 +1,5 @@
-﻿// // Copyright (c) Microsoft. All rights reserved.
-// // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.HybridConnectionManager
 {
@@ -12,7 +12,7 @@ namespace Microsoft.HybridConnectionManager
     using Microsoft.Azure.Relay;
     using Microsoft.Win32;
 
-    public sealed class TcpClientBridge : IDisposable
+    sealed class TcpClientBridge : IDisposable
     {
         readonly string connectionString;
         static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
@@ -117,8 +117,8 @@ namespace Microsoft.HybridConnectionManager
                 {
                     await client.ConnectAsync(targetServer, targetPort);
                     await Task.WhenAll(
-                        Util.StreamPumpAsync(hybridConnectionStream, client.GetStream(), shuttingDown.Token), 
-                        Util.StreamPumpAsync(client.GetStream(), hybridConnectionStream, shuttingDown.Token));
+                        StreamPump.RunAsync(hybridConnectionStream, client.GetStream(), shuttingDown.Token), 
+                        StreamPump.RunAsync(client.GetStream(), hybridConnectionStream, shuttingDown.Token));
                 }
             }
             catch (Exception e)

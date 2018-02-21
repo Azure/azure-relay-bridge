@@ -1,5 +1,5 @@
-﻿// // Copyright (c) Microsoft. All rights reserved.
-// // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 namespace Microsoft.HybridConnectionManager
 {
@@ -12,9 +12,9 @@ namespace Microsoft.HybridConnectionManager
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class Util
+    public class StreamPump
     {
-        public static async Task StreamPumpAsync(Stream source, Stream target, CancellationToken cancellationToken)
+        public static async Task RunAsync(Stream source, Stream target, CancellationToken cancellationToken)
         {
             try
             {
