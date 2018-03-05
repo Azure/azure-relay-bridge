@@ -10,7 +10,7 @@ namespace Microsoft.HybridConnectionManager.Powershell
     [Cmdlet(VerbsData.Update, Constants.HybridConnectionNounName)]
     public class UpdateHybridConnectionClient : HybridConnectionClientBaseCmdlet
     {
-        TcpListenerElement hybridConnectionElement;
+        ConnectionListener hybridConnectionElement;
 
         #region Parameters
 
@@ -25,30 +25,30 @@ namespace Microsoft.HybridConnectionManager.Powershell
         {
             base.BeginProcessing();
 
-            this.hybridConnectionElement = this.GetHybridConnectionElement(this.ConnectionString);
-            if (this.hybridConnectionElement == null)
-            {
-                var exception = new PSArgumentException(
-                    string.Format(CultureInfo.CurrentCulture, Strings.UnableToFindConfigEntry, this.ConnectionString));
-                this.ThrowTerminatingError(new ErrorRecord(
-                    exception,
-                    string.Empty,
-                    ErrorCategory.InvalidArgument,
-                    null));
-                throw exception;
-            }
+            //this.hybridConnectionElement = this.GetHybridConnectionElement(this.ConnectionString);
+            //if (this.hybridConnectionElement == null)
+            //{
+            //    var exception = new PSArgumentException(
+            //        string.Format(CultureInfo.CurrentCulture, Strings.UnableToFindConfigEntry, this.ConnectionString));
+            //    this.ThrowTerminatingError(new ErrorRecord(
+            //        exception,
+            //        string.Empty,
+            //        ErrorCategory.InvalidArgument,
+            //        null));
+            //    throw exception;
+            //}
         }
 
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
 
-            this.HybridConnectionsSection.HybridConnections.Remove(
-                this.GetHybridConnectionElementKey(this.ConnectionString));
+            //this.HybridConnectionsSection.HybridConnections.Remove(
+            //    this.GetHybridConnectionElementKey(this.ConnectionString));
 
-            var hybridConnection = new TcpListenerElement(this.ConnectionString);
-            this.HybridConnectionsSection.HybridConnections.Add(hybridConnection);
-            this.ConfigurationChanged = true;
+            //var hybridConnection = new ConnectionListener(this.ConnectionString);
+            //this.HybridConnectionsSection.HybridConnections.Add(hybridConnection);
+            //this.ConfigurationChanged = true;
         }
 
         #endregion Overrides

@@ -7,9 +7,8 @@ namespace Microsoft.HybridConnectionManager
 
     sealed class TcpClientSetting : SettingsBase
     {
-        public TcpClientSetting(TcpClientElement cfg):base(cfg.RelayConnectionString)
+        public TcpClientSetting(ConnectionTarget cfg):base(cfg.RelayConnectionString)
         {
-            this.ResourceIdentifier = cfg.ResourceIdentifier;
             this.TargetHostName = cfg.TargetHost;
             this.TargetPort = cfg.TargetPort;
         }

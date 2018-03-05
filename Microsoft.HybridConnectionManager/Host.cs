@@ -4,14 +4,14 @@
 namespace Microsoft.HybridConnectionManager
 {
     using System;
+    using System.Configuration;
     using System.IO;
+    using System.Reflection;
 
     public class Host
     {
-        readonly string LinuxConfigFileName = "/etc/mshcmsvc/mshcmsvc.config";
-        readonly string WindowsConfigFileName = Path.Combine(Path.GetPathRoot(Environment.SystemDirectory),
-                                                              @"\ProgramData\Microsoft\Microsoft.HybridConnectionManager\mshcm.config");
-
+        readonly string ConfigFileName = "mshcmsvc.config";
+        
         TcpListenerHost hybridConnectionTcpListenerHost;
         TcpClientHost hybridConnectionTcpClientHost;
 
@@ -19,20 +19,9 @@ namespace Microsoft.HybridConnectionManager
         {
         }
 
-        public void Start(string[] args)
+        public void Start()
         {
-            string configFileName;
-
-            if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                  Environment.OSVersion.Platform == PlatformID.MacOSX)
-            {
-                configFileName = LinuxConfigFileName;
-            }
-            else
-            {
-                configFileName = WindowsConfigFileName;
-            }
-
+            var configFileName = GetConfigFileName();
             if (!File.Exists(configFileName))
             {
                 EventSource.Log.HybridConnectionManagerConfigurationFileError(null, "");
@@ -44,8 +33,31 @@ namespace Microsoft.HybridConnectionManager
             TcpListenerSettingsCollection listenerSettings = new TcpListenerSettingsCollection(configFileName);
             this.hybridConnectionTcpListenerHost = new TcpListenerHost(listenerSettings);
 
-            this.hybridConnectionTcpClientHost.Start(args);
-            this.hybridConnectionTcpListenerHost.Start(args);
+            this.hybridConnectionTcpClientHost.Start();
+            this.hybridConnectionTcpListenerHost.Start();
+        }
+
+        public string GetConfigFileName()
+        {
+            // we will return the name of the config file in the current
+            // directory if one is present. Otherwise we return the 
+            // location of where the config file ought to be
+            string configFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), ConfigFileName);
+            if (!File.Exists(configFileName))
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Unix ||
+                      Environment.OSVersion.Platform == PlatformID.MacOSX)
+                {
+                    configFileName = "/etc/mshcmsvc/" + ConfigFileName;
+                }
+                else
+                {
+                    configFileName =
+                        Path.Combine(Path.GetPathRoot(Environment.SystemDirectory),
+                           @"\ProgramData\Microsoft\Microsoft.HybridConnectionManager\" + ConfigFileName);
+                }
+            }
+            return configFileName;
         }
 
         public void Stop()

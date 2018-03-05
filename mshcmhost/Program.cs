@@ -19,7 +19,7 @@ namespace mshcmhost
             semaphore.Wait();
 
             Host host = new Host();
-            host.Start(args);
+            host.Start();
             Console.CancelKeyPress += (e, a) => semaphore.Release();
             await semaphore.WaitAsync();
             host.Stop();

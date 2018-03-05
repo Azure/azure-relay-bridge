@@ -18,7 +18,7 @@ namespace Microsoft.HybridConnectionManager
             this.connectionInfoCollection = connectionInfoCollection;
         }
 
-        public void Start(string[] args)
+        public void Start()
         {
             EventSource.Log.HybridConnectionClientServiceStarting();
 

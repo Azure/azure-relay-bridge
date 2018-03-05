@@ -28,54 +28,54 @@ namespace Microsoft.HybridConnectionManager.Powershell
         protected override void BeginProcessing()
         {
             base.BeginProcessing();
-            var oldPortKeyValue = this.Config.AppSettings.Settings[Constants.ManagementPort];
-            if (oldPortKeyValue != null)
-            {
-                // save old port value
-                this.oldPort = oldPortKeyValue.Value;
-            }
+            //var oldPortKeyValue = this.Config.AppSettings.Settings[Constants.ManagementPort];
+            //if (oldPortKeyValue != null)
+            //{
+            //    // save old port value
+            //    this.oldPort = oldPortKeyValue.Value;
+            //}
 
-            if (string.Equals(this.oldPort, this.ManagementPort))
-            {
-                // Do not throw an exception. Allow this operation to succeed
-                this.WriteWarning(string.Format(CultureInfo.CurrentCulture, Strings.ManagementPortMatchesCurrent));
+            //if (string.Equals(this.oldPort, this.ManagementPort))
+            //{
+            //    // Do not throw an exception. Allow this operation to succeed
+            //    this.WriteWarning(string.Format(CultureInfo.CurrentCulture, Strings.ManagementPortMatchesCurrent));
 
-                // Ensure that we do not remove the old port reservation
-                this.RemoveOldPortUrlReservation = false;
-            }
-            else
-            {
-                Collection<PSObject> results =
-                    ScriptBlock.Create(string.Format(CultureInfo.InvariantCulture,
-                        "netsh http add urlacl url=http://+:{0}/ user=\"NT AUTHORITY\\NETWORK SERVICE\"",
-                        this.ManagementPort)).Invoke();
-                this.WriteObject(results, true);
-            }
+            //    // Ensure that we do not remove the old port reservation
+            //    this.RemoveOldPortUrlReservation = false;
+            //}
+            //else
+            //{
+            //    Collection<PSObject> results =
+            //        ScriptBlock.Create(string.Format(CultureInfo.InvariantCulture,
+            //            "netsh http add urlacl url=http://+:{0}/ user=\"NT AUTHORITY\\NETWORK SERVICE\"",
+            //            this.ManagementPort)).Invoke();
+            //    this.WriteObject(results, true);
+            //}
         }
 
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
 
-            if (!string.Equals(this.oldPort, this.ManagementPort))
-            {
-                this.Config.AppSettings.Settings.Remove(Constants.ManagementPort);
-                this.Config.AppSettings.Settings.Add(
-                    new KeyValueConfigurationElement(Constants.ManagementPort, this.ManagementPort));
-                this.ConfigurationChanged = true;
-            }
+            //if (!string.Equals(this.oldPort, this.ManagementPort))
+            //{
+            //    this.Config.AppSettings.Settings.Remove(Constants.ManagementPort);
+            //    this.Config.AppSettings.Settings.Add(
+            //        new KeyValueConfigurationElement(Constants.ManagementPort, this.ManagementPort));
+            //    this.ConfigurationChanged = true;
+            //}
         }
 
         protected override void EndProcessing()
         {
             base.EndProcessing();
-            if (this.RemoveOldPortUrlReservation)
-            {
-                Collection<PSObject> results =
-                    ScriptBlock.Create(string.Format(CultureInfo.InvariantCulture,
-                        "netsh http delete urlacl url=http://+:{0}/", this.oldPort)).Invoke();
-                this.WriteObject(results, true);
-            }
+            //if (this.RemoveOldPortUrlReservation)
+            //{
+            //    Collection<PSObject> results =
+            //        ScriptBlock.Create(string.Format(CultureInfo.InvariantCulture,
+            //            "netsh http delete urlacl url=http://+:{0}/", this.oldPort)).Invoke();
+            //    this.WriteObject(results, true);
+            //}
         }
 
         #endregion Overrides

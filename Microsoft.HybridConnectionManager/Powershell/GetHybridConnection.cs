@@ -27,10 +27,10 @@ namespace Microsoft.HybridConnectionManager.Powershell
         {
             base.ProcessRecord();
 
-            foreach (var connection in this.HybridConnectionsSection.HybridConnections)
+            foreach (var connection in this.HybridConnectionsSection.Targets)
             {
                 if (ConnectionString == null ||
-                    ConnectionString == ((TcpClientElement)connection).RelayConnectionString)
+                    ConnectionString == ((ConnectionTarget)connection).RelayConnectionString)
                 {
                     WriteObject(connection);
                 }

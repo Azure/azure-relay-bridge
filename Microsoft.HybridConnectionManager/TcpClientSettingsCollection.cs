@@ -3,9 +3,11 @@
 
 namespace Microsoft.HybridConnectionManager
 {
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.HybridConnectionManager.Configuration;
 
     sealed class TcpClientSettingsCollection : SettingsCollection<TcpClientSetting>
@@ -24,15 +26,19 @@ namespace Microsoft.HybridConnectionManager
 
             try
             {
-                System.Configuration.Configuration config = ConfigurationManager.OpenMappedExeConfiguration(
-                    new ExeConfigurationFileMap { ExeConfigFilename = this.ConfigFileName },
-                    ConfigurationUserLevel.None);
+                var connectionConfig = new ConnectionConfig();
+                var builder = new ConfigurationBuilder()
+                   .SetBasePath(Path.GetDirectoryName(this.ConfigFileName))
+                   .AddJsonFile(Path.GetFileName(this.ConfigFileName));
 
-                var hybridConnectionsSection = config.GetSection(Constants.HybridConnectionsSectionConfigName) as TcpClientConfigurationSection;
+                var config = builder.Build();
+                config.GetSection("Connections").Bind(connectionConfig);
+
+                var hybridConnectionsSection = connectionConfig.Targets;
                 if (hybridConnectionsSection != null)
                 {
                     var keys = new HashSet<string>(this.Keys);
-                    foreach (TcpClientElement hybridConnectionElement in hybridConnectionsSection.HybridConnections)
+                    foreach (ConnectionTarget hybridConnectionElement in hybridConnectionsSection)
                     {
                         TcpClientSetting info = new TcpClientSetting(hybridConnectionElement);
                         if (this.ContainsKey(info.Key))
@@ -51,7 +57,7 @@ namespace Microsoft.HybridConnectionManager
                     }
                 }
             }
-            catch (ConfigurationErrorsException exception)
+            catch (Exception exception)
             {
                 // log 
                 throw;

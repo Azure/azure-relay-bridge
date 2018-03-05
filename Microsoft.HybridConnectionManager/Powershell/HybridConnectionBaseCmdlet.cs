@@ -3,6 +3,7 @@
 
 namespace Microsoft.HybridConnectionManager.Powershell
 {
+    using System;
     using System.Configuration;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
@@ -14,18 +15,11 @@ namespace Microsoft.HybridConnectionManager.Powershell
 
     public class HybridConnectionBaseCmdlet : PSCmdlet
     {
-        protected Configuration Config { get; set; }
-
         protected bool ConfigurationChanged { get; set; }
 
-        protected TcpClientConfigurationSection HybridConnectionsSection { get; set; }
+        protected ConnectionConfig HybridConnectionsSection { get; set; }
 
-        protected TcpClientElement GetHybridConnectionElement(string connectionString)
-        {
-            var portBridgeEndpointKey = this.GetHybridConnectionElementKey(connectionString);
-            return this.HybridConnectionsSection.HybridConnections[portBridgeEndpointKey];
-        }
-
+   
         protected string GetHybridConnectionElementKey(string connectionString)
         {
             RelayConnectionStringBuilder manager;
@@ -33,7 +27,7 @@ namespace Microsoft.HybridConnectionManager.Powershell
             {
                 manager = new RelayConnectionStringBuilder(connectionString);
             }
-            catch (ConfigurationErrorsException configurationErrors)
+            catch (Exception configurationErrors)
             {
                 var exception =
                     new PSArgumentException(string.Format(CultureInfo.CurrentCulture, configurationErrors.Message));
@@ -86,8 +80,8 @@ namespace Microsoft.HybridConnectionManager.Powershell
                 throw new FileNotFoundException(null, configFilePath);
             }
 
-            this.Config = ConfigurationManager.OpenMappedExeConfiguration(
-                new ExeConfigurationFileMap { ExeConfigFilename = configFilePath, }, ConfigurationUserLevel.None);
+            //this.Config = ConfigurationManager.OpenMappedExeConfiguration(
+            //    new ExeConfigurationFileMap { ExeConfigFilename = configFilePath, }, ConfigurationUserLevel.None);
         }
 
 #region Cmdlet Overrides
@@ -96,26 +90,26 @@ namespace Microsoft.HybridConnectionManager.Powershell
         {
             base.BeginProcessing();
             this.ReadConfig();
-            this.HybridConnectionsSection =
-                this.Config.GetSection(Constants.HybridConnectionsSectionConfigName) as
-                    TcpClientConfigurationSection;
+            //this.HybridConnectionsSection =
+            //    this.Config.GetSection(Constants.HybridConnectionsSectionConfigName) as
+            //        ConnectionTargets;
 
-            if (this.HybridConnectionsSection == null)
-            {
-                this.HybridConnectionsSection = new TcpClientConfigurationSection();
-                this.Config.Sections.Add(Constants.HybridConnectionsSectionConfigName,
-                    this.HybridConnectionsSection);
-                this.ConfigurationChanged = true;
-            }
+            //if (this.HybridConnectionsSection == null)
+            //{
+            //    this.HybridConnectionsSection = new ConnectionTargets();
+            //    this.Config.Sections.Add(Constants.HybridConnectionsSectionConfigName,
+            //        this.HybridConnectionsSection);
+            //    this.ConfigurationChanged = true;
+            //}
         }
 
         protected override void EndProcessing()
         {
             base.EndProcessing();
-            if (this.ConfigurationChanged)
-            {
-                this.Config.Save(ConfigurationSaveMode.Full);
-            }
+            //if (this.ConfigurationChanged)
+            //{
+            //    this.Config.Save(ConfigurationSaveMode.Full);
+            //}
         }
 
 #endregion Overrides

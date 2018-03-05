@@ -9,17 +9,20 @@ namespace mshcmsvc
     public partial class HybridConnectionService : ServiceBase
     {
         Host host;
+
         public HybridConnectionService()
         {
             InitializeComponent();
+            host = new Host();
         }
+
+        public Host Host { get => host; }
 
         protected override void OnStart(string[] args)
         {
             try
             {
-                host = new Host();
-                host.Start(args);
+                host.Start();
             }
             catch (Exception e)
             {

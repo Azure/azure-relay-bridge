@@ -19,7 +19,7 @@ namespace Microsoft.HybridConnectionManager
             this.connectionInfo = connectionInfo;
         }
 
-        public void Start(string[] args)
+        public void Start()
         {
             try
             {

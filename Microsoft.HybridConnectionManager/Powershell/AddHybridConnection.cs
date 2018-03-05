@@ -26,28 +26,28 @@ namespace Microsoft.HybridConnectionManager.Powershell
         {
             base.BeginProcessing();
 
-            var hybridConnectionElement = this.GetHybridConnectionElement(this.ConnectionString);
-            if (hybridConnectionElement != null)
-            {
-                var exception = new PSArgumentException(
-                    string.Format(CultureInfo.CurrentCulture, Strings.ConfigEntryAlreadyExists, this.ConnectionString));
-                this.ThrowTerminatingError(
-                    new ErrorRecord(
-                        exception,
-                        string.Empty,
-                        ErrorCategory.InvalidArgument,
-                        null));
-                throw exception;
-            }
+            //var hybridConnectionElement = this.GetHybridConnectionElement(this.ConnectionString);
+            //if (hybridConnectionElement != null)
+            //{
+            //    var exception = new PSArgumentException(
+            //        string.Format(CultureInfo.CurrentCulture, Strings.ConfigEntryAlreadyExists, this.ConnectionString));
+            //    this.ThrowTerminatingError(
+            //        new ErrorRecord(
+            //            exception,
+            //            string.Empty,
+            //            ErrorCategory.InvalidArgument,
+            //            null));
+            //    throw exception;
+            //}
         }
 
         protected override void ProcessRecord()
         {
             base.ProcessRecord();
 
-            var hybridConnectionElement = new TcpClientElement(this.ConnectionString, "", 0);
-            this.HybridConnectionsSection.HybridConnections.Add(hybridConnectionElement);
-            this.ConfigurationChanged = true;
+            //var hybridConnectionElement = new ConnectionTarget(this.ConnectionString, "", 0);
+            //this.HybridConnectionsSection.Targets.Add(hybridConnectionElement);
+            //this.ConfigurationChanged = true;
         }
 
         #endregion Overrides

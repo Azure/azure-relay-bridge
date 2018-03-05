@@ -15,17 +15,7 @@ namespace Microsoft.HybridConnectionManager.Powershell
 
     public class HybridConnectionClientBaseCmdlet : PSCmdlet
     {
-        protected System.Configuration.Configuration Config { get; set; }
-
         protected bool ConfigurationChanged { get; set; }
-
-        protected TcpListenerConfigurationSection HybridConnectionsSection { get; set; }
-
-        protected TcpListenerElement GetHybridConnectionElement(string connectionString)
-        {
-            var portBridgeEndpointKey = this.GetHybridConnectionElementKey(connectionString);
-            return this.HybridConnectionsSection.HybridConnections[portBridgeEndpointKey];
-        }
 
         protected string GetHybridConnectionElementKey(string connectionString)
         {
@@ -87,8 +77,8 @@ namespace Microsoft.HybridConnectionManager.Powershell
                 throw new FileNotFoundException(null, configFilePath);
             }
 
-            this.Config = ConfigurationManager.OpenMappedExeConfiguration(
-                new ExeConfigurationFileMap { ExeConfigFilename = configFilePath, }, ConfigurationUserLevel.None);
+            //this.Config = ConfigurationManager.OpenMappedExeConfiguration(
+            //    new ExeConfigurationFileMap { ExeConfigFilename = configFilePath, }, ConfigurationUserLevel.None);
         }
 
 #region Cmdlet Overrides
@@ -97,26 +87,26 @@ namespace Microsoft.HybridConnectionManager.Powershell
         {
             base.BeginProcessing();
             this.ReadConfig();
-            this.HybridConnectionsSection =
-                this.Config.GetSection(Constants.HybridConnectionsSectionConfigName) as
-                    TcpListenerConfigurationSection;
+            //this.HybridConnectionsSection =
+            //    this.Config.GetSection(Constants.HybridConnectionsSectionConfigName) as
+            //        ConnectionListeners;
 
-            if (this.HybridConnectionsSection == null)
-            {
-                this.HybridConnectionsSection = new TcpListenerConfigurationSection();
-                this.Config.Sections.Add(Constants.HybridConnectionsSectionConfigName,
-                    this.HybridConnectionsSection);
-                this.ConfigurationChanged = true;
-            }
+            //if (this.HybridConnectionsSection == null)
+            //{
+            //    this.HybridConnectionsSection = new ConnectionListeners();
+            //    this.Config.Sections.Add(Constants.HybridConnectionsSectionConfigName,
+            //        this.HybridConnectionsSection);
+            //    this.ConfigurationChanged = true;
+            //}
         }
 
         protected override void EndProcessing()
         {
             base.EndProcessing();
-            if (this.ConfigurationChanged)
-            {
-                this.Config.Save(ConfigurationSaveMode.Full);
-            }
+            //if (this.ConfigurationChanged)
+            //{
+            //    this.Config.Save(ConfigurationSaveMode.Full);
+            //}
         }
 
 #endregion Overrides

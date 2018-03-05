@@ -3,9 +3,11 @@
 
 namespace Microsoft.HybridConnectionManager
 {
+    using System;
     using System.Collections.Generic;
     using System.Configuration;
     using System.IO;
+    using Microsoft.Extensions.Configuration;
     using Microsoft.HybridConnectionManager.Configuration;
 
     sealed class TcpListenerSettingsCollection : SettingsCollection<TcpListenerSetting>
@@ -24,15 +26,19 @@ namespace Microsoft.HybridConnectionManager
 
             try
             {
-                System.Configuration.Configuration config = ConfigurationManager.OpenMappedExeConfiguration(
-                    new ExeConfigurationFileMap { ExeConfigFilename = this.ConfigFileName },
-                    ConfigurationUserLevel.None);
+                var connectionConfig = new ConnectionConfig();
+                var builder = new ConfigurationBuilder()
+                   .SetBasePath(Path.GetDirectoryName(this.ConfigFileName))
+                   .AddJsonFile(Path.GetFileName(this.ConfigFileName));
 
-                var hybridConnectionsSection = config.GetSection(Constants.HybridConnectionsSectionConfigName) as TcpListenerConfigurationSection;
+                var config = builder.Build();
+                config.GetSection("Connections").Bind(connectionConfig);
+                
+                var hybridConnectionsSection = connectionConfig.Listeners;
                 if (hybridConnectionsSection != null)
                 {
                     var keys = new HashSet<string>(this.Keys);
-                    foreach (TcpListenerElement hybridConnectionElement in hybridConnectionsSection.HybridConnections)
+                    foreach (ConnectionListener hybridConnectionElement in hybridConnectionsSection)
                     {
                         TcpListenerSetting info = new TcpListenerSetting(hybridConnectionElement);
                         if (this.ContainsKey(info.Key))
@@ -51,7 +57,7 @@ namespace Microsoft.HybridConnectionManager
                     }
                 }
             }
-            catch (ConfigurationErrorsException exception)
+            catch (Exception exception)
             {
                 // log 
                 throw;

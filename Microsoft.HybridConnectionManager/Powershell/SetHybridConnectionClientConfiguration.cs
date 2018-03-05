@@ -24,18 +24,18 @@ namespace Microsoft.HybridConnectionManager.Powershell
         protected override void BeginProcessing()
         {
             base.BeginProcessing();
-            var oldPortKeyValue = this.Config.AppSettings.Settings[Constants.ManagementPort];
-            if (oldPortKeyValue != null)
-            {
-                // save old port value
-                this.oldPort = oldPortKeyValue.Value;
-            }
+            //var oldPortKeyValue = this.Config.AppSettings.Settings[Constants.ManagementPort];
+            //if (oldPortKeyValue != null)
+            //{
+            //    // save old port value
+            //    this.oldPort = oldPortKeyValue.Value;
+            //}
 
-            if (string.Equals(this.oldPort, this.ManagementPort))
-            {
-                // Do not throw an exception. Allow this operation to succeed
-                this.WriteWarning(string.Format(CultureInfo.CurrentCulture, Strings.ManagementPortMatchesCurrent));
-            }
+            //if (string.Equals(this.oldPort, this.ManagementPort))
+            //{
+            //    // Do not throw an exception. Allow this operation to succeed
+            //    this.WriteWarning(string.Format(CultureInfo.CurrentCulture, Strings.ManagementPortMatchesCurrent));
+            //}
         }
 
         protected override void ProcessRecord()
@@ -44,10 +44,10 @@ namespace Microsoft.HybridConnectionManager.Powershell
 
             if (!string.Equals(this.oldPort, this.ManagementPort))
             {
-                this.Config.AppSettings.Settings.Remove(Constants.ManagementPort);
-                this.Config.AppSettings.Settings.Add(
-                    new KeyValueConfigurationElement(Constants.ManagementPort, this.ManagementPort));
-                this.ConfigurationChanged = true;
+                //this.Config.AppSettings.Settings.Remove(Constants.ManagementPort);
+                //this.Config.AppSettings.Settings.Add(
+                //    new KeyValueConfigurationElement(Constants.ManagementPort, this.ManagementPort));
+                //this.ConfigurationChanged = true;
             }
         }
 

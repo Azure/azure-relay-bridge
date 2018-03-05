@@ -7,7 +7,7 @@ namespace Microsoft.HybridConnectionManager
 
     sealed class TcpListenerSetting : SettingsBase
     {
-        public TcpListenerSetting(TcpListenerElement cfg):base(cfg.RelayConnectionString)
+        public TcpListenerSetting(ConnectionListener cfg):base(cfg.RelayConnectionString)
         {
             this.ListenHostName = cfg.ListenHostName;
             this.ListenPort = cfg.ListenPort;
