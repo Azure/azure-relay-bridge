@@ -4,9 +4,11 @@ namespace Microsoft.HybridConnectionManager.Test
 {
     using System;
     using System.IO;
+    using System.Linq;
     using System.Text;
-    using Microsoft.Extensions.Configuration;
     using Microsoft.HybridConnectionManager.Configuration;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using Xunit;
 
     public class ConfigTest
@@ -23,14 +25,14 @@ namespace Microsoft.HybridConnectionManager.Test
                        @"{" +
                         "   \"connections\" : {" +
                         "         \"targets\" : [ " +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"targetHostName\":\"test1.example.com\", \"targetPort\": 81 }," +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"targetHostName\":\"test2.example.com\", \"targetPort\": 82 }," +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"targetHostName\":\"test3.example.com\", \"targetPort\": 83 }" +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test1.example.com\", \"port\": 81 }," +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test2.example.com\", \"port\": 82 }," +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test3.example.com\", \"port\": 83 }" +
                         "         ]," +
                         "         \"listeners\" : [ " +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"listenHostName\":\"test1.example.com\", \"listenPort\": 81 }," +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"listenHostName\":\"test2.example.com\", \"listenPort\": 82 }," +
-                        "           { \"relayConnectionString\":\"Endpoint=sb://test\", \"listenHostName\":\"test3.example.com\", \"listenPort\": 83 }" +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test1.example.com\", \"port\": 81 }," +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test2.example.com\", \"port\": 82 }," +
+                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test3.example.com\", \"port\": 83 }" +
                         "         ]," +
                         "   }" +
                         "}");
@@ -40,36 +42,66 @@ namespace Microsoft.HybridConnectionManager.Test
         }
 
         [Fact]
-        public void Test1()
+        public void ConfigFileTest()
         {
             var configFileName = CreateConfig();
+            ConnectionConfig connectionConfig = null;
 
-            var connectionConfig = new ConnectionConfig();
-            var builder = new ConfigurationBuilder()
-               .SetBasePath(Path.GetDirectoryName(configFileName))
-               .AddJsonFile(Path.GetFileName(configFileName));
+            using (var reader = new StreamReader(configFileName, true))
+            {
+                var jr = new JsonTextReader(reader);
+                JObject config = JObject.Load(jr);
+                if (config.ContainsKey("connections"))
+                {
+                    connectionConfig = config["connections"].ToObject<ConnectionConfig>();
+                }
+            }
 
-            var config = builder.Build();
-            config.GetSection("Connections").Bind(connectionConfig);
 
-            Assert.Equal(3, connectionConfig.Listeners.Length);
-            Assert.Equal(3, connectionConfig.Targets.Length);
+            Assert.Equal(3, connectionConfig.Listeners.Count);
+            Assert.Equal(3, connectionConfig.Targets.Count);
 
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[0].RelayConnectionString);
-            Assert.Equal("test1.example.com", connectionConfig.Listeners[0].ListenHostName);
-            Assert.Equal(81, connectionConfig.Listeners[0].ListenPort);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[1].RelayConnectionString);
-            Assert.Equal("test2.example.com", connectionConfig.Listeners[1].ListenHostName);
-            Assert.Equal(82, connectionConfig.Listeners[1].ListenPort);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[2].RelayConnectionString);
-            Assert.Equal("test3.example.com", connectionConfig.Listeners[1].ListenHostName);
-            Assert.Equal(83, connectionConfig.Listeners[2].ListenPort);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[0].ConnectionString);
+            Assert.Equal("test1.example.com", connectionConfig.Listeners[0].HostName);
+            Assert.Equal(81, connectionConfig.Listeners[0].Port);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[1].ConnectionString);
+            Assert.Equal("test2.example.com", connectionConfig.Listeners[1].HostName);
+            Assert.Equal(82, connectionConfig.Listeners[1].Port);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Listeners[2].ConnectionString);
+            Assert.Equal("test3.example.com", connectionConfig.Listeners[2].HostName);
+            Assert.Equal(83, connectionConfig.Listeners[2].Port);
 
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[0].RelayConnectionString);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[1].RelayConnectionString);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[2].RelayConnectionString);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[0].ConnectionString);
+            Assert.Equal("test1.example.com", connectionConfig.Targets[0].HostName);
+            Assert.Equal(81, connectionConfig.Targets[0].Port);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[1].ConnectionString);
+            Assert.Equal("test2.example.com", connectionConfig.Targets[1].HostName);
+            Assert.Equal(82, connectionConfig.Targets[1].Port);
+            Assert.Equal("Endpoint=sb://test", connectionConfig.Targets[2].ConnectionString);
+            Assert.Equal("test3.example.com", connectionConfig.Targets[2].HostName);
+            Assert.Equal(83, connectionConfig.Targets[2].Port);
 
             File.Delete(configFileName);
+        }
+
+        [Fact]
+        public void ConfigSaveLoadFileTest()
+        {
+            var configFileName = CreateConfig();
+            ConnectionConfig connectionConfig =  Host.LoadConfig(configFileName);
+
+            connectionConfig.Targets.Add(new ConnectionTarget
+            {
+                ConnectionString = "sb://foo",
+                HostName = "localhost",
+                Port = 8081
+            });
+            Host.SaveConfig(configFileName, connectionConfig);
+
+            ConnectionConfig connectionConfig2 = Host.LoadConfig(configFileName);
+            Assert.NotNull(connectionConfig2.Targets.FirstOrDefault(i => i.ConnectionString.Equals("sb://foo")));
+
+
         }
     }
 }

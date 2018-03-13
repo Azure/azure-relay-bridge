@@ -7,14 +7,15 @@ namespace Microsoft.HybridConnectionManager
     using System.Collections.Generic;
     using System.Security;
     using Microsoft.Azure.Relay;
+    using Microsoft.HybridConnectionManager.Configuration;
 
     sealed class TcpClientHost
     {
         readonly Dictionary<string, TcpClientBridge> clientBridges =
             new Dictionary<string, TcpClientBridge>();
-        private readonly TcpClientSettingsCollection connectionInfo;
+        private readonly IEnumerable<ConnectionTarget> connectionInfo;
 
-        public TcpClientHost(TcpClientSettingsCollection connectionInfo)
+        public TcpClientHost(IEnumerable<ConnectionTarget> connectionInfo)
         {
             this.connectionInfo = connectionInfo;
         }
@@ -61,19 +62,31 @@ namespace Microsoft.HybridConnectionManager
                 EventSource.Log.HybridConnectionFailedToStop(null, null, exception.Message, exception.StackTrace);
             }
         }
-        void StartEndpoint(TcpClientSetting hybridConnectionInfo)
+
+        internal void UpdateConfig(List<ConnectionTarget> targets)
         {
-            RelayConnectionStringBuilder cb = new RelayConnectionStringBuilder(hybridConnectionInfo.RelayConnectionString);
+            foreach (var item in targets)
+            {
+              
+            }
+        }
+
+        void StartEndpoint(ConnectionTarget hybridConnectionInfo)
+        {
+            RelayConnectionStringBuilder cb = new RelayConnectionStringBuilder(hybridConnectionInfo.ConnectionString);
             Uri hybridConnectionUri = null;
             TcpClientBridge tcpClientBridge = null;
 
+            var rcbs = new RelayConnectionStringBuilder(hybridConnectionInfo.ConnectionString);
+            hybridConnectionUri = rcbs.Endpoint;
+
             try
             {
-                tcpClientBridge = new TcpClientBridge(hybridConnectionInfo.RelayConnectionString,
-                    hybridConnectionInfo.TargetHostName, hybridConnectionInfo.TargetPort);
+                tcpClientBridge = new TcpClientBridge(hybridConnectionInfo.ConnectionString,
+                    hybridConnectionInfo.HostName, hybridConnectionInfo.Port);
                 tcpClientBridge.Open().Wait();
 
-                this.clientBridges.Add(hybridConnectionInfo.Key, tcpClientBridge);
+                this.clientBridges.Add(hybridConnectionUri.AbsoluteUri, tcpClientBridge);
 
                 EventSource.Log.HybridConnectionStarted(null, hybridConnectionUri.AbsoluteUri);
             }
@@ -108,9 +121,9 @@ namespace Microsoft.HybridConnectionManager
             }
         }
 
-        void StartEndpoints(TcpClientSettingsCollection tcpClientSettings)
+        void StartEndpoints(IEnumerable<ConnectionTarget> tcpClientSettings)
         {
-            foreach (var tcpClientSetting in tcpClientSettings.Values)
+            foreach (var tcpClientSetting in tcpClientSettings)
             {
                 this.StartEndpoint(tcpClientSetting);
             }

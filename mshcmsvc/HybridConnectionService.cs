@@ -13,7 +13,7 @@ namespace mshcmsvc
         public HybridConnectionService()
         {
             InitializeComponent();
-            host = new Host();
+            host = new Host(null);
         }
 
         public Host Host { get => host; }

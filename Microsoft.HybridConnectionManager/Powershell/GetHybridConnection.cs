@@ -30,7 +30,7 @@ namespace Microsoft.HybridConnectionManager.Powershell
             foreach (var connection in this.HybridConnectionsSection.Targets)
             {
                 if (ConnectionString == null ||
-                    ConnectionString == ((ConnectionTarget)connection).RelayConnectionString)
+                    ConnectionString == ((ConnectionTarget)connection).ConnectionString)
                 {
                     WriteObject(connection);
                 }

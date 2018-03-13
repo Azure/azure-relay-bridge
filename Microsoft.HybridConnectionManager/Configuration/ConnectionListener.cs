@@ -1,8 +1,14 @@
 ﻿// // Copyright (c) Microsoft. All rights reserved.
 // // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+
+
 namespace Microsoft.HybridConnectionManager.Configuration
 {
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
+
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ConnectionListener
     {
         public ConnectionListener()
@@ -11,15 +17,15 @@ namespace Microsoft.HybridConnectionManager.Configuration
 
         public ConnectionListener(string connectionString, string listenHostName, int listenPort)
         {
-            this.RelayConnectionString = connectionString;
-            this.ListenHostName = listenHostName;
-            this.ListenPort = listenPort;
+            this.ConnectionString = connectionString;
+            this.HostName = listenHostName;
+            this.Port = listenPort;
         }
 
-        public string RelayConnectionString { get; set; }
+        public string ConnectionString { get; set; }
 
-        public string ListenHostName { get; set; }
+        public string HostName { get; set; }
 
-        public int ListenPort { get; set; }
+        public int Port { get; set; }
     }
 }
