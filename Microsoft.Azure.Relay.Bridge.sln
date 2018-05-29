@@ -1,0 +1,48 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2027
+MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge", "Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj", "{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "azbridge", "azbridge\azbridge.csproj", "{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "azbridgesvc", "azbridgesvc\azbridgesvc.csproj", "{3F446578-A0EE-465A-B97D-96504CD789E1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge.Test", "Microsoft.Azure.Relay.Bridge.Test\Microsoft.Azure.Relay.Bridge.Test.csproj", "{8D537DA4-409A-428E-926C-1009906AE5E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{81A22557-15D8-47E9-A19E-0335F16B25F3}"
+	ProjectSection(SolutionItems) = preProject
+		CONFIG.md = CONFIG.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F446578-A0EE-465A-B97D-96504CD789E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F446578-A0EE-465A-B97D-96504CD789E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F446578-A0EE-465A-B97D-96504CD789E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F446578-A0EE-465A-B97D-96504CD789E1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D537DA4-409A-428E-926C-1009906AE5E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D537DA4-409A-428E-926C-1009906AE5E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D537DA4-409A-428E-926C-1009906AE5E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D537DA4-409A-428E-926C-1009906AE5E2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0D3421B-73FA-45A4-AFD7-4159DAD73EA7}
+	EndGlobalSection
+EndGlobal
