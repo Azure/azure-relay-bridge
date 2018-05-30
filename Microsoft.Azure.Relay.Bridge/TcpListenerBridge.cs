@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.HybridConnectionManager
+namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Net;
@@ -20,9 +20,9 @@ namespace Microsoft.HybridConnectionManager
 
         TcpListener tcpListener;
 
-        public TcpListenerBridge(string connectionString)
+        public TcpListenerBridge(RelayConnectionStringBuilder connectionString)
         {
-            this.hybridConnectionClient = new HybridConnectionClient(connectionString);
+            this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
         }
 
         public event EventHandler NotifyException;
@@ -33,7 +33,7 @@ namespace Microsoft.HybridConnectionManager
 
         internal bool IsOpen { get; private set; }
 
-        public static TcpListenerBridge FromConnectionString(string connectionString)
+        public static TcpListenerBridge FromConnectionString(RelayConnectionStringBuilder connectionString)
         {
             return new TcpListenerBridge(connectionString);
         }

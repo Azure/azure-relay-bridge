@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-
+    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1;net462</TargetFrameworks>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.HybridConnectionManager\Microsoft.Azure.Relay.Bridge.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
   </ItemGroup>
 
 </Project>

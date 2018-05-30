@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.HybridConnectionManager
+namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Collections.Generic;
     using System.Security;
     using Microsoft.Azure.Relay;
-    using Microsoft.HybridConnectionManager.Configuration;
+    using Microsoft.Azure.Relay.Bridge.Configuration;
 
     sealed class TcpClientHost
     {
         readonly Dictionary<string, TcpClientBridge> clientBridges =
             new Dictionary<string, TcpClientBridge>();
-        private readonly IEnumerable<ConnectionTarget> connectionInfo;
+        private readonly IEnumerable<RemoteForward> connectionInfo;
 
-        public TcpClientHost(IEnumerable<ConnectionTarget> connectionInfo)
+        public TcpClientHost(IEnumerable<RemoteForward> connectionInfo)
         {
             this.connectionInfo = connectionInfo;
         }
@@ -63,7 +63,7 @@ namespace Microsoft.HybridConnectionManager
             }
         }
 
-        internal void UpdateConfig(List<ConnectionTarget> targets)
+        internal void UpdateConfig(List<RemoteForward> targets)
         {
             foreach (var item in targets)
             {
@@ -71,19 +71,18 @@ namespace Microsoft.HybridConnectionManager
             }
         }
 
-        void StartEndpoint(ConnectionTarget hybridConnectionInfo)
+        void StartEndpoint(RemoteForward hybridConnectionInfo)
         {
-            RelayConnectionStringBuilder cb = new RelayConnectionStringBuilder(hybridConnectionInfo.ConnectionString);
             Uri hybridConnectionUri = null;
             TcpClientBridge tcpClientBridge = null;
 
-            var rcbs = new RelayConnectionStringBuilder(hybridConnectionInfo.ConnectionString);
+            var rcbs = hybridConnectionInfo.ConnectionString;
             hybridConnectionUri = rcbs.Endpoint;
 
             try
             {
                 tcpClientBridge = new TcpClientBridge(hybridConnectionInfo.ConnectionString,
-                    hybridConnectionInfo.HostName, hybridConnectionInfo.Port);
+                    hybridConnectionInfo.Host, hybridConnectionInfo.Port);
                 tcpClientBridge.Open().Wait();
 
                 this.clientBridges.Add(hybridConnectionUri.AbsoluteUri, tcpClientBridge);
@@ -121,7 +120,7 @@ namespace Microsoft.HybridConnectionManager
             }
         }
 
-        void StartEndpoints(IEnumerable<ConnectionTarget> tcpClientSettings)
+        void StartEndpoints(IEnumerable<RemoteForward> tcpClientSettings)
         {
             foreach (var tcpClientSetting in tcpClientSettings)
             {

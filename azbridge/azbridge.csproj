@@ -1,16 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1;net462</TargetFrameworks>
+    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommandLineParser" Version="2.2.1" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="2.2.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.HybridConnectionManager\Microsoft.Azure.Relay.Bridge.csproj" />
+    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
   </ItemGroup>
 
 </Project>

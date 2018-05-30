@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.HybridConnectionManager
+namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Configuration;
     using System.IO;
     using System.Reflection;
     using System.Text;
-    using Microsoft.HybridConnectionManager.Configuration;
+    using Microsoft.Azure.Relay.Bridge.Configuration;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -39,8 +39,8 @@ namespace Microsoft.HybridConnectionManager
             fsw = new FileSystemWatcher(configFileName);
             fsw.Changed += ConfigFileChanged;
             var config = LoadConfig(configFileName);
-            this.hybridConnectionTcpClientHost = new TcpClientHost(config.Targets);
-            this.hybridConnectionTcpListenerHost = new TcpListenerHost(config.Listeners);
+            this.hybridConnectionTcpClientHost = new TcpClientHost(config.RemoteForward);
+            this.hybridConnectionTcpListenerHost = new TcpListenerHost(config.LocalForward);
 
             this.hybridConnectionTcpClientHost.Start();
             this.hybridConnectionTcpListenerHost.Start();
@@ -49,11 +49,11 @@ namespace Microsoft.HybridConnectionManager
         private void ConfigFileChanged(object sender, FileSystemEventArgs e)
         {
             var config = LoadConfig(configFileName);
-            hybridConnectionTcpClientHost.UpdateConfig(config.Targets);
-            hybridConnectionTcpListenerHost.UpdateConfig(config.Listeners);
+            hybridConnectionTcpClientHost.UpdateConfig(config.RemoteForward);
+            hybridConnectionTcpListenerHost.UpdateConfig(config.LocalForward);
         }
 
-        public static void SaveConfig(string configFilePath, ConnectionConfig connectionConfig)
+        public static void SaveConfig(string configFilePath, Config connectionConfig)
         {
             JObject config = null;
             if (File.Exists(configFilePath))
@@ -103,7 +103,7 @@ namespace Microsoft.HybridConnectionManager
             return configFileName;
         }
 
-        public static ConnectionConfig LoadConfig(string configFileName)
+        public static Config LoadConfig(string configFileName)
         {   
             using (var reader = new StreamReader(configFileName, true))
             {
@@ -111,10 +111,10 @@ namespace Microsoft.HybridConnectionManager
                 JObject config = JObject.Load(jr);
                 if (config.ContainsKey("connections"))
                 {
-                    return config["connections"].ToObject<ConnectionConfig>();
+                    return config["connections"].ToObject<Config>();
                 }
             }
-            return new ConnectionConfig();
+            return new Config();
         }
 
         public void Stop()

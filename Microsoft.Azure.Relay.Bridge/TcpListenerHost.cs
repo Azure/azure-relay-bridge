@@ -1,21 +1,21 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.HybridConnectionManager
+namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using Microsoft.Azure.Relay;
-    using Microsoft.HybridConnectionManager.Configuration;
+    using Microsoft.Azure.Relay.Bridge.Configuration;
 
     sealed class TcpListenerHost
     {
         readonly Dictionary<string, TcpListenerBridge> listenerBridges = new Dictionary<string, TcpListenerBridge>();
-        private readonly IEnumerable<ConnectionListener> connectionInfoCollection;
+        private readonly IEnumerable<LocalForward> connectionInfoCollection;
 
-        public TcpListenerHost(IEnumerable<ConnectionListener> connectionInfoCollection)
+        public TcpListenerHost(IEnumerable<LocalForward> connectionInfoCollection)
         {
             this.connectionInfoCollection = connectionInfoCollection;
         }
@@ -32,13 +32,13 @@ namespace Microsoft.HybridConnectionManager
             this.StopEndpoints();
         }
 
-        void StartEndpoint(ConnectionListener setting)
+        void StartEndpoint(LocalForward setting)
         {
             var activity = new EventTraceActivity();
             Uri hybridConnectionUri = null;
             TcpListenerBridge tcpListenerBridge = null;
 
-            var rcbs = new RelayConnectionStringBuilder(setting.ConnectionString);
+            var rcbs = setting.ConnectionString;
             hybridConnectionUri = rcbs.Endpoint;
             try
             {
@@ -48,7 +48,7 @@ namespace Microsoft.HybridConnectionManager
                 // form of DNS server shouldn't matter for us here (means we do not touch 
                 // the hosts file in this process), but the address MUST resolve to a local 
                 // endpoint or to a loopback endpoint
-                IPHostEntry hostEntry = Dns.GetHostEntry(setting.HostName);
+                IPHostEntry hostEntry = Dns.GetHostEntry(setting.Host);
                 IPAddress bindToAddress = null;
                 foreach (var address in hostEntry.AddressList)
                 {
@@ -68,7 +68,7 @@ namespace Microsoft.HybridConnectionManager
                 if (bindToAddress != null)
                 {
                     tcpListenerBridge = TcpListenerBridge.FromConnectionString(setting.ConnectionString);
-                    tcpListenerBridge.Run(new IPEndPoint(bindToAddress, setting.Port));
+                    tcpListenerBridge.Run(new IPEndPoint(bindToAddress, setting.HostPort));
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
                     EventSource.Log.HybridConnectionClientStarted(activity,
                         hybridConnectionUri.AbsoluteUri);
@@ -82,12 +82,12 @@ namespace Microsoft.HybridConnectionManager
             
         }
 
-        internal void UpdateConfig(List<ConnectionListener> listeners)
+        internal void UpdateConfig(List<LocalForward> listeners)
         {
             
         }
 
-        void StartEndpoints(IEnumerable<ConnectionListener> tcpListenerSettings)
+        void StartEndpoints(IEnumerable<LocalForward> tcpListenerSettings)
         {
             foreach (var tcpListenerSetting in tcpListenerSettings)
             {

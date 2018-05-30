@@ -7,28 +7,29 @@ namespace mshcmhost
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;
-    using CommandLine;
-    using Microsoft.HybridConnectionManager;
-    using Microsoft.HybridConnectionManager.Configuration;
+    using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Azure.Relay.Bridge;
+    using Microsoft.Azure.Relay.Bridge.Configuration;
 
     class Program
     {
         static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<CommandLineSettings>(args)
-                .WithParsed<CommandLineSettings>(opts => Run(opts).GetAwaiter().GetResult());
+            CommandLineSettings.Run = Program.Run;
+            CommandLineApplication.Execute<CommandLineSettings>(args);
         }
 
-        static async Task Run(CommandLineSettings settings)
+        static async Task<int> Run(CommandLineSettings settings)
         {
             try
             {
                 Console.WriteLine("Press Ctrl+C to stop");
+                Config config = Config.LoadConfig(settings);
 
                 SemaphoreSlim semaphore = new SemaphoreSlim(1);
                 semaphore.Wait();
 
-                Host host = new Host(settings.ConfigurationFile);
+                Host host = new Host(settings.ConfigFile);
                 host.Start();
                 Console.CancelKeyPress += (e, a) => semaphore.Release();
                 await semaphore.WaitAsync();
@@ -42,6 +43,7 @@ namespace mshcmhost
             {
                 Console.WriteLine(e.Message);
             }
+            return 0;
         }
     }
 }

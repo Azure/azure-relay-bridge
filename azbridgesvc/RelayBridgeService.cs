@@ -4,7 +4,7 @@ namespace mshcmsvc
     using System;
     using System.IO;
     using System.ServiceProcess;
-    using Microsoft.HybridConnectionManager;
+    using Microsoft.Azure.Relay.Bridge;
 
     public partial class RelayBridgeService : ServiceBase
     {

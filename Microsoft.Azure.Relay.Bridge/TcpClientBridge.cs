@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Microsoft.HybridConnectionManager
+namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.IO;
@@ -14,14 +14,14 @@ namespace Microsoft.HybridConnectionManager
 
     sealed class TcpClientBridge : IDisposable
     {
-        readonly string connectionString;
+        readonly RelayConnectionStringBuilder connectionString;
         static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
         readonly int targetPort;
         readonly string targetServer;
         Microsoft.Azure.Relay.HybridConnectionListener listener;
         CancellationTokenSource shuttingDown = new CancellationTokenSource();
 
-        internal TcpClientBridge(string connectionString, string targetServer, int targetPort)
+        internal TcpClientBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
         {
             this.connectionString = connectionString;
             this.targetServer = targetServer;
@@ -76,7 +76,7 @@ namespace Microsoft.HybridConnectionManager
 #if WINDOWS
             this.EnforceSecurityPolicy(); // Open a v2 connection.
 #endif
-            this.listener = new HybridConnectionListener(connectionString);
+            this.listener = new HybridConnectionListener(connectionString.ToString());
 
             this.listener.Online += (s, e) => { Online?.Invoke(s, e); };
             this.listener.Offline += (s, e) => { Offline?.Invoke(s, e); };

@@ -190,7 +190,7 @@ then complemented by or overriden by the user-level options.
 The configuration file can exist in three locations:
 
 1. Machine configuration, always loaded if present.
-   Linux: /etc/azbridge/azbridge_config
+   Linux: /etc/azurebridge/azurebridge_config
    Windows: %ALLUSERSPROFILE%\Microsoft\AzureBridge\azbridge_config
 2. User configuration, overrides and complements machine config.
    Linux: ~/.azurebridge/config
@@ -208,10 +208,20 @@ the -L and -R command line options above.
 * **AddressFamily** - Specifies which address family to use when connecting.  Valid
   arguments are "any", "inet" (use IPv4 only), or "inet6"
   (use IPv6 only).  The default is "any".
+* **AzureRelayConnectionString** - Azure Relay connection string for a Relay 
+  namespace. Only one namespace connection string can be specified per configuration
+  file.
+* **AzureRelayEndpoint** - Azure Relay endpoint URI for a Relay namespace. Overrides 
+  the 'Endpoint' property of the connection string, if present.
+* **AzureRelaySharedAccessKeyName** - Azure Relay shared access policy name. Overrides 
+  the 'SharedAccessKeyName' property of the connection string, if present.
+* **AzureRelaySharedAccessKey** - Azure Relay shared access policy key. Overrides 
+  the 'SharedAccessKey' property of the connection string, if present.
+* **AzureRelaySharedAccessSignature** - Azure Relay shared access policy signature. Overrides 
+  the 'SharedAccessSignature' property of the connection string, if present.
 * **BindAddress** - Use the specified address on the local machine as the source
   address of the connection.  Only useful on systems with more than
-  one address.  Note that this option does not work if
-  UsePrivilegedPort is set to "yes".
+  one address.  
 * **ClearAllForwardings** - Specifies that all local, and remote port forwardings
   specified in the configuration files or on the command line be
   cleared.  This option is primarily useful when used from the
@@ -263,6 +273,7 @@ and multiple entries are permitted.
 * **port** - TCP port to bind the socket to
 * **local_socket** - named UNIX socket to bind to
 * **relay_name** - name of the Azure Relay name to bind to
+* **connection_string** - Azure Relay connection string to use for this forwarder
 
 Using `bind_address` and `port` is mutually exclusive with use of the 
 `local_socket` option. The bind_address argument is optional and when
@@ -276,6 +287,9 @@ requires running with administrative privileges, the hostname value is added
 to the local machine's "hosts" file. The `--cleanhosts` option removes all
 entries added by `--addhosts`.
 
+The `connection_string` property is optional and overrides the global settings
+if supplied.
+
 ### RemoteForward properties
 
 The following properties are defined for RemoteForward. RemoteForward is a list
@@ -285,12 +299,16 @@ and multiple entries are permitted.
 * **host** - network address to forward to
 * **hostport** - TCP port on the host to forward to
 * **local_socket** - named UNIX socket forward to
+* **connection_string** - Azure Relay connection string to use for this forwarder
 
 Using `host` and `hostport` is mutually exclusive with use of the 
 `local_socket` option. The host argument is optional and when
 omitted, the default is for the forwarder to connect to the local machine.
 
 The `relay_name` option is always required.
+
+The `connection_string` property is optional and overrides the global settings
+if supplied.
 
 ## Configuration examples
 
@@ -309,6 +327,12 @@ LocalForward:
     hostname: abcxyz.intra-de.example.com
     port: 3389
     relay_name: abcxyz-rdp
+
+# SQL to remote machine abcxyz
+  - bind_address: 127.0.10.1
+    hostname: abcxyz.intra-de.example.com
+    port: 1433
+    relay_name: abcxyz-sql
 
   # RDP to remote machine defijk
   - bind_address: 127.0.10.2

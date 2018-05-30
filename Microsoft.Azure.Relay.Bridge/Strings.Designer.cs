@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Microsoft.HybridConnectionManager {
+namespace Microsoft.Azure.Relay.Bridge {
     using System;
     
     
