@@ -11,25 +11,39 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class LocalForward
     {
+        private RelayConnectionStringBuilder relayConnectionStringBuilder;
+
         public LocalForward()
         {
         }
 
         public LocalForward(string connectionString, string listenHostName, int listenPort)
         {
-            this.ConnectionString = new RelayConnectionStringBuilder(connectionString);
-            this.Host = listenHostName;
-            this.HostPort = listenPort;
+            this.relayConnectionStringBuilder = new RelayConnectionStringBuilder(connectionString);
+            this.BindAddress = listenHostName;
+            this.BindPort = listenPort;
         }
 
-        public RelayConnectionStringBuilder ConnectionString { get; private set; }
+        public string ConnectionString
+        {
+            get { return relayConnectionStringBuilder?.ToString(); }
+            set { relayConnectionStringBuilder = value != null ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder(); }
+        }
 
-        public string Host { get; set; }
+        internal RelayConnectionStringBuilder RelayConnectionStringBuilder
+        {
+            get { return relayConnectionStringBuilder; }
+        }
 
-        public int HostPort { get; set; }
+        public string BindAddress { get; set; }
+
+        public string HostName { get; set; }
+
+        public int BindPort { get; set; }
 
         public string RelayName { get; set; }
 
-        public string LocalSocket { get; set; }
+        public string BindLocalSocket { get; set; }
+        
     }
 }

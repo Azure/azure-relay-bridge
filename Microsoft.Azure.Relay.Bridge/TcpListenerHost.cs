@@ -32,13 +32,13 @@ namespace Microsoft.Azure.Relay.Bridge
             this.StopEndpoints();
         }
 
-        void StartEndpoint(LocalForward setting)
+        void StartEndpoint(LocalForward localForward)
         {
             var activity = new EventTraceActivity();
             Uri hybridConnectionUri = null;
             TcpListenerBridge tcpListenerBridge = null;
 
-            var rcbs = setting.ConnectionString;
+            var rcbs = localForward.RelayConnectionStringBuilder;
             hybridConnectionUri = rcbs.Endpoint;
             try
             {
@@ -48,7 +48,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 // form of DNS server shouldn't matter for us here (means we do not touch 
                 // the hosts file in this process), but the address MUST resolve to a local 
                 // endpoint or to a loopback endpoint
-                IPHostEntry hostEntry = Dns.GetHostEntry(setting.Host);
+                IPHostEntry hostEntry = Dns.GetHostEntry(localForward.BindAddress);
                 IPAddress bindToAddress = null;
                 foreach (var address in hostEntry.AddressList)
                 {
@@ -67,8 +67,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 }
                 if (bindToAddress != null)
                 {
-                    tcpListenerBridge = TcpListenerBridge.FromConnectionString(setting.ConnectionString);
-                    tcpListenerBridge.Run(new IPEndPoint(bindToAddress, setting.HostPort));
+                    tcpListenerBridge = TcpListenerBridge.FromConnectionString(localForward.RelayConnectionStringBuilder);
+                    tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
                     EventSource.Log.HybridConnectionClientStarted(activity,
                         hybridConnectionUri.AbsoluteUri);

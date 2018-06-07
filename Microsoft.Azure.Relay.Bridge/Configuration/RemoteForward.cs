@@ -9,22 +9,33 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class RemoteForward
     {
+        private RelayConnectionStringBuilder relayConnectionStringBuilder;
+
         public RemoteForward()
         {
         }
 
         public RemoteForward(string connectionString, string Host, int targetPort)
         {
-            this.ConnectionString = new RelayConnectionStringBuilder(connectionString);
+            this.relayConnectionStringBuilder = new RelayConnectionStringBuilder(connectionString);
             this.Host = Host;
-            this.Port = targetPort;
+            this.HostPort = targetPort;
         }
 
-        public RelayConnectionStringBuilder ConnectionString { get; set; }
+        public string ConnectionString
+        {
+            get { return relayConnectionStringBuilder?.ToString(); }
+            set { relayConnectionStringBuilder = value != null ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder(); }
+        }
+
+        internal RelayConnectionStringBuilder RelayConnectionStringBuilder
+        {
+            get { return relayConnectionStringBuilder; }
+        }
 
         public string Host { get; set; }
 
-        public int Port { get; set; }
+        public int HostPort { get; set; }
 
         public string RelayName { get; set; }
 

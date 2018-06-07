@@ -226,9 +226,9 @@ the -L and -R command line options above.
   specified in the configuration files or on the command line be
   cleared.  This option is primarily useful when used from the
   command line to clear port forwardings set in configura-
-  tion files. The argument must be "yes" or "no".  The default is "no".
+  tion files. The argument must be "true" or "false".  The default is "false".
 * **Compression** - Specifies whether to use compression. The argument must be
-  "yes" or "no".  The default is "no".
+  "true" or "false".  The default is "false".
 * **CompressionLevel** - Specifies the compression level to use if compression 
   is enabled. The argument must be an integer from 1 (fast) to 9 (slow, best).
   The default level is 6, which is good for most applications.
@@ -236,23 +236,23 @@ the -L and -R command line options above.
   before exiting.  The argument must be an integer.  This may be useful in scripts
   if the connection sometimes fails.  The default is 1.
 * **ConnectTimeout** - Specifies the timeout (in seconds) used when connecting to the
-  SSH server, instead of using the default system TCP timeout.
+  relay server, instead of using the default system TCP timeout.
   This value is used only when the target is down or really
   unreachable, not when it refuses the connection.
 * **ExitOnForwardFailure** - Specifies whether azbridge(1) should terminate the 
   connection if it  cannot set up all requested local, and remote port forwardings, 
   (e.g. if either end is unable to bind and listen on a specified port). 
-  The argument must be "yes" or "no". The default is "no".
+  The argument must be "true" or "false". The default is "false".
 * **GatewayPorts** - Specifies whether remote hosts are allowed to connect to local
   forwarded ports.  By default, azbridge(1) binds local port forwardings
   to the loopback address.  This prevents other remote hosts from
   connecting to forwarded ports.  GatewayPorts can be used to specify that azbridge 
   should bind local port forwardings to the wildcard address, thus allowing remote 
-  hosts to connect to forwarded ports. The argument must be "yes" or "no".  
-  The default is "no". 
+  hosts to connect to forwarded ports. The argument must be "true" or "false".  
+  The default is "false". 
 * **LocalForward** - Specifies that a (set of) TCP ports on the local machine 
   shall be forwarded via the Azure Relay. Each entry can have four properties,
-  "bind_address", "port", "local_socket", and "relay_name". See [below](#localforward-properties) for 
+  "BindAddress", "Port", "LocalSocket", and "RelayName". See [below](#localforward-properties) for 
   details.
 * **LogLevel** - Gives the verbosity level that is used when logging messages 
   from azbridge(1). The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, 
@@ -260,34 +260,34 @@ the -L and -R command line options above.
   DEBUG and DEBUG1 are equivalent.  DEBUG2 and DEBUG3 each specify
   higher levels of verbose output.
 * **RemoteForward** - Specifies that a TCP port on the remote machine be bound to 
-  a name on the Azure Relay. Each entry can have four properties, "relay_name", "host", 
-  "hostport", and "local_socket". See [below](#remoteforward-properties) for details.
+  a name on the Azure Relay. Each entry can have four properties, "RelayName", "Host", 
+  "HostPort", and "LocalSocket". See [below](#remoteforward-properties) for details.
 
 ### LocalForward properties
 
 The following properties are defined for LocalForward. LocalForward is a list
 and multiple entries are permitted.
 
-* **bind_address** - network address to bind the socket to
-* **hostname** - remote host name represented by this entry
-* **port** - TCP port to bind the socket to
-* **local_socket** - named UNIX socket to bind to
-* **relay_name** - name of the Azure Relay name to bind to
-* **connection_string** - Azure Relay connection string to use for this forwarder
+* **BindAddress** - network address to bind the socket to
+* **HostName** - remote host name represented by this entry
+* **BindPort** - TCP port to bind the socket to
+* **BindLocalSocket** - named UNIX socket to bind to
+* **RelayName** - name of the Azure Relay name to bind to
+* **ConnectionString** - Azure Relay connection string to use for this forwarder
 
-Using `bind_address` and `port` is mutually exclusive with use of the 
-`local_socket` option. The bind_address argument is optional and when
+Using `BindAddress` and `BindPort` is mutually exclusive with use of the 
+`BindLocalSocket` option. The bind_address argument is optional and when
 omitted, the default is for the listener to bind to all interfaces.
 
-The `relay_name` option is always required.
+The `RelayName` option is always required.
 
-The `hostname` is property optional and used by the `--addhosts` command
+The `HostName` is property optional and used by the `--addhosts` command
 line option of `azbridge`. When `azbridge` is run with that option, which
 requires running with administrative privileges, the hostname value is added 
 to the local machine's "hosts" file. The `--cleanhosts` option removes all
 entries added by `--addhosts`.
 
-The `connection_string` property is optional and overrides the global settings
+The `ConnectionString` property is optional and overrides the global settings
 if supplied.
 
 ### RemoteForward properties
@@ -295,19 +295,19 @@ if supplied.
 The following properties are defined for RemoteForward. RemoteForward is a list
 and multiple entries are permitted.
 
-* **relay_name** - name of the Azure Relay name to bind to
-* **host** - network address to forward to
-* **hostport** - TCP port on the host to forward to
-* **local_socket** - named UNIX socket forward to
-* **connection_string** - Azure Relay connection string to use for this forwarder
+* **RelayName** - name of the Azure Relay name to bind to
+* **Host** - network address to forward to
+* **HostPort** - TCP port on the host to forward to
+* **LocalSocket** - named UNIX socket forward to
+* **ConnectionString** - Azure Relay connection string to use for this forwarder
 
-Using `host` and `hostport` is mutually exclusive with use of the 
-`local_socket` option. The host argument is optional and when
+Using `Host` and `HostPort` is mutually exclusive with use of the 
+`LocalSocket` option. The host argument is optional and when
 omitted, the default is for the forwarder to connect to the local machine.
 
-The `relay_name` option is always required.
+The `RelayName` option is always required.
 
-The `connection_string` property is optional and overrides the global settings
+The `ConnectionString` property is optional and overrides the global settings
 if supplied.
 
 ## Configuration examples
@@ -390,7 +390,7 @@ to a remote SQL server on a local network address of this computer.
 
 ``` yaml
 ---
-GatewayPorts : yes
+GatewayPorts : true
 LocalForward:
 
   # SQL to remote machine abcxyz

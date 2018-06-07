@@ -71,18 +71,18 @@ namespace Microsoft.Azure.Relay.Bridge
             }
         }
 
-        void StartEndpoint(RemoteForward hybridConnectionInfo)
+        void StartEndpoint(RemoteForward remoteForward)
         {
             Uri hybridConnectionUri = null;
             TcpClientBridge tcpClientBridge = null;
 
-            var rcbs = hybridConnectionInfo.ConnectionString;
+            var rcbs = remoteForward.RelayConnectionStringBuilder;
             hybridConnectionUri = rcbs.Endpoint;
 
             try
             {
-                tcpClientBridge = new TcpClientBridge(hybridConnectionInfo.ConnectionString,
-                    hybridConnectionInfo.Host, hybridConnectionInfo.Port);
+                tcpClientBridge = new TcpClientBridge(remoteForward.RelayConnectionStringBuilder,
+                    remoteForward.Host, remoteForward.HostPort);
                 tcpClientBridge.Open().Wait();
 
                 this.clientBridges.Add(hybridConnectionUri.AbsoluteUri, tcpClientBridge);

@@ -4,17 +4,37 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
     using System.IO;
-    using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
+    using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay.Bridge.Configuration;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using Xunit;
 
     public class ConfigTest
     {
 
-        string CreateConfig()
+        string CreateMaxCommandLine()
+        {
+            return " -b 127.0.0.4" +
+                   " -C" +
+                   " -E sb://cvrelay.servicebus.windows.net/" +
+                   " -F foo.txt" +
+                   " -g" +
+                   " -K send" +
+                   " -k abcdefgh" +
+                   " -L 127.0.100.1:8008:foo" +
+                   " -L 127.0.100.2:8008:bar" +
+                   " -L name:baz" +
+                   " -o GatewayPort:true" +
+                   " -q" +
+                   " -R foo:123" +
+                   " -R bar:10.1.1.1:123" +
+                   " -R baz:abc" +
+                   " -S sigsig" +
+                   " -v";
+        }
+
+        string CreateMaxConfig()
         {
             string myFile = Path.GetTempFileName();
             using (var myFileStream = File.OpenWrite(myFile))
@@ -22,86 +42,158 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
                 {
                     textWriter.Write(
-                       @"{" +
-                        "   \"connections\" : {" +
-                        "         \"RemoteForwarders\" : [ " +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test1.example.com\", \"port\": 81 }," +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test2.example.com\", \"port\": 82 }," +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test3.example.com\", \"port\": 83 }" +
-                        "         ]," +
-                        "         \"LocalForwarders\" : [ " +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test1.example.com\", \"port\": 81 }," +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test2.example.com\", \"port\": 82 }," +
-                        "           { \"connectionString\":\"Endpoint=sb://test\", \"hostName\":\"test3.example.com\", \"port\": 83 }" +
-                        "         ]," +
-                        "   }" +
-                        "}");
+                       @"AddressFamily : inet4" + textWriter.NewLine +
+                        "AzureRelayConnectionString: Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=" + textWriter.NewLine +
+                        "BindAddress : 127.0.0.4" + textWriter.NewLine +
+                        "ClearAllForwardings : false " + textWriter.NewLine +
+                        "Compression : true " + textWriter.NewLine +
+                        "CompressionLevel : 9 " + textWriter.NewLine +
+                        "ConnectionAttempts : 1 " + textWriter.NewLine +
+                        "ConnectTimeout : 60 " + textWriter.NewLine +
+                        "ExitOnForwardFailure : true " + textWriter.NewLine +
+                        "LocalForward : " + textWriter.NewLine +
+                        "  - BindAddress : 127.0.100.1" + textWriter.NewLine +
+                        "    BindPort : 8008" + textWriter.NewLine +
+                        "    RelayName : foo" + textWriter.NewLine +
+                        "  - BindAddress : 127.0.100.2" + textWriter.NewLine +
+                        "    BindPort : 8008" + textWriter.NewLine +
+                        "    RelayName : bar" + textWriter.NewLine +
+                        "  - BindLocalSocket : name" + textWriter.NewLine +
+                        "    RelayName : baz" + textWriter.NewLine +
+                        "RemoteForward : " + textWriter.NewLine +
+                        "  - RelayName : foo" + textWriter.NewLine +
+                        "    HostPort : 123" + textWriter.NewLine +
+                        "  - RelayName : bar" + textWriter.NewLine +
+                        "    HostPort : 8008" + textWriter.NewLine +
+                        "    Host : 10.1.1.1" + textWriter.NewLine +
+                        "  - RelayName : baz" + textWriter.NewLine +
+                        "    HostPort : 8008" + textWriter.NewLine +
+                        "    Host : foo.example.com" + textWriter.NewLine);
                 }
             }
             return myFile;
         }
-
+                 
         [Fact]
-        public void ConfigFileTest()
+        public void ConfigFileMaxTest()
         {
-            var configFileName = CreateConfig();
-            Config connectionConfig = null;
+            var configFileName = CreateMaxConfig();
 
-            using (var reader = new StreamReader(configFileName, true))
-            {
-                var jr = new JsonTextReader(reader);
-                JObject config = JObject.Load(jr);
-                if (config.ContainsKey("connections"))
-                {
-                    connectionConfig = config["connections"].ToObject<Config>();
-                }
-            }
+            CommandLineSettings settings = new CommandLineSettings();
+            settings.ConfigFile = configFileName;
+            Config config = Config.LoadConfig(settings);
 
-
-            Assert.Equal(3, connectionConfig.LocalForward.Count);
-            Assert.Equal(3, connectionConfig.RemoteForward.Count);
-
-            Assert.Equal("Endpoint=sb://test", connectionConfig.LocalForward[0].ConnectionString.ToString());
-            Assert.Equal("test1.example.com", connectionConfig.LocalForward[0].Host);
-            Assert.Equal(81, connectionConfig.LocalForward[0].HostPort);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.LocalForward[1].ConnectionString.ToString());
-            Assert.Equal("test2.example.com", connectionConfig.LocalForward[1].Host);
-            Assert.Equal(82, connectionConfig.LocalForward[1].HostPort);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.LocalForward[2].ConnectionString.ToString());
-            Assert.Equal("test3.example.com", connectionConfig.LocalForward[2].Host);
-            Assert.Equal(83, connectionConfig.LocalForward[2].HostPort);
-
-            Assert.Equal("Endpoint=sb://test", connectionConfig.RemoteForward[0].ConnectionString.ToString());
-            Assert.Equal("test1.example.com", connectionConfig.RemoteForward[0].Host);
-            Assert.Equal(81, connectionConfig.RemoteForward[0].Port);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.RemoteForward[1].ConnectionString.ToString());
-            Assert.Equal("test2.example.com", connectionConfig.RemoteForward[1].Host);
-            Assert.Equal(82, connectionConfig.RemoteForward[1].Port);
-            Assert.Equal("Endpoint=sb://test", connectionConfig.RemoteForward[2].ConnectionString.ToString());
-            Assert.Equal("test3.example.com", connectionConfig.RemoteForward[2].Host);
-            Assert.Equal(83, connectionConfig.RemoteForward[2].Port);
+            CheckMaxConfig(config);
 
             File.Delete(configFileName);
+        }
+
+        
+
+        [Fact]
+        public void CommandLineMaxTest()
+        {
+            CommandLineSettings.Run = (settings) => {
+                
+                Config config = Config.LoadConfig(settings);
+
+                CheckMaxCommandLine(config);
+
+                return Task.FromResult(0);
+            };
+            CommandLineApplication.Execute<CommandLineSettings>(CreateMaxCommandLine().Split(' '));
+        }
+
+        private static void CheckMaxCommandLine(Config config)
+        {
+            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
+            Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
+            Assert.Equal("send", config.AzureRelaySharedAccessKeyName);
+            Assert.Equal("abcdefgh", config.AzureRelaySharedAccessKey);
+            Assert.Equal("sigsig", config.AzureRelaySharedAccessSignature);
+            Assert.Equal("127.0.0.4", config.BindAddress);
+            Assert.False(config.ClearAllForwardings);
+            Assert.True(config.Compression);
+            
+            Assert.Equal(3, config.LocalForward.Count);
+            Assert.Equal("127.0.100.1", config.LocalForward[0].BindAddress);
+            Assert.Equal(8008, config.LocalForward[0].BindPort);
+            Assert.Equal("foo", config.LocalForward[0].RelayName);
+            Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
+            Assert.Equal(8008, config.LocalForward[1].BindPort);
+            Assert.Equal("bar", config.LocalForward[1].RelayName);
+            Assert.Equal("abc", config.LocalForward[2].BindLocalSocket);
+            Assert.Equal("baz", config.LocalForward[2].RelayName);
+
+            Assert.Equal(3, config.RemoteForward.Count);
+            Assert.Equal("foo", config.RemoteForward[0].RelayName);
+            Assert.Equal(123, config.RemoteForward[0].HostPort);
+            Assert.Equal("bar", config.RemoteForward[1].RelayName);
+            Assert.Equal(8008, config.RemoteForward[1].HostPort);
+            Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
+            Assert.Equal("baz", config.RemoteForward[2].RelayName);
+            Assert.Equal("abc", config.RemoteForward[2].LocalSocket);
+            
+        }
+
+        private static void CheckMaxConfig(Config config)
+        {
+            Assert.Equal("inet4", config.AddressFamily);
+            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
+            Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
+            Assert.Equal("RootManageSharedAccessKey", config.AzureRelaySharedAccessKeyName);
+            Assert.Equal("P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=", config.AzureRelaySharedAccessKey);
+            Assert.Null(config.AzureRelaySharedAccessSignature);
+            Assert.Equal("127.0.0.4", config.BindAddress);
+            Assert.False(config.ClearAllForwardings);
+            Assert.True(config.Compression);
+            Assert.Equal(9, config.CompressionLevel);
+            Assert.Equal(1, config.ConnectionAttempts);
+            Assert.Equal(60, config.ConnectTimeout);
+            Assert.True(config.ExitOnForwardFailure);
+
+            Assert.Equal(3, config.LocalForward.Count);
+            Assert.Equal("127.0.100.1", config.LocalForward[0].BindAddress);
+            Assert.Equal(8008, config.LocalForward[0].BindPort);
+            Assert.Equal("foo", config.LocalForward[0].RelayName);
+            Assert.Equal("foo.example.com", config.LocalForward[0].HostName);
+            Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
+            Assert.Equal(8008, config.LocalForward[1].BindPort);
+            Assert.Equal("bar", config.LocalForward[1].RelayName);
+            Assert.Equal("foo.example.com", config.LocalForward[1].HostName);
+            Assert.Equal("test", config.LocalForward[2].BindLocalSocket);
+            Assert.Equal("baz", config.LocalForward[2].RelayName);
+            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.LocalForward[2].ConnectionString);
+            Assert.Equal("foo.example.com", config.LocalForward[2].HostName);
+
+            Assert.Equal(3, config.RemoteForward.Count);
+            Assert.Equal("foo", config.RemoteForward[0].RelayName);
+            Assert.Equal(8008, config.RemoteForward[0].HostPort);
+            Assert.Equal("foo.example.com", config.RemoteForward[0].Host);
+            Assert.Equal("bar", config.RemoteForward[1].RelayName);
+            Assert.Equal(8008, config.RemoteForward[1].HostPort);
+            Assert.Equal("foo.example.com", config.RemoteForward[1].Host);
+            Assert.Equal("baz", config.RemoteForward[2].RelayName);
+            Assert.Equal(8008, config.RemoteForward[2].HostPort);
+            Assert.Equal("foo.example.com", config.RemoteForward[2].Host);
         }
 
         [Fact]
         public void ConfigSaveLoadFileTest()
         {
-            var configFileName = CreateConfig();
-            Config connectionConfig =  Host.LoadConfig(configFileName);
+            var configFileName = CreateMaxConfig();
 
-            connectionConfig.RemoteForward.Add(new RemoteForward
-            {
-                // ConnectionString = "sb://foo",
-                Host = "localhost",
-                Port = 8081
-            });
-            Host.SaveConfig(configFileName, connectionConfig);
+            CommandLineSettings settings = new CommandLineSettings();
+            settings.ConfigFile = configFileName;
+            Config config = Config.LoadConfig(settings);
 
-            Config connectionConfig2 = Host.LoadConfig(configFileName);
-            Assert.NotNull(connectionConfig2.RemoteForward.FirstOrDefault(i => i.ConnectionString.Equals("sb://foo")));
+            config.SaveConfigFile(configFileName, false);
 
+            config = Config.LoadConfigFile(configFileName);
 
+            CheckMaxConfig(config);
+
+            File.Delete(configFileName);
         }
     }
 }

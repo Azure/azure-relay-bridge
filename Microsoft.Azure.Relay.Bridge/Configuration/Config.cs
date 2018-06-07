@@ -17,7 +17,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     /// <summary>
     /// 
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Config
     {
         RelayConnectionStringBuilder relayConnectionStringBuilder;
@@ -52,7 +51,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <summary>
         /// Azure Relay endpoint URI for a Relay namespace.
         /// </summary>
-        public Uri AzureRelayEndpoint { get => RelayConnectionStringBuilder.Endpoint; set => RelayConnectionStringBuilder.Endpoint = value; }
+        public string AzureRelayEndpoint { get => RelayConnectionStringBuilder.Endpoint.ToString(); set => RelayConnectionStringBuilder.Endpoint = new Uri(value); }
 
         /// <summary>
         /// Azure Relay shared access policy name.
@@ -143,7 +142,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a (set of) TCP ports on the local machine 
         /// shall be forwarded via the Azure Relay.
         /// </summary>
-        public List<LocalForward> LocalForward { get; } = new List<LocalForward>();
+        public List<LocalForward> LocalForward { get; set; } = new List<LocalForward>();
 
         /// <summary>
         ///  Gives the verbosity level that is used when logging messages 
@@ -157,7 +156,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
-        public List<RemoteForward> RemoteForward { get; } = new List<RemoteForward>();
+        public List<RemoteForward> RemoteForward { get; set;  } = new List<RemoteForward>();
 
 
         public static Config LoadConfig(CommandLineSettings commandLineSettings)
@@ -170,7 +169,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             Config config = LoadConfigFile(machineConfigFileName);
 
-            if (commandLineSettings.ConfigFile != null)
+            if (commandLineSettings.ConfigFile == null)
             {
                 string userConfigFileName =
                     (Environment.OSVersion.Platform == PlatformID.Unix) ?
@@ -208,7 +207,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             }
             if (commandLineSettings.EndpointUri != null)
             {
-                config.AzureRelayEndpoint = commandLineSettings.EndpointUri;
+                config.AzureRelayEndpoint = commandLineSettings.EndpointUri?.ToString();
             }
             if (commandLineSettings.GatewayPorts.HasValue)
             {
@@ -237,8 +236,35 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             return config;
         }
 
+        public void SaveConfigFile(string configFileName, bool merge)
+        {
+            if (configFileName == null)
+            {
+                throw new ArgumentNullException(nameof(configFileName));
+            }
+
+            Config savedConfig = null;
+            if (merge && File.Exists(configFileName))
+            {
+                using (var reader = new StreamReader(configFileName))
+                {
+                    savedConfig = yamlDeserializer.Deserialize<Config>(reader);
+                }
+                savedConfig.Merge(this);
+            }
+            using (var writer = new StreamWriter(configFileName, false, System.Text.Encoding.UTF8))
+            {
+                yamlSerializer.Serialize(writer, this);
+            }                                                    
+        }
+
         private void Merge(Config otherConfig)
         {
+            if ( otherConfig == null)
+            {
+                throw new ArgumentNullException(nameof(otherConfig));
+            }
+
             if (otherConfig.AddressFamily != null)
             {
                 this.AddressFamily = otherConfig.AddressFamily;
@@ -306,8 +332,13 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             this.RemoteForward.AddRange(otherConfig.RemoteForward);
         }
 
-        static Config LoadConfigFile(string fileName)
+        public static Config LoadConfigFile(string fileName)
         {
+            if (fileName == null)
+            {
+                throw new ArgumentNullException(nameof(fileName));
+            }
+
             if (File.Exists(fileName))
             {
                 using (var reader = new StreamReader(fileName))
@@ -321,6 +352,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             }
         }
 
-        static Deserializer yamlDeserializer = new DeserializerBuilder().WithNamingConvention(new PascalCaseNamingConvention()).Build();
+        static Deserializer yamlDeserializer = 
+            new DeserializerBuilder()
+            .IgnoreUnmatchedProperties()
+            .WithNamingConvention(new PascalCaseNamingConvention()).Build();
+
+        static Serializer yamlSerializer =
+            new SerializerBuilder()
+            .WithNamingConvention(new PascalCaseNamingConvention()).Build();
+
     }
 }
