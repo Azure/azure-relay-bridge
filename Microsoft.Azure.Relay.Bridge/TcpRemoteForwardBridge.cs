@@ -12,7 +12,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using Microsoft.Azure.Relay;
     using Microsoft.Win32;
 
-    sealed class TcpClientBridge : IDisposable
+    sealed class TcpRemoteForwardBridge : IDisposable
     {
         readonly RelayConnectionStringBuilder connectionString;
         static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
@@ -21,7 +21,7 @@ namespace Microsoft.Azure.Relay.Bridge
         Microsoft.Azure.Relay.HybridConnectionListener listener;
         CancellationTokenSource shuttingDown = new CancellationTokenSource();
 
-        internal TcpClientBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
+        internal TcpRemoteForwardBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
         {
             this.connectionString = connectionString;
             this.targetServer = targetServer;

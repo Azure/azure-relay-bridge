@@ -1,5 +1,3 @@
-
-
 namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
@@ -10,12 +8,18 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Xunit;
 
-    public class ConfigTest
+    public class ConfigTest : IClassFixture<LaunchSettingsFixture>
     {
+        private readonly LaunchSettingsFixture launchSettingsFixture;
+
+        public ConfigTest(LaunchSettingsFixture launchSettingsFixture)
+        {
+            this.launchSettingsFixture = launchSettingsFixture;
+        }
 
         string CreateMaxCommandLine()
         {
-            return " -b 127.0.0.4" +
+            return "-b 127.0.0.4" +
                    " -C" +
                    " -E sb://cvrelay.servicebus.windows.net/" +
                    " -F foo.txt" +
@@ -25,12 +29,11 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                    " -L 127.0.100.1:8008:foo" +
                    " -L 127.0.100.2:8008:bar" +
                    " -L name:baz" +
-                   " -o GatewayPort:true" +
+                   " -o ConnectTimeout:44" +
                    " -q" +
                    " -R foo:123" +
                    " -R bar:10.1.1.1:123" +
                    " -R baz:abc" +
-                   " -S sigsig" +
                    " -v";
         }
 
@@ -91,28 +94,30 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         
 
         [Fact]
-        public void CommandLineMaxTest()
+        public async Task CommandLineMaxTest()
         {
-            CommandLineSettings.Run = (settings) => {
-                
-                Config config = Config.LoadConfig(settings);
-
-                CheckMaxCommandLine(config);
-
-                return Task.FromResult(0);
-            };
-            CommandLineApplication.Execute<CommandLineSettings>(CreateMaxCommandLine().Split(' '));
+            bool callbackInvoked = false;
+            CommandLineSettings.Run(CreateMaxCommandLine().Split(' '), 
+                (settings) =>
+                {
+                    Config config = Config.LoadConfig(settings);
+                    CheckMaxCommandLine(config);
+                    callbackInvoked = true;
+                    return 0;
+                });
+            
+            Assert.True(callbackInvoked);
         }
 
         private static void CheckMaxCommandLine(Config config)
         {
-            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
+            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=abcdefgh;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
             Assert.Equal("send", config.AzureRelaySharedAccessKeyName);
             Assert.Equal("abcdefgh", config.AzureRelaySharedAccessKey);
-            Assert.Equal("sigsig", config.AzureRelaySharedAccessSignature);
             Assert.Equal("127.0.0.4", config.BindAddress);
-            Assert.False(config.ClearAllForwardings);
+            Assert.Equal(44, config.ConnectTimeout);
+            Assert.True(config.GatewayPorts);
             Assert.True(config.Compression);
             
             Assert.Equal(3, config.LocalForward.Count);
@@ -122,14 +127,14 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
-            Assert.Equal("abc", config.LocalForward[2].BindLocalSocket);
+            Assert.Equal("name", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
 
             Assert.Equal(3, config.RemoteForward.Count);
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
             Assert.Equal(123, config.RemoteForward[0].HostPort);
             Assert.Equal("bar", config.RemoteForward[1].RelayName);
-            Assert.Equal(8008, config.RemoteForward[1].HostPort);
+            Assert.Equal(123, config.RemoteForward[1].HostPort);
             Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
             Assert.Equal("baz", config.RemoteForward[2].RelayName);
             Assert.Equal("abc", config.RemoteForward[2].LocalSocket);

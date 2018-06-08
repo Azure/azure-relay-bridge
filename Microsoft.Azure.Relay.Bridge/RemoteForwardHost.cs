@@ -9,15 +9,15 @@ namespace Microsoft.Azure.Relay.Bridge
     using Microsoft.Azure.Relay;
     using Microsoft.Azure.Relay.Bridge.Configuration;
 
-    sealed class TcpClientHost
+    sealed class RemoteForwardHost
     {
-        readonly Dictionary<string, TcpClientBridge> clientBridges =
-            new Dictionary<string, TcpClientBridge>();
-        private readonly IEnumerable<RemoteForward> connectionInfo;
+        readonly Dictionary<string, TcpRemoteForwardBridge> clientBridges =
+            new Dictionary<string, TcpRemoteForwardBridge>();
+        private Config config;
 
-        public TcpClientHost(IEnumerable<RemoteForward> connectionInfo)
+        public RemoteForwardHost(Config config)
         {
-            this.connectionInfo = connectionInfo;
+            this.config = config;
         }
 
         public void Start()
@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Relay.Bridge
             try
             {
                 EventSource.Log.HybridConnectionManagerStarting();
-                StartEndpoints(this.connectionInfo);
+                StartEndpoints(config.RemoteForward);
 
             }
             catch (Exception e)
@@ -45,7 +45,7 @@ namespace Microsoft.Azure.Relay.Bridge
             EventSource.Log.HybridConnectionManagerManagementServerError(null, e.InnerException != null ? e.InnerException.ToString() : e.ToString());
         }
 
-        void StopEndpoint(TcpClientBridge tcpClientBridge)
+        void StopEndpoint(TcpRemoteForwardBridge tcpClientBridge)
         {
             try
             {
@@ -63,25 +63,29 @@ namespace Microsoft.Azure.Relay.Bridge
             }
         }
 
-        internal void UpdateConfig(List<RemoteForward> targets)
+        internal void UpdateConfig(Config config)
         {
-            foreach (var item in targets)
-            {
-              
-            }
+            this.config = config;
+
+            // stopping the listeners will actually not cut existing
+            // connections.
+
+            StopEndpoints();
+            StartEndpoints(config.RemoteForward);
         }
 
         void StartEndpoint(RemoteForward remoteForward)
         {
             Uri hybridConnectionUri = null;
-            TcpClientBridge tcpClientBridge = null;
+            TcpRemoteForwardBridge tcpClientBridge = null;
 
-            var rcbs = remoteForward.RelayConnectionStringBuilder;
-            hybridConnectionUri = rcbs.Endpoint;
+            var rcbs = remoteForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(this.config.AzureRelayConnectionString);
+            rcbs.EntityPath = remoteForward.RelayName;
+            hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
 
             try
             {
-                tcpClientBridge = new TcpClientBridge(remoteForward.RelayConnectionStringBuilder,
+                tcpClientBridge = new TcpRemoteForwardBridge(rcbs,
                     remoteForward.Host, remoteForward.HostPort);
                 tcpClientBridge.Open().Wait();
 

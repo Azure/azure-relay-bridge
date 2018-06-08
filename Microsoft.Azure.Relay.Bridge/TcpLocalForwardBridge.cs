@@ -10,7 +10,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using System.Threading.Tasks;
     using Microsoft.Azure.Relay;
 
-    sealed class TcpListenerBridge : IDisposable
+    sealed class TcpLocalForwardBridge : IDisposable
     {
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -20,7 +20,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
         TcpListener tcpListener;
 
-        public TcpListenerBridge(RelayConnectionStringBuilder connectionString)
+        public TcpLocalForwardBridge(RelayConnectionStringBuilder connectionString)
         {
             this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
         }
@@ -33,9 +33,9 @@ namespace Microsoft.Azure.Relay.Bridge
 
         internal bool IsOpen { get; private set; }
 
-        public static TcpListenerBridge FromConnectionString(RelayConnectionStringBuilder connectionString)
+        public static TcpLocalForwardBridge FromConnectionString(RelayConnectionStringBuilder connectionString)
         {
-            return new TcpListenerBridge(connectionString);
+            return new TcpLocalForwardBridge(connectionString);
         }
 
         public void Close()

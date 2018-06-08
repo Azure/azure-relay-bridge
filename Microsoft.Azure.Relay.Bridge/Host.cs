@@ -14,43 +14,31 @@ namespace Microsoft.Azure.Relay.Bridge
 
     public class Host
     {
-        readonly static string ConfigFileName = "mshcmsvc.config";
-        
-        TcpListenerHost hybridConnectionTcpListenerHost;
-        TcpClientHost hybridConnectionTcpClientHost;
-        FileSystemWatcher fsw;
-        string configurationFile;
-        private string configFileName;
+        LocalForwardHost hybridConnectionTcpListenerHost;
+        RemoteForwardHost hybridConnectionTcpClientHost;
+        private Config config;
+                   
 
-        public Host(string configurationFile)
+        public Host(Config config)
         {
-            this.configurationFile = configurationFile;
+            this.config = config;
         }
 
         public void Start()
         {
-            this.configFileName = configurationFile ?? GetConfigFileName();
-            if (!File.Exists(configFileName))
-            {
-                EventSource.Log.HybridConnectionManagerConfigurationFileError(null, "");
-                throw new FileNotFoundException(configFileName);
-            }
-
-            fsw = new FileSystemWatcher(configFileName);
-            fsw.Changed += ConfigFileChanged;
-            var config = LoadConfig(configFileName);
-            this.hybridConnectionTcpClientHost = new TcpClientHost(config.RemoteForward);
-            this.hybridConnectionTcpListenerHost = new TcpListenerHost(config.LocalForward);
+            this.config.Changed += ConfigChanged;
+            this.hybridConnectionTcpClientHost = new RemoteForwardHost(config);
+            this.hybridConnectionTcpListenerHost = new LocalForwardHost(config);
 
             this.hybridConnectionTcpClientHost.Start();
             this.hybridConnectionTcpListenerHost.Start();
         }
 
-        private void ConfigFileChanged(object sender, FileSystemEventArgs e)
+        private void ConfigChanged(object sender, ConfigChangedEventArgs e)
         {
-            var config = LoadConfig(configFileName);
-            hybridConnectionTcpClientHost.UpdateConfig(config.RemoteForward);
-            hybridConnectionTcpListenerHost.UpdateConfig(config.LocalForward);
+            this.config = e.NewConfig;
+            hybridConnectionTcpClientHost.UpdateConfig(config);
+            hybridConnectionTcpListenerHost.UpdateConfig(config);
         }
 
         public static void SaveConfig(string configFilePath, Config connectionConfig)
@@ -78,43 +66,6 @@ namespace Microsoft.Azure.Relay.Bridge
                     jwriter.Flush();
                 }                    
             }
-        }
-
-        public static string GetConfigFileName()
-        {
-            // we will return the name of the config file in the current
-            // directory if one is present. Otherwise we return the 
-            // location of where the config file ought to be
-            string configFileName = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), ConfigFileName);
-            if (!File.Exists(configFileName))
-            {
-                if (Environment.OSVersion.Platform == PlatformID.Unix ||
-                      Environment.OSVersion.Platform == PlatformID.MacOSX)
-                {
-                    configFileName = "/etc/mshcmsvc/" + ConfigFileName;
-                }
-                else
-                {
-                    configFileName =
-                        Path.Combine(Path.GetPathRoot(Environment.SystemDirectory),
-                           @"\ProgramData\Microsoft\Microsoft.HybridConnectionManager\" + ConfigFileName);
-                }
-            }
-            return configFileName;
-        }
-
-        public static Config LoadConfig(string configFileName)
-        {   
-            using (var reader = new StreamReader(configFileName, true))
-            {
-                var jr = new JsonTextReader(reader);
-                JObject config = JObject.Load(jr);
-                if (config.ContainsKey("connections"))
-                {
-                    return config["connections"].ToObject<Config>();
-                }
-            }
-            return new Config();
         }
 
         public void Stop()

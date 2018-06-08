@@ -10,20 +10,20 @@ namespace Microsoft.Azure.Relay.Bridge
     using Microsoft.Azure.Relay;
     using Microsoft.Azure.Relay.Bridge.Configuration;
 
-    sealed class TcpListenerHost
+    sealed class LocalForwardHost
     {
-        readonly Dictionary<string, TcpListenerBridge> listenerBridges = new Dictionary<string, TcpListenerBridge>();
-        private readonly IEnumerable<LocalForward> connectionInfoCollection;
+        readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
+        private Config config;
 
-        public TcpListenerHost(IEnumerable<LocalForward> connectionInfoCollection)
+        public LocalForwardHost(Config config)
         {
-            this.connectionInfoCollection = connectionInfoCollection;
+            this.config = config;
         }
 
         public void Start()
         {
             EventSource.Log.HybridConnectionClientServiceStarting();
-
+            this.StartEndpoints(this.config.LocalForward);
         }
 
         public void Stop()
@@ -36,10 +36,12 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             var activity = new EventTraceActivity();
             Uri hybridConnectionUri = null;
-            TcpListenerBridge tcpListenerBridge = null;
+            TcpLocalForwardBridge tcpListenerBridge = null;
 
-            var rcbs = localForward.RelayConnectionStringBuilder;
-            hybridConnectionUri = rcbs.Endpoint;
+            var rcbs = localForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(config.AzureRelayConnectionString);
+            rcbs.EntityPath = localForward.RelayName;
+            hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
+
             try
             {
                 IPHostEntry localHostEntry = Dns.GetHostEntry(Dns.GetHostName());
@@ -48,26 +50,18 @@ namespace Microsoft.Azure.Relay.Bridge
                 // form of DNS server shouldn't matter for us here (means we do not touch 
                 // the hosts file in this process), but the address MUST resolve to a local 
                 // endpoint or to a loopback endpoint
-                IPHostEntry hostEntry = Dns.GetHostEntry(localForward.BindAddress);
-                IPAddress bindToAddress = null;
-                foreach (var address in hostEntry.AddressList)
+
+                IPAddress bindToAddress;
+                Random rnd = new Random();
+                if (!IPAddress.TryParse(localForward.BindAddress, out bindToAddress))
                 {
-                    if (IPAddress.IsLoopback(address))
-                    {
-                        // we bind to the first loopback address we find here
-                        bindToAddress = address;
-                        break;
-                    }
-                    if (localHostEntry.AddressList.FirstOrDefault((e) => e.Equals(address)) != default(IPAddress))
-                    {
-                        // if the address is the public address of this machine, we bind to that
-                        bindToAddress = address;
-                        break;
-                    }
+                    IPHostEntry hostEntry = Dns.GetHostEntry(localForward.BindAddress);
+                    bindToAddress = hostEntry.AddressList[rnd.Next(hostEntry.AddressList.Length)];
                 }
+
                 if (bindToAddress != null)
                 {
-                    tcpListenerBridge = TcpListenerBridge.FromConnectionString(localForward.RelayConnectionStringBuilder);
+                    tcpListenerBridge = TcpLocalForwardBridge.FromConnectionString(rcbs);
                     tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
                     EventSource.Log.HybridConnectionClientStarted(activity,
@@ -79,25 +73,31 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 throw;
             }
-            
+
         }
 
-        internal void UpdateConfig(List<LocalForward> listeners)
+        internal void UpdateConfig(Config config)
         {
-            
+            this.config = config;
+
+            // stopping the listeners will actually not cut existing
+            // connections.
+
+            StopEndpoints();
+            StartEndpoints(config.LocalForward);
         }
 
-        void StartEndpoints(IEnumerable<LocalForward> tcpListenerSettings)
+        void StartEndpoints(IEnumerable<LocalForward> localForwardSettings)
         {
-            foreach (var tcpListenerSetting in tcpListenerSettings)
+            foreach (var tcpListenerSetting in localForwardSettings)
             {
                 this.StartEndpoint(tcpListenerSetting);
             }
         }
 
-        void StopEndpoint(TcpListenerBridge tcpListenerBridge)
+        void StopEndpoint(TcpLocalForwardBridge tcpLocalForwardBridge)
         {
-            tcpListenerBridge.Close();
+            tcpLocalForwardBridge.Close();
         }
 
         void StopEndpoints()
@@ -107,6 +107,6 @@ namespace Microsoft.Azure.Relay.Bridge
                 this.StopEndpoint(bridge);
             }
         }
-        
+
     }
 }

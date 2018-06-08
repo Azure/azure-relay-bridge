@@ -4,11 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
-using System.Net;
-using System.Net.Sockets;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -17,13 +12,16 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     /// <summary>
     /// 
     /// </summary>
-    public class Config
+    public class Config : IDisposable
     {
         RelayConnectionStringBuilder relayConnectionStringBuilder;
+        List<FileSystemWatcher> watchers;
+
 
         public Config()
         {
             relayConnectionStringBuilder = new RelayConnectionStringBuilder();
+            watchers = new List<FileSystemWatcher>();
         }
 
         /// <summary>
@@ -39,7 +37,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string AzureRelayConnectionString
         {
             get { return relayConnectionStringBuilder.ToString(); }
-            set { relayConnectionStringBuilder = value != null ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder(); }
+            set { relayConnectionStringBuilder = ((value != null) ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder()); }
         }
 
         RelayConnectionStringBuilder RelayConnectionStringBuilder
@@ -51,7 +49,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <summary>
         /// Azure Relay endpoint URI for a Relay namespace.
         /// </summary>
-        public string AzureRelayEndpoint { get => RelayConnectionStringBuilder.Endpoint.ToString(); set => RelayConnectionStringBuilder.Endpoint = new Uri(value); }
+        public string AzureRelayEndpoint { get => RelayConnectionStringBuilder.Endpoint?.ToString(); set => RelayConnectionStringBuilder.Endpoint = (value != null)?new Uri(value):null; }
 
         /// <summary>
         /// Azure Relay shared access policy name.
@@ -156,8 +154,13 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
-        public List<RemoteForward> RemoteForward { get; set;  } = new List<RemoteForward>();
+        public List<RemoteForward> RemoteForward { get; set; } = new List<RemoteForward>();
 
+        internal event EventHandler<ConfigChangedEventArgs> Changed;
+        void RaiseChanged(Config newConfig)
+        {
+            Changed?.Invoke(this, new ConfigChangedEventArgs { OldConfig = this, NewConfig = newConfig });
+        }
 
         public static Config LoadConfig(CommandLineSettings commandLineSettings)
         {
@@ -168,6 +171,16 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), $"{azurebridge}\\{azurebridge}_config.yml");
 
             Config config = LoadConfigFile(machineConfigFileName);
+            Action onchange = () => { var cfg = LoadConfig(commandLineSettings); config.RaiseChanged(cfg); };
+
+            if (Directory.Exists(Path.GetDirectoryName(machineConfigFileName)))
+            {
+                var fsw = new FileSystemWatcher(machineConfigFileName);
+                fsw.Created += (o, e) => onchange();
+                fsw.Deleted += (o, e) => onchange();
+                fsw.Changed += (o, e) => onchange();
+                config.watchers.Add(fsw);
+            }
 
             if (commandLineSettings.ConfigFile == null)
             {
@@ -178,26 +191,49 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
                 Config userConfig = LoadConfigFile(userConfigFileName);
                 config.Merge(userConfig);
+                if (Directory.Exists(Path.GetDirectoryName(userConfigFileName)))
+                {
+                    var fsw = new FileSystemWatcher(userConfigFileName);
+                    fsw.Created += (o, e) => onchange();
+                    fsw.Deleted += (o, e) => onchange();
+                    fsw.Changed += (o, e) => onchange();
+                    config.watchers.Add(fsw);
+                }
             }
             else
             {
                 Config overrideConfig = LoadConfigFile(commandLineSettings.ConfigFile);
                 config.Merge(overrideConfig);
+                if (Directory.Exists(Path.GetDirectoryName(commandLineSettings.ConfigFile)))
+                {
+                    var fsw = new FileSystemWatcher(commandLineSettings.ConfigFile);
+                    fsw.Created += (o, e) => onchange();
+                    fsw.Deleted += (o, e) => onchange();
+                    fsw.Changed += (o, e) => onchange();
+                    config.watchers.Add(fsw);
+                }
             }
 
             if (commandLineSettings.Option != null)
             {
+                MemoryStream memcfg = new MemoryStream();
+                StreamWriter w = new StreamWriter(memcfg);
                 foreach (var opt in commandLineSettings.Option)
                 {
-                    config.Merge(yamlDeserializer.Deserialize<Config>(new StringReader(opt)));
+                    var opts = opt.Split(':');
+                    w.WriteLine(opts[0] + " : " + ((opts.Length > 1) ? opts[1] : string.Empty));
                 }
+                w.Flush();
+                memcfg.Position = 0;
+
+                config.Merge(yamlDeserializer.Deserialize<Config>(new StreamReader(memcfg)));
             }
 
             if (commandLineSettings.BindAddress != null)
             {
                 config.BindAddress = commandLineSettings.BindAddress;
             }
-            if ( commandLineSettings.CleanHosts.HasValue)
+            if (commandLineSettings.CleanHosts.HasValue)
             {
                 config.ClearAllForwardings = commandLineSettings.CleanHosts;
             }
@@ -233,6 +269,120 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 config.AzureRelayConnectionString = commandLineSettings.ConnectionString;
             }
+
+            if (commandLineSettings.LocalForward != null)
+            {
+                foreach (var lf in commandLineSettings.LocalForward)
+                {
+                    string[] lfs = lf.Split(':');
+                    if (lfs.Length == 1 || lfs.Length > 3)
+                    {
+                        throw new ConfigException($"Invalid -L expression: {lf}");
+                    }
+                    else if (lfs.Length == 2)
+                    {
+                        int port;
+                        // this is either -L local_socket:relay_name or -L port:relay_name
+                        if (int.TryParse(lfs[0], out port))
+                        {
+                            // port
+                            // local_socket
+                            config.LocalForward.Add(new Configuration.LocalForward
+                            {
+                                BindAddress = "localhost",
+                                BindPort = port,
+                                RelayName = lfs[1]
+                            });
+                        }
+                        else
+                        {
+                            // local_socket
+                            config.LocalForward.Add(new Configuration.LocalForward
+                            {
+                                BindLocalSocket = lfs[0],
+                                RelayName = lfs[1]
+                            });
+                        }
+                    }
+                    else
+                    {
+                        int port;
+                        // this is -L host:port:relay_name
+                        if (int.TryParse(lfs[1], out port))
+                        {
+                            // port
+                            // local_socket
+                            config.LocalForward.Add(new Configuration.LocalForward
+                            {
+                                BindAddress = lfs[0],
+                                BindPort = port,
+                                RelayName = lfs[2]
+                            });
+                        }
+                        else
+                        {
+                            throw new ConfigException($"Invalid -L 'port' expression: {lfs[1]}");
+                        }
+                    }
+                }
+            }
+
+            if (commandLineSettings.RemoteForward != null)
+            {
+                foreach (var lf in commandLineSettings.RemoteForward)
+                {
+                    string[] lfs = lf.Split(':');
+                    if (lfs.Length == 1 || lfs.Length > 3)
+                    {
+                        throw new ConfigException($"Invalid -R expression: {lf}");
+                    }
+                    else if (lfs.Length == 2)
+                    {
+                        int port;
+                        // this is either -R relay_name:port or -L relay_name:local_socket
+                        if (int.TryParse(lfs[1], out port))
+                        {
+                            // port
+                            // local_socket
+                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            {
+                                Host = "localhost",
+                                HostPort = port,
+                                RelayName = lfs[0]
+                            });
+                        }
+                        else
+                        {
+                            // local_socket
+                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            {
+                                LocalSocket = lfs[1],
+                                RelayName = lfs[0]
+                            });
+                        }
+                    }
+                    else
+                    {
+                        int port;
+                        // this is -L relay_name:host:port
+                        if (int.TryParse(lfs[2], out port))
+                        {
+                            // port
+                            // local_socket
+                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            {
+                                Host = lfs[1],
+                                HostPort = port,
+                                RelayName = lfs[0]
+                            });
+                        }
+                        else
+                        {
+                            throw new ConfigException($"Invalid -R 'port' expression: {lfs[2]}");
+                        }
+                    }
+                }
+            }
             return config;
         }
 
@@ -255,12 +405,12 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             using (var writer = new StreamWriter(configFileName, false, System.Text.Encoding.UTF8))
             {
                 yamlSerializer.Serialize(writer, this);
-            }                                                    
+            }
         }
 
         private void Merge(Config otherConfig)
         {
-            if ( otherConfig == null)
+            if (otherConfig == null)
             {
                 throw new ArgumentNullException(nameof(otherConfig));
             }
@@ -341,6 +491,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             if (File.Exists(fileName))
             {
+
                 using (var reader = new StreamReader(fileName))
                 {
                     return yamlDeserializer.Deserialize<Config>(reader);
@@ -352,7 +503,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             }
         }
 
-        static Deserializer yamlDeserializer = 
+        static Deserializer yamlDeserializer =
             new DeserializerBuilder()
             .IgnoreUnmatchedProperties()
             .WithNamingConvention(new PascalCaseNamingConvention()).Build();
@@ -361,5 +512,33 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             new SerializerBuilder()
             .WithNamingConvention(new PascalCaseNamingConvention()).Build();
 
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    foreach (var w in watchers)
+                    {
+                        w.Dispose();
+                    }
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+    }
+
+    class ConfigChangedEventArgs : EventArgs
+    {
+        public Config OldConfig { get; set; }
+        public Config NewConfig { get; set; }
     }
 }

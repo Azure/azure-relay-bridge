@@ -15,11 +15,10 @@ namespace azbridge
     {
         static void Main(string[] args)
         {
-            CommandLineSettings.Run = Program.Run;
-            CommandLineApplication.Execute<CommandLineSettings>(args);
+            CommandLineSettings.Run(args, Run);            
         }
 
-        static async Task<int> Run(CommandLineSettings settings)
+        static int Run(CommandLineSettings settings)
         {
             try
             {
@@ -29,10 +28,10 @@ namespace azbridge
                 SemaphoreSlim semaphore = new SemaphoreSlim(1);
                 semaphore.Wait();
 
-                Host host = new Host(settings.ConfigFile);
+                Host host = new Host(config);
                 host.Start();
                 Console.CancelKeyPress += (e, a) => semaphore.Release();
-                await semaphore.WaitAsync();
+                semaphore.Wait();
                 host.Stop();
             }
             catch(FileNotFoundException e)
