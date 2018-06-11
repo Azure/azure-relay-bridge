@@ -58,10 +58,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         "  - BindAddress : 127.0.100.1" + textWriter.NewLine +
                         "    BindPort : 8008" + textWriter.NewLine +
                         "    RelayName : foo" + textWriter.NewLine +
+                        "    HostName : foo.example.com" + textWriter.NewLine +
                         "  - BindAddress : 127.0.100.2" + textWriter.NewLine +
                         "    BindPort : 8008" + textWriter.NewLine +
                         "    RelayName : bar" + textWriter.NewLine +
-                        "  - BindLocalSocket : name" + textWriter.NewLine +
+                        "    HostName : bar.example.com" + textWriter.NewLine +
+                        "  - BindLocalSocket : test" + textWriter.NewLine +
                         "    RelayName : baz" + textWriter.NewLine +
                         "RemoteForward : " + textWriter.NewLine +
                         "  - RelayName : foo" + textWriter.NewLine +
@@ -70,8 +72,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         "    HostPort : 8008" + textWriter.NewLine +
                         "    Host : 10.1.1.1" + textWriter.NewLine +
                         "  - RelayName : baz" + textWriter.NewLine +
-                        "    HostPort : 8008" + textWriter.NewLine +
-                        "    Host : foo.example.com" + textWriter.NewLine);
+                        "    LocalSocket : foo" + textWriter.NewLine);
                 }
             }
             return myFile;
@@ -165,22 +166,18 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
-            Assert.Equal("foo.example.com", config.LocalForward[1].HostName);
+            Assert.Equal("bar.example.com", config.LocalForward[1].HostName);
             Assert.Equal("test", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
-            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.LocalForward[2].ConnectionString);
-            Assert.Equal("foo.example.com", config.LocalForward[2].HostName);
-
+            
             Assert.Equal(3, config.RemoteForward.Count);
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
-            Assert.Equal(8008, config.RemoteForward[0].HostPort);
-            Assert.Equal("foo.example.com", config.RemoteForward[0].Host);
+            Assert.Equal(123, config.RemoteForward[0].HostPort);
             Assert.Equal("bar", config.RemoteForward[1].RelayName);
             Assert.Equal(8008, config.RemoteForward[1].HostPort);
-            Assert.Equal("foo.example.com", config.RemoteForward[1].Host);
+            Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
             Assert.Equal("baz", config.RemoteForward[2].RelayName);
-            Assert.Equal(8008, config.RemoteForward[2].HostPort);
-            Assert.Equal("foo.example.com", config.RemoteForward[2].Host);
+            Assert.Equal("foo", config.RemoteForward[2].LocalSocket);
         }
 
         [Fact]

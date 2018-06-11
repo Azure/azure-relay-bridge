@@ -175,7 +175,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             if (Directory.Exists(Path.GetDirectoryName(machineConfigFileName)))
             {
-                var fsw = new FileSystemWatcher(machineConfigFileName);
+                var fsw = new FileSystemWatcher(Path.GetDirectoryName(machineConfigFileName), Path.GetFileName(machineConfigFileName));
                 fsw.Created += (o, e) => onchange();
                 fsw.Deleted += (o, e) => onchange();
                 fsw.Changed += (o, e) => onchange();
@@ -193,7 +193,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 config.Merge(userConfig);
                 if (Directory.Exists(Path.GetDirectoryName(userConfigFileName)))
                 {
-                    var fsw = new FileSystemWatcher(userConfigFileName);
+                    var fsw = new FileSystemWatcher(Path.GetDirectoryName(userConfigFileName), Path.GetFileName(userConfigFileName));
                     fsw.Created += (o, e) => onchange();
                     fsw.Deleted += (o, e) => onchange();
                     fsw.Changed += (o, e) => onchange();
@@ -206,7 +206,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 config.Merge(overrideConfig);
                 if (Directory.Exists(Path.GetDirectoryName(commandLineSettings.ConfigFile)))
                 {
-                    var fsw = new FileSystemWatcher(commandLineSettings.ConfigFile);
+                    var fsw = new FileSystemWatcher(Path.GetDirectoryName(commandLineSettings.ConfigFile), Path.GetFileName(commandLineSettings.ConfigFile));
                     fsw.Created += (o, e) => onchange();
                     fsw.Deleted += (o, e) => onchange();
                     fsw.Changed += (o, e) => onchange();

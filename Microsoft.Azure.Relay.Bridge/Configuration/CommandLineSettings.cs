@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     using McMaster.Extensions.CommandLineUtils;
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
 
     public class CommandLineSettings
@@ -45,14 +46,24 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         [Option(CommandOptionType.NoValue, ShortName = "v")]
         public bool Verbose { get; internal set; }
 
+        
+        static CommandLineApplication<CommandLineSettings> app = new CommandLineApplication<CommandLineSettings>(true);
+
+        static CommandLineSettings()
+        {
+            app.ModelFactory = () => new CommandLineSettings();
+            app.Conventions.UseDefaultConventions();
+        }
 
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
         {
-            var app = new CommandLineApplication<CommandLineSettings>(true);
-            app.ModelFactory = () => new CommandLineSettings();
-            app.Conventions.UseDefaultConventions();
             app.Parse(args);                                    
             callback(app.Model);
+        }
+
+        public static void Help()
+        {
+            app.ShowHelp();
         }
     }
 }

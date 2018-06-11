@@ -15,16 +15,23 @@ namespace azbridge
     {
         static void Main(string[] args)
         {
-            CommandLineSettings.Run(args, Run);            
+            CommandLineSettings.Run(args, Run);
         }
 
         static int Run(CommandLineSettings settings)
         {
             try
             {
-                Console.WriteLine("Press Ctrl+C to stop");
                 Config config = Config.LoadConfig(settings);
+                if (config.LocalForward.Count == 0 &&
+                     config.RemoteForward.Count == 0)
+                {
+                    CommandLineSettings.Help();
+                    Console.WriteLine("You must specify at least one -L or -R forwarder.");
+                    return 2;
+                }
 
+                Console.WriteLine("Press Ctrl+C to stop");
                 SemaphoreSlim semaphore = new SemaphoreSlim(1);
                 semaphore.Wait();
 
@@ -34,11 +41,11 @@ namespace azbridge
                 semaphore.Wait();
                 host.Stop();
             }
-            catch(FileNotFoundException e)
+            catch (FileNotFoundException e)
             {
                 Console.WriteLine("Configuration file not found:" + e.Message);
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
