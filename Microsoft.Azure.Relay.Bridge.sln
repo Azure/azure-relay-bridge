@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2027
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge", "Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj", "{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge", "src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj", "{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "azbridge", "azbridge\azbridge.csproj", "{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "azbridge", "src\azbridge\azbridge.csproj", "{AC769774-B065-41E8-B0AB-D15ED6B8D6A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "azbridgesvc", "azbridgesvc\azbridgesvc.csproj", "{3F446578-A0EE-465A-B97D-96504CD789E1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "azbridgesvc", "src\azbridgesvc\azbridgesvc.csproj", "{3F446578-A0EE-465A-B97D-96504CD789E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge.Test", "Microsoft.Azure.Relay.Bridge.Test\Microsoft.Azure.Relay.Bridge.Test.csproj", "{8D537DA4-409A-428E-926C-1009906AE5E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge.Tests", "test\Microsoft.Azure.Relay.Bridge.Tests\Microsoft.Azure.Relay.Bridge.Tests.csproj", "{8D537DA4-409A-428E-926C-1009906AE5E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{81A22557-15D8-47E9-A19E-0335F16B25F3}"
 	ProjectSection(SolutionItems) = preProject

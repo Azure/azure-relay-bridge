@@ -1,3 +1,0 @@
-BUILD_PASS1_CONSUMES= \
-    services\websites\src4\hosting\forwardingservice\common|PASS1 \
-

@@ -1,0 +1,35 @@
+﻿<Project>
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+  <PropertyGroup Label="Package Versions">
+        <InternalAspNetCoreSdkPackageVersion>2.1.0-rtm-15783</InternalAspNetCoreSdkPackageVersion>
+    <MicrosoftAspNetCoreAllPackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreAllPackageVersion>
+    <MicrosoftAspNetCoreAuthenticationCorePackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreAuthenticationCorePackageVersion>
+    <MicrosoftAspNetCoreHostingPackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreHostingPackageVersion>
+    <MicrosoftAspNetCoreTestingPackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreTestingPackageVersion>
+    <MicrosoftExtensionsLoggingConsolePackageVersion>2.1.0-rtm-30721</MicrosoftExtensionsLoggingConsolePackageVersion>
+    <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
+    <MicrosoftNETCoreApp21PackageVersion>2.1.0-rtm-26502-02</MicrosoftNETCoreApp21PackageVersion>
+    <MicrosoftNetHttpHeadersPackageVersion>2.1.0-rtm-30721</MicrosoftNetHttpHeadersPackageVersion>
+    <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
+    <NETStandardLibrary20PackageVersion>2.0.3</NETStandardLibrary20PackageVersion>
+    <SystemNetHttpWinHttpHandlerPackageVersion>4.5.0-rtm-26502-02</SystemNetHttpWinHttpHandlerPackageVersion>
+    <SystemThreadingTasksDataflowPackageVersion>4.8.0</SystemThreadingTasksDataflowPackageVersion>
+    <SystemConsolePackageVersion>4.3.1</SystemConsolePackageVersion>
+    <SystemIOPackageVersion>4.3.0</SystemIOPackageVersion>
+    <SystemConfigurationPackageVersion>4.3.0</SystemConfigurationPackageVersion>
+    <SystemDiagnosticsTracingPackageVersion>4.3.0</SystemDiagnosticsTracingPackageVersion>
+    <SystemNetHttpPackageVersion>4.3.1</SystemNetHttpPackageVersion>
+    <SystemNetNameResolutionPackageVersion>4.3.0</SystemNetNameResolutionPackageVersion>
+    <YamlDotNetSignedPackageVersion>4.3.1</YamlDotNetSignedPackageVersion>
+
+    <XunitPackageVersion>2.3.1</XunitPackageVersion>
+    <DotnetXunitPackageVersion>2.3.1</DotnetXunitPackageVersion>
+    <XunitRunnerVisualStudioPackageVersion>2.4.0-beta.1.build3945</XunitRunnerVisualStudioPackageVersion>
+    <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
+    <MicrosoftAzureRelayPackageVersion>1.1.0-preview</MicrosoftAzureRelayPackageVersion>
+    <McMasterExtensionsCommandLineUtilsPackageVersion>2.2.4</McMasterExtensionsCommandLineUtilsPackageVersion>
+  </PropertyGroup>
+  <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />
+</Project>
