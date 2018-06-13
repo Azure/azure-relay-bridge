@@ -1,5 +1,16 @@
 {
+    
     "Default": {
+        "packages" : {
+            "azbridge": {
+                "Exclusions": {
+                  "DOC_MISSING": {
+                    "lib/netcoreapp2.0/azbridge.dll": "no public API",
+                    "lib/netcoreapp2.1/azbridge.dll": "no public API"
+                  }
+                }
+              }
+        },
         "rules": [
             "DefaultCompositeRule"
         ]

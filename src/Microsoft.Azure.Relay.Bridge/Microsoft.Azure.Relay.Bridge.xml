@@ -1,0 +1,578 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Microsoft.Azure.Relay.Bridge</name>
+    </assembly>
+    <members>
+        <member name="T:Microsoft.Azure.Relay.Bridge.Configuration.Config">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AddressFamily">
+            <summary>
+            Specifies which address family to use when connecting.Valid
+            arguments are Unspecified ("any"), InterNetwork ("inet", IPv4 only), 
+            or InterNetworkV6 ("inet6", IPv6 only).  The default is Unspecified. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AzureRelayConnectionString">
+            <summary>
+            Azure Relay connection string for a Relay namespace.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AzureRelayEndpoint">
+            <summary>
+            Azure Relay endpoint URI for a Relay namespace.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AzureRelaySharedAccessKeyName">
+            <summary>
+            Azure Relay shared access policy name.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AzureRelaySharedAccessKey">
+            <summary>
+            Azure Relay shared access policy key.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.AzureRelaySharedAccessSignature">
+            <summary>
+            Azure Relay shared access policy signature
+            </summary>                                
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.BindAddress">
+            <summary>
+            Use the specified address on the local machine as the source
+            address of the connection. Only useful on systems with more than
+            one address. 
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.ClearAllForwardings">
+            <summary>
+            Specifies that all local, and remote port forwardings
+            specified in the configuration files or on the command line be
+            cleared.This option is primarily useful when used from the        
+            command line to clear port forwardings set in configura-        
+            tion files. The default is false.
+            </summary>
+            <value>
+              <c>true</c> to clear all forwardings; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.Compression">
+            <summary>
+            Specifies whether to use compression.
+            </summary>
+            <value>
+              <c>true</c> if compression is enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.CompressionLevel">
+            <summary>
+            Gets or sets the compression level.
+            </summary>
+            <value>
+            The compression level.
+            </value>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.ConnectionAttempts">
+            <summary>
+            Gets or sets the connection attempts.
+            </summary>
+            <value>
+            The connection attempts.
+            </value>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.ConnectTimeout">
+            <summary>
+            Specifies the timeout (in seconds) used when connecting to the
+            Relay server, instead of using the default system TCP timeout.
+            This value is used only when the target is down or really
+            unreachable, not when it refuses the connection.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.ExitOnForwardFailure">
+            <summary>
+            Specifies whether the client should terminate the 
+            connection if it cannot set up all requested local, and remote port forwardings,
+            (e.g. if either end is unable to bind and listen on a specified port). 
+            The default is false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.GatewayPorts">
+            <summary>
+            Specifies whether remote hosts are allowed to connect to local
+            forwarded ports. By default, azbridge(1) binds local port
+            forwardings to the loopback address.This prevents other remote hosts
+            from connecting to forwarded ports.GatewayPorts can be used to
+            specify that azbridge should bind local port forwardings to the
+            wildcard address, thus allowing remote hosts to connect to forwarded
+            ports. The default is false.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.LocalForward">
+            <summary>
+            Specifies that a (set of) TCP ports on the local machine 
+            shall be forwarded via the Azure Relay.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.LogLevel">
+            <summary>
+             Gives the verbosity level that is used when logging messages 
+            from azbridge(1). The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, 
+            DEBUG, DEBUG1, DEBUG2, and DEBUG3.The default is INFO.
+            DEBUG and DEBUG1 are equivalent.DEBUG2 and DEBUG3 each specify
+            higher levels of verbose output.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.RemoteForward">
+            <summary>
+            Specifies that a TCP port on the remote machine be bound to 
+            a name on the Azure Relay.
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.Relay.Bridge.EventSource">
+            <summary>
+            EventSource for the new Dynamic EventSource type of Microsoft-HybridConnectionManager traces.
+            
+            The default Level is Informational
+            
+            When defining Start/Stop tasks, the StopEvent.Id must be exactly StartEvent.Id + 1.
+            
+            Do not explicity include the Guid here, since EventSource has a mechanism to automatically
+            map to an EventSource Guid based on the Name (Microsoft-Azure-Relay).  The Guid will 
+            be consistent as long as the name stays Microsoft-Azure-Relay
+            </summary>
+        </member>
+        <member name="T:Microsoft.Azure.Relay.Bridge.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.AcceptHandlerException">
+            <summary>
+              Looks up a localized string similar to The Listener&apos;s custom AcceptHandler threw an exception. See Listener logs for details. TrackingId: {0}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ArgumentInvalidCombination">
+            <summary>
+              Looks up a localized string similar to Ensure either all or none of the following arguments are defined: &apos;{0}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ArgumentOutOfRange">
+            <summary>
+              Looks up a localized string similar to The argument is out of range. It should be between {0} and {1}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ArgumentStringTooBig">
+            <summary>
+              Looks up a localized string similar to The argument &apos;{0}&apos; cannot exceed {1} characters..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.BufferAllocationFailed">
+            <summary>
+              Looks up a localized string similar to Buffer allocation failed.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.CharacterReservedForUriScheme">
+            <summary>
+              Looks up a localized string similar to &apos;{0}&apos; contained character &apos;{1}&apos; which is not allowed because it is reserved in the Uri scheme..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConfigEntryAlreadyExists">
+            <summary>
+              Looks up a localized string similar to Existing configuration {0} found..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConnectionStringMustIncludeEntityPath">
+            <summary>
+              Looks up a localized string similar to {0} name should be specified as EntityPath in connectionString..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConnectionStringMustIncludeTokenProviderSettings">
+            <summary>
+              Looks up a localized string similar to The connectionString must include either SharedAccessSignature or both SharedAccessKeyName and SharedAccessKey..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConnectionStringMustNotIncludeEntityPath">
+            <summary>
+              Looks up a localized string similar to {0} name should not be specified as EntityPath in the connectionString while using this overload. Instead, use the &apos;path&apos; parameter..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConnectionStringParameterValueMissing">
+            <summary>
+              Looks up a localized string similar to The value for the connection string parameter &apos;{0}&apos; is empty or missing..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ConnectionStringUnknownParameter">
+            <summary>
+              Looks up a localized string similar to The connection string contains unknown parameter &apos;{0}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.DuplicateConnectionId">
+            <summary>
+              Looks up a localized string similar to Duplicate connection ID..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.EntityClosedOrAborted">
+            <summary>
+              Looks up a localized string similar to The operation cannot be performed because the entity has been closed or aborted..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.EntityNameLengthExceedsLimit">
+            <summary>
+              Looks up a localized string similar to The entity path/name &apos;{0}&apos; exceeds the {1} character limit..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InstanceAlreadyRunning">
+            <summary>
+              Looks up a localized string similar to This &apos;{0}&apos; instance has already been started once. To start another instance, please create a new &apos;{0}&apos; object and start that..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidAddressPath">
+            <summary>
+              Looks up a localized string similar to The Uri address given contains a path which is not allowed. Remove the path from the supplied Uri &apos;{0}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidAsyncResult">
+            <summary>
+              Looks up a localized string similar to The specified Async result object is null or invalid..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidConnectionString">
+            <summary>
+              Looks up a localized string similar to Connection String is invalid {0}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidEncoding">
+            <summary>
+              Looks up a localized string similar to The string has an invalid encoding format..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidEntityNameFormatWithSlash">
+            <summary>
+              Looks up a localized string similar to The entity name or path cannot contain &apos;/&apos; as prefix or suffix. The supplied value is &apos;{0}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.InvalidUriScheme">
+            <summary>
+              Looks up a localized string similar to The provided URI scheme &apos;{0}&apos; is invalid; expected &apos;{1}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ManagementPortMatchesCurrent">
+            <summary>
+              Looks up a localized string similar to Management port matches the current one..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ManagementServerNotRunning">
+            <summary>
+              Looks up a localized string similar to Management server is not running..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_InvalidStatus">
+            <summary>
+              Looks up a localized string similar to The status code must be between 100 and 999 inclusive..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_log_exception">
+            <summary>
+              Looks up a localized string similar to Exception in {0}::{1} - {2}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_securityprotocolnotsupported">
+            <summary>
+              Looks up a localized string similar to The requested security protocol is not supported..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_uri_NotAbsolute">
+            <summary>
+              Looks up a localized string similar to This operation is not supported for a relative URI..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebHeaderInvalidControlChars">
+            <summary>
+              Looks up a localized string similar to Specified value has invalid Control characters..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_AcceptUnsupportedProtocol">
+            <summary>
+              Looks up a localized string similar to The WebSocket request or response operation was called with unsupported protocol(s)..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_Websockets_AlreadyOneOutstandingOperation">
+            <summary>
+              Looks up a localized string similar to There is already one outstanding &apos;{0}&apos; call for this WebSocket instance. ReceiveAsync and SendAsync can be called simultaneously, but at most one outstanding operation for each of them is allowed at the same time..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_AlreadyStarted">
+            <summary>
+              Looks up a localized string similar to The WebSocket has already been started..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_Argument_InvalidMessageType">
+            <summary>
+              Looks up a localized string similar to The message type &apos;{0}&apos; is not allowed for the &apos;{1}&apos; operation. Valid message types are: &apos;{2}, {3}&apos;. To close the WebSocket, use the &apos;{4}&apos; operation instead..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_ArgumentOutOfRange_InternalBuffer">
+            <summary>
+              Looks up a localized string similar to The byte array must have a length of at least &apos;{0}&apos; bytes..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_ArgumentOutOfRange_TooBig">
+            <summary>
+              Looks up a localized string similar to The value of the &apos;{0}&apos; parameter ({1}) must be less than or equal to {2}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_ArgumentOutOfRange_TooSmall">
+            <summary>
+              Looks up a localized string similar to The argument must be a value greater than {0}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_Connect101Expected">
+            <summary>
+              Looks up a localized string similar to The server returned status code &apos;{0}&apos; when status code &apos;101&apos; was expected..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_Generic">
+            <summary>
+              Looks up a localized string similar to An internal WebSocket error occurred. Please see the innerException, if present, for more details..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidCharInProtocolString">
+            <summary>
+              Looks up a localized string similar to The WebSocket protocol &apos;{0}&apos; is invalid because it contains the invalid character &apos;{1}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidCloseStatusCode">
+            <summary>
+              Looks up a localized string similar to The close status code &apos;{0}&apos; is reserved for system use only and cannot be specified when calling this method..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidCloseStatusDescription">
+            <summary>
+              Looks up a localized string similar to The close status description &apos;{0}&apos; is too long. The UTF8-representation of the status description must not be longer than {1} bytes..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidEmptySubProtocol">
+            <summary>
+              Looks up a localized string similar to Empty string is not a valid subprotocol value. Please use \&quot;null\&quot; to specify no value..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidRegistration">
+            <summary>
+              Looks up a localized string similar to The WebSocket schemes must be registered with the HttpWebRequest class..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidResponseHeader">
+            <summary>
+              Looks up a localized string similar to The &apos;{0}&apos; header value &apos;{1}&apos; is invalid..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidState">
+            <summary>
+              Looks up a localized string similar to The WebSocket is in an invalid state (&apos;{0}&apos;) for this operation. Valid states are: &apos;{1}&apos;.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_InvalidState_ClosedOrAborted">
+            <summary>
+              Looks up a localized string similar to The &apos;{0}&apos; instance cannot be used for communication because it has been transitioned into the &apos;{1}&apos; state..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_NoDuplicateProtocol">
+            <summary>
+              Looks up a localized string similar to Duplicate protocols are not allowed: &apos;{0}&apos;..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_NotConnected">
+            <summary>
+              Looks up a localized string similar to The WebSocket is not connected..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_ReasonNotNull">
+            <summary>
+              Looks up a localized string similar to The close status description &apos;{0}&apos; is invalid. When using close status code &apos;{1}&apos; the description must be null..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_Scheme">
+            <summary>
+              Looks up a localized string similar to Only Uris starting with &apos;ws://&apos; or &apos;wss://&apos; are supported..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_WebSockets_UnsupportedPlatform">
+            <summary>
+              Looks up a localized string similar to The WebSocket protocol is not supported on this platform..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.net_webstatus_ConnectFailure">
+            <summary>
+              Looks up a localized string similar to Unable to connect to the remote server.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.NotValidAbsoluteUri">
+            <summary>
+              Looks up a localized string similar to &apos;{0}&apos; is not a valid Absolute Uri..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.NotValidTimeSpan">
+            <summary>
+              Looks up a localized string similar to &apos;{0}&apos; is not a valid TimeSpan..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ObjectClosedOrAborted">
+            <summary>
+              Looks up a localized string similar to The operation cannot be performed because the object has been closed or aborted..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ObjectIsReadOnly">
+            <summary>
+              Looks up a localized string similar to This object is read-only and cannot be modified..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.ObjectNotOpened">
+            <summary>
+              Looks up a localized string similar to This object is not in an open state..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.RequestTimedOut">
+            <summary>
+              Looks up a localized string similar to The request has timed out after {0} milliseconds. The successful completion of the request cannot be determined. Additional queries should be made to determine whether or not the operation has succeeded. For more information on exception types and proper exception handling, please refer to http://go.microsoft.com/fwlink/?LinkId=761101.
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.SasTokenShouldBeAlone">
+            <summary>
+              Looks up a localized string similar to {0} cannot be specified along with {1}. {0} alone should be sufficient to Authenticate the request..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.TimeoutMustBeNonNegative">
+            <summary>
+              Looks up a localized string similar to Argument {0} must be a non-negative timeout value. The provided value was {1}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.TimeoutMustBePositive">
+            <summary>
+              Looks up a localized string similar to Argument {0} must be a positive timeout value. The provided value was {1}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.TokenMissingAudience">
+            <summary>
+              Looks up a localized string similar to The provided token does not specify the &apos;Audience&apos; value..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.TokenMissingExpiresOn">
+            <summary>
+              Looks up a localized string similar to The provided token does not specify the &apos;ExpiresOn&apos; value..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.TokenProviderRequired">
+            <summary>
+              Looks up a localized string similar to A TokenProvider is required to perform management operations.  If a connection string was provided it must include either SharedAccessSignature or both SharedAccessKeyName and SharedAccessKey..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.UnableToFindConfigEntry">
+            <summary>
+              Looks up a localized string similar to Could not find configuration {0}..
+            </summary>
+        </member>
+        <member name="P:Microsoft.Azure.Relay.Bridge.Strings.UnableToFindRegistryKey">
+            <summary>
+              Looks up a localized string similar to Could not find Registry key {0}..
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync(System.Func{System.AsyncCallback,System.Object,System.IAsyncResult},System.Action{System.IAsyncResult},System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+            <param name="begin"></param>
+            <param name="end"></param>
+            <param name="state"> 
+            This parameter helps reduce allocations by passing state to the Funcs. e.g.:
+             await TaskEx.FromAsync(
+                 (c, s) => ((Transaction)s).BeginCommit(c, s),
+                 (a) => ((Transaction)a.AsyncState).EndCommit(a),
+                 transaction);
+            </param>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``1(System.Func{``0,System.AsyncCallback,System.Object,System.IAsyncResult},System.Action{System.IAsyncResult},``0,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``2(System.Func{``0,``1,System.AsyncCallback,System.Object,System.IAsyncResult},System.Action{System.IAsyncResult},``0,``1,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``3(System.Func{``0,``1,``2,System.AsyncCallback,System.Object,System.IAsyncResult},System.Action{System.IAsyncResult},``0,``1,``2,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``1(System.Func{System.AsyncCallback,System.Object,System.IAsyncResult},System.Func{System.IAsyncResult,``0},System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``2(System.Func{``0,System.AsyncCallback,System.Object,System.IAsyncResult},System.Func{System.IAsyncResult,``1},``0,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``3(System.Func{``0,``1,System.AsyncCallback,System.Object,System.IAsyncResult},System.Func{System.IAsyncResult,``2},``0,``1,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``4(System.Func{``0,``1,``2,System.AsyncCallback,System.Object,System.IAsyncResult},System.Func{System.IAsyncResult,``3},``0,``1,``2,System.Object)">
+            <summary>
+            Create a Task based on Begin/End IAsyncResult pattern.
+            This is a wrapper around Task.Factory.FromAsync with the additional guarantee that if the begin delegate
+            throws an Exception it will result in a Task with that exception instead of the exception being thrown from this method.
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromException(System.Exception)">
+            <summary>
+            Creates a Task that has completed with a specified exception.
+            Once the code has moved to .NET 4.6 just use Task.FromException;
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromException``1(System.Exception)">
+            <summary>
+            Creates a Task&lt;TResult&gt; that's completed with a specified exception.
+            Once the code has moved to .NET 4.6 just use Task.FromException&lt;TResult&gt;
+            </summary>
+        </member>
+        <member name="M:Microsoft.Azure.Relay.Bridge.TcpRemoteForwardBridge.Open">
+            <summary>
+            Opens this PortBridgeServerProxy instance and listens for new connections coming through Service Bus.
+            </summary>
+            <exception cref="T:System.Security.SecurityException">Throws a SecurityException if Group Policy prohibits Resource Publishing.</exception>
+        </member>
+    </members>
+</doc>

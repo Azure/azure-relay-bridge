@@ -4,12 +4,16 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net462</TargetFrameworks>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <Description>Azure Relay Bridge Windows Service Host</Description>
+    <PackageTags>azure</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
     <PackageReference Include="System.Console" Version="$(SystemConsolePackageVersion)" />
     <PackageReference Include="System.IO" Version="$(SystemIOPackageVersion)" />
+    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
+    <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
