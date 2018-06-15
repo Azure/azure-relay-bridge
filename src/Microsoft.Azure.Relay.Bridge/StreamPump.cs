@@ -33,7 +33,7 @@ namespace Microsoft.Azure.Relay.Bridge
             }
             catch (Exception e)
             {
-                EventSource.Log.HandledExceptionAsError(source, e);
+                BridgeEventSource.Log.HandledExceptionAsError(source, e);
                 throw;
             }
         }

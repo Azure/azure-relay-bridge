@@ -18,7 +18,7 @@ namespace Microsoft.Azure.Relay.Bridge
         static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
         readonly int targetPort;
         readonly string targetServer;
-        Microsoft.Azure.Relay.HybridConnectionListener listener;
+        HybridConnectionListener listener;
         CancellationTokenSource shuttingDown = new CancellationTokenSource();
 
         internal TcpRemoteForwardBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
@@ -73,14 +73,11 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 throw new InvalidOperationException();
             }
-#if WINDOWS
-            this.EnforceSecurityPolicy(); // Open a v2 connection.
-#endif
-            this.listener = new HybridConnectionListener(connectionString.ToString());
 
-            this.listener.Online += (s, e) => { Online?.Invoke(s, e); };
-            this.listener.Offline += (s, e) => { Offline?.Invoke(s, e); };
-            this.listener.Connecting += (s, e) => { Connecting?.Invoke(s, e); };
+            this.listener = new HybridConnectionListener(connectionString.ToString());
+            this.listener.Online += (s, e) => { Online?.Invoke(this, e); };
+            this.listener.Offline += (s, e) => { Offline?.Invoke(this, e); };
+            this.listener.Connecting += (s, e) => { Connecting?.Invoke(this, e); };
 
             await listener.OpenAsync(shuttingDown.Token);
             this.IsOpen = true;
@@ -104,7 +101,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 }
                 catch (Exception e)
                 {
-                    EventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
+                    BridgeEventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
                 }
             }
         }
@@ -123,7 +120,7 @@ namespace Microsoft.Azure.Relay.Bridge
             }
             catch (Exception e)
             {
-                EventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
+                BridgeEventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
             }
 
             using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
@@ -132,47 +129,5 @@ namespace Microsoft.Azure.Relay.Bridge
             }
         }
 
-#if WINDOWS
-        void EnforceSecurityPolicy()
-        {
-            const string windowsAzureBizTalkServicesPolicyKey =
-                @"SOFTWARE\Policies\Microsoft\Azure\HybridConnections\1.0";
-            const string resourcePublishingEnabled = "AllowHybridConnections";
-            const string resourcePublishingAllowedServers = "AllowedHybridConnectionsServers";
-
-            using (var settingsKey = Registry.LocalMachine.OpenSubKey(windowsAzureBizTalkServicesPolicyKey))
-            {
-                var resourcePublishingValue = settingsKey?.GetValue(resourcePublishingEnabled);
-                if (resourcePublishingValue != null)
-                {
-                    if ((int)resourcePublishingValue == 0)
-                    {
-                        throw new SecurityException("Publishing not allowed per Group Policy");
-                    }
-
-                    string[] allowedServers = (string[])settingsKey.GetValue(resourcePublishingAllowedServers);
-                    if (allowedServers == null || allowedServers.Length <= 0)
-                    {
-                        return;
-                    }
-                    string hostAndPort = this.targetServer + ":" + this.targetPort;
-                    bool endpointIsAllowed = false;
-                    foreach (var allowedServer in allowedServers)
-                    {
-                        if (string.Equals(hostAndPort, allowedServer, StringComparison.OrdinalIgnoreCase))
-                        {
-                            endpointIsAllowed = true;
-                            break;
-                        }
-                    }
-
-                    if (!endpointIsAllowed)
-                    {
-                        throw new SecurityException("Publishing not allowed per Group Policy");
-                    }
-                }
-            }
-        }
-#endif
     }
 }

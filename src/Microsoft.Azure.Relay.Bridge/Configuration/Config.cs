@@ -277,7 +277,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     string[] lfs = lf.Split(':');
                     if (lfs.Length == 1 || lfs.Length > 3)
                     {
-                        throw new ConfigException($"Invalid -L expression: {lf}");
+                        throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -L expression: {lf}"), config);
                     }
                     else if (lfs.Length == 2)
                     {
@@ -321,7 +321,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         }
                         else
                         {
-                            throw new ConfigException($"Invalid -L 'port' expression: {lfs[1]}");
+                            throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -L 'port' expression: {lfs[1]}"), config);
                         }
                     }
                 }
@@ -334,7 +334,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     string[] lfs = lf.Split(':');
                     if (lfs.Length == 1 || lfs.Length > 3)
                     {
-                        throw new ConfigException($"Invalid -R expression: {lf}");
+                        throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -R expression: {lf}"), config);
                     }
                     else if (lfs.Length == 2)
                     {
@@ -378,7 +378,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         }
                         else
                         {
-                            throw new ConfigException($"Invalid -R 'port' expression: {lfs[2]}");
+                            throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -R 'port' expression: {lfs[2]}"), config);
                         }
                     }
                 }
@@ -390,7 +390,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             if (configFileName == null)
             {
-                throw new ArgumentNullException(nameof(configFileName));
+                throw BridgeEventSource.Log.ArgumentNull(nameof(configFileName));
             }
 
             Config savedConfig = null;
@@ -412,7 +412,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             if (otherConfig == null)
             {
-                throw new ArgumentNullException(nameof(otherConfig));
+                throw BridgeEventSource.Log.ArgumentNull(nameof(otherConfig));
             }
 
             if (otherConfig.AddressFamily != null)
@@ -486,7 +486,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             if (fileName == null)
             {
-                throw new ArgumentNullException(nameof(fileName));
+                throw BridgeEventSource.Log.ArgumentNull(nameof(fileName));
             }
 
             if (File.Exists(fileName))

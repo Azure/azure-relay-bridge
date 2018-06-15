@@ -14,7 +14,12 @@ namespace Microsoft.Azure.Relay.Bridge
         public static void Fork(this Task thisTask, object source)
         {
             Fx.Assert(thisTask != null, "task is required!");
-            thisTask.ContinueWith((t, s) => EventSource.Log.HandledExceptionAsError(s, t.Exception), source, TaskContinuationOptions.OnlyOnFaulted);
+            thisTask.ContinueWith((t, s) => BridgeEventSource.Log.HandledExceptionAsError(s, t.Exception), source, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        public static void Fork(this Task thisTask)
+        {
+            Fx.Assert(thisTask != null, "task is required!");
         }
 
         /// <summary>
@@ -249,7 +254,7 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             if (exception == null)
             {
-                throw EventSource.Log.ArgumentNull(nameof(exception));
+                throw BridgeEventSource.Log.ArgumentNull(nameof(exception));
             }
 
             var completionSource = new TaskCompletionSource<TResult>();
@@ -358,7 +363,7 @@ namespace Microsoft.Azure.Relay.Bridge
             Task task = asyncResult as Task;
             if (task == null)
             {
-                throw EventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
+                throw BridgeEventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
             }
 
             // using GetAwaiter/GetResult will avoid exceptions being wrapped in AggregateException
@@ -370,7 +375,7 @@ namespace Microsoft.Azure.Relay.Bridge
             Task<TResult> task = asyncResult as Task<TResult>;
             if (task == null)
             {
-                throw EventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
+                throw BridgeEventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
             }
 
             // using GetAwaiter/GetResult will avoid exceptions being wrapped in AggregateException

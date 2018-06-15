@@ -14,6 +14,7 @@ namespace Microsoft.Azure.Relay.Bridge
     {
         readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
         private Config config;
+        private EventTraceActivity activity = new EventTraceActivity();
 
         public LocalForwardHost(Config config)
         {
@@ -22,21 +23,25 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Start()
         {
-            EventSource.Log.HybridConnectionClientServiceStarting();
+            BridgeEventSource.Log.LocalForwardHostStarting(activity);
             this.StartEndpoints(this.config.LocalForward);
+            BridgeEventSource.Log.LocalForwardHostStarted(activity);
         }
 
         public void Stop()
         {
-            EventSource.Log.HybridConnectionClientServiceStopping();
+            BridgeEventSource.Log.LocalForwardHostStopping(activity);
             this.StopEndpoints();
+            BridgeEventSource.Log.LocalForwardHostStopped(activity);
         }
 
         void StartEndpoint(LocalForward localForward)
         {
-            var activity = new EventTraceActivity();
+            var epa = new EventTraceActivity(activity);
             Uri hybridConnectionUri = null;
             TcpLocalForwardBridge tcpListenerBridge = null;
+
+            BridgeEventSource.Log.LocalForwardBridgeStarting(epa, localForward);
 
             var rcbs = localForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(config.AzureRelayConnectionString);
             rcbs.EntityPath = localForward.RelayName;
@@ -64,20 +69,25 @@ namespace Microsoft.Azure.Relay.Bridge
                     tcpListenerBridge = TcpLocalForwardBridge.FromConnectionString(rcbs);
                     tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
-                    EventSource.Log.HybridConnectionClientStarted(activity,
-                        hybridConnectionUri.AbsoluteUri);
                 }
+                BridgeEventSource.Log.LocalForwardBridgeStarted(epa, bindToAddress, localForward);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-
-                throw;
+                BridgeEventSource.Log.LocalForwardBridgeFailedToStart(epa, localForward, e);
+                if ( !config.ExitOnForwardFailure.HasValue ||
+                     config.ExitOnForwardFailure.Value)
+                {
+                    throw;
+                }
             }
 
         }
 
         internal void UpdateConfig(Config config)
         {
+            EventTraceActivity epa = new EventTraceActivity(activity);
+            BridgeEventSource.Log.LocalForwardConfigUpdating(epa, config, this.config);
             this.config = config;
 
             // stopping the listeners will actually not cut existing
@@ -85,6 +95,8 @@ namespace Microsoft.Azure.Relay.Bridge
 
             StopEndpoints();
             StartEndpoints(config.LocalForward);
+
+            BridgeEventSource.Log.LocalForwardConfigUpdated(epa);
         }
 
         void StartEndpoints(IEnumerable<LocalForward> localForwardSettings)
@@ -97,7 +109,21 @@ namespace Microsoft.Azure.Relay.Bridge
 
         void StopEndpoint(TcpLocalForwardBridge tcpLocalForwardBridge)
         {
-            tcpLocalForwardBridge.Close();
+            EventTraceActivity epa = new EventTraceActivity(activity);
+            try
+            {
+                BridgeEventSource.Log.LocalForwardBridgeStopping(epa, tcpLocalForwardBridge);
+                tcpLocalForwardBridge.Close();
+                BridgeEventSource.Log.LocalForwardBridgeStopped(epa, tcpLocalForwardBridge);
+            }
+            catch (Exception e)
+            {
+                BridgeEventSource.Log.LocalForwardBridgeFailedToStop(epa, tcpLocalForwardBridge, e);
+                if ( Fx.IsFatal(e))
+                {
+                    throw;
+                }
+            }
         }
 
         void StopEndpoints()

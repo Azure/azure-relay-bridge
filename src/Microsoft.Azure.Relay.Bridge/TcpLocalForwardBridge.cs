@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Relay.Bridge
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         readonly HybridConnectionClient hybridConnectionClient;
-
+        private EventTraceActivity listenerActivity;
         Task<Task> acceptSocketLoop;
 
         TcpListener tcpListener;
@@ -33,6 +33,8 @@ namespace Microsoft.Azure.Relay.Bridge
 
         internal bool IsOpen { get; private set; }
 
+        public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
+
         public static TcpLocalForwardBridge FromConnectionString(RelayConnectionStringBuilder connectionString)
         {
             return new TcpLocalForwardBridge(connectionString);
@@ -40,15 +42,25 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Close()
         {
-            if (!this.IsOpen)
-            {
-                throw new InvalidOperationException();
-            }
+            BridgeEventSource.Log.LocalForwardListenerStopping(listenerActivity, tcpListener);
 
-            this.IsOpen = false;
-            this.cancellationTokenSource.Cancel();
-            this.tcpListener?.Stop();
-            this.tcpListener = null;
+            try
+            {
+                if (!this.IsOpen)
+                {
+                    throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(), this);
+                }   
+                this.IsOpen = false;
+                this.cancellationTokenSource.Cancel();
+                this.tcpListener?.Stop();
+                this.tcpListener = null;
+            }
+            catch (Exception ex)
+            {
+                BridgeEventSource.Log.LocalForwardListenerStoppingFailed(listenerActivity, ex);
+                throw;
+            }
+            BridgeEventSource.Log.LocalForwardListenerStopped(listenerActivity, tcpListener);
         }
 
         public void Dispose()
@@ -65,20 +77,24 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             if (this.IsOpen)
             {
-                throw new InvalidOperationException();
+                throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(),this);
             }
+
+            this.listenerActivity = new EventTraceActivity();
 
             try
             {
                 this.IsOpen = true;
+                BridgeEventSource.Log.LocalForwardListenerStarting(listenerActivity, listenEndpoint);
                 this.tcpListener = new TcpListener(listenEndpoint);
                 this.tcpListener.Start();
                 this.acceptSocketLoop = Task.Factory.StartNew(AcceptSocketLoopAsync);
                 this.acceptSocketLoop.ContinueWith(AcceptSocketLoopFaulted, TaskContinuationOptions.OnlyOnFaulted);
+                BridgeEventSource.Log.LocalForwardListenerStarted(listenerActivity, tcpListener);
             }
             catch (Exception exception)
             {
-                EventSource.Log.HandledExceptionAsWarning(this, exception);
+                BridgeEventSource.Log.LocalForwardListenerStartFailed(listenerActivity, exception);
                 this.LastError = exception;
                 throw;
             }
@@ -88,37 +104,44 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
-                try
-                {
-                    var socket = await this.tcpListener.AcceptTcpClientAsync();
-                    this.LastAttempt = DateTime.Now;
-                    try
-                    {
-                        BridgeSocketConnectionAsync(socket).Fork(this);
-                    }
-                    catch (Exception e)
-                    {
-                        if (Fx.IsFatal(e))
-                        {
-                            throw;
-                        }
+                var socketActivity = new EventTraceActivity();
+                var socket = await this.tcpListener.AcceptTcpClientAsync();
+                BridgeEventSource.Log.LocalForwardSocketAccepted(socketActivity, socket);
 
-                        EventSource.Log.HandledExceptionAsWarning(this, e);
-                        this.LastError = e;
-                        this.NotifyException?.Invoke(this, EventArgs.Empty);
-                    }
-                }
-                catch (Exception e)
-                {
-                    EventSource.Log.HandledExceptionAsWarning(this, e);
-                    this.LastError = e;
-                    this.NotifyException?.Invoke(this, EventArgs.Empty);
-                }
+                this.LastAttempt = DateTime.Now;
+
+                BridgeSocketConnectionAsync(socket)
+                    .ContinueWith((t, s) =>
+                    {
+                        BridgeEventSource.Log.LocalForwardSocketError(socketActivity, socket, t.Exception);
+                        socket.Dispose();
+                    }, TaskContinuationOptions.OnlyOnFaulted)
+                    .ContinueWith((t, s) =>
+                    {
+
+                        try
+                        {
+                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, socket);
+                            socket.Close();
+                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, socket);
+                        }
+                        catch (Exception e)
+                        {
+                            if (Fx.IsFatal(e))
+                            {
+                                throw;
+                            }
+                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, socket, e);
+                            socket.Dispose();
+                        }
+                    }, TaskContinuationOptions.OnlyOnRanToCompletion)
+                    .Fork();                                                            \
             }
         }
 
         void AcceptSocketLoopFaulted(Task<Task> t)
         {
+            BridgeEventSource.Log.LocalForwardSocketAcceptLoopFailed(listenerActivity, t.Exception);
             this.LastError = t.Exception;
             this.NotifyException?.Invoke(this, EventArgs.Empty);
             this.Close();
@@ -126,16 +149,22 @@ namespace Microsoft.Azure.Relay.Bridge
 
         async Task BridgeSocketConnectionAsync(TcpClient tcpClient)
         {
+            EventTraceActivity bridgeActivity = new EventTraceActivity();
             try
-            {
-                var hybridConnectionStream = await hybridConnectionClient.CreateConnectionAsync();
-                await Task.WhenAll(
-                    StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(), cancellationTokenSource.Token),
-                    StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream, cancellationTokenSource.Token));
+            {   
+                BridgeEventSource.Log.LocalForwardBridgeConnectionStarting(bridgeActivity, tcpClient, HybridConnectionClient);
+                using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
+                {
+                    BridgeEventSource.Log.LocalForwardBridgeConnectionStarted(bridgeActivity, tcpClient, HybridConnectionClient);
+                    await Task.WhenAll(
+                        StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(), cancellationTokenSource.Token),
+                        StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream, cancellationTokenSource.Token));
+                }
+                BridgeEventSource.Log.LocalForwardBridgeConnectionStopped(bridgeActivity, tcpClient, HybridConnectionClient);
             }
             catch (Exception e)
             {
-                EventSource.Log.HandledExceptionAsWarning(this, e);
+                BridgeEventSource.Log.LocalForwardBridgeConnectionFailed(bridgeActivity, e);
                 throw;
             }
         }
