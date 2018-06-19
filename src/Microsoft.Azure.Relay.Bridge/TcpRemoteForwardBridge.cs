@@ -20,6 +20,7 @@ namespace Microsoft.Azure.Relay.Bridge
         readonly string targetServer;
         HybridConnectionListener listener;
         CancellationTokenSource shuttingDown = new CancellationTokenSource();
+        EventTraceActivity activity = BridgeEventSource.NewActivity("RemoteForwardBridge");
 
         internal TcpRemoteForwardBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
         {
@@ -101,7 +102,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 }
                 catch (Exception e)
                 {
-                    BridgeEventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
+                    BridgeEventSource.Log.HandledExceptionAsWarning(activity, e);
                 }
             }
         }
@@ -120,7 +121,7 @@ namespace Microsoft.Azure.Relay.Bridge
             }
             catch (Exception e)
             {
-                BridgeEventSource.Log.HybridConnectionManagerTrace(null, e.ToString());
+                BridgeEventSource.Log.HandledExceptionAsWarning(activity, e);
             }
 
             using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))

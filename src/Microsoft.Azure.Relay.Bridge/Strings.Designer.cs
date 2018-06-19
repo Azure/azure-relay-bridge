@@ -39,7 +39,7 @@ namespace Microsoft.Azure.Relay.Bridge {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.HybridConnectionManager.Strings", typeof(Strings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Microsoft.Azure.Relay.Bridge.Strings", typeof(Strings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -111,6 +111,33 @@ namespace Microsoft.Azure.Relay.Bridge {
         internal static string CharacterReservedForUriScheme {
             get {
                 return ResourceManager.GetString("CharacterReservedForUriScheme", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Install as a Windows Service (must be run elevated).
+        /// </summary>
+        internal static string CmdServiceInstall {
+            get {
+                return ResourceManager.GetString("CmdServiceInstall", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Run as Windows Service (requires prior installation).
+        /// </summary>
+        internal static string CmdServiceRun {
+            get {
+                return ResourceManager.GetString("CmdServiceRun", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Uninstall Windows Service (must be run elevated).
+        /// </summary>
+        internal static string CmdServiceUninstall {
+            get {
+                return ResourceManager.GetString("CmdServiceUninstall", resourceCulture);
             }
         }
         

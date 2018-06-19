@@ -55,6 +55,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     using (var w = new StreamWriter(c.GetStream()))
                     {
                         w.WriteLine(text);
+                        w.Flush();
                     }
                 }
             });

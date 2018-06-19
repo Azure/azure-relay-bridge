@@ -17,7 +17,7 @@ namespace Microsoft.Azure.Relay.Bridge
         LocalForwardHost hybridConnectionTcpListenerHost;
         RemoteForwardHost hybridConnectionTcpClientHost;
         private Config config;
-                   
+        EventTraceActivity hostActivity = BridgeEventSource.NewActivity("Host");           
 
         public Host(Config config)
         {
@@ -26,6 +26,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Start()
         {
+            hostActivity.DiagnosticsActivity.Start();
             this.config.Changed += ConfigChanged;
             this.hybridConnectionTcpClientHost = new RemoteForwardHost(config);
             this.hybridConnectionTcpListenerHost = new LocalForwardHost(config);
@@ -72,6 +73,7 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             this.hybridConnectionTcpClientHost.Stop();
             this.hybridConnectionTcpListenerHost.Stop();
+            hostActivity.DiagnosticsActivity.Stop();
         }
     }
 }

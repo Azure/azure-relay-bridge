@@ -315,4 +315,13 @@
   <data name="BufferAllocationFailed" xml:space="preserve">
     <value>Buffer allocation failed</value>
   </data>
+  <data name="CmdServiceInstall" xml:space="preserve">
+    <value>Install as a Windows Service (must be run elevated)</value>
+  </data>
+  <data name="CmdServiceRun" xml:space="preserve">
+    <value>Run as Windows Service (requires prior installation)</value>
+  </data>
+  <data name="CmdServiceUninstall" xml:space="preserve">
+    <value>Uninstall Windows Service (must be run elevated)</value>
+  </data>
 </root>

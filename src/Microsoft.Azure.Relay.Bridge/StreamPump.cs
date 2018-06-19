@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
                     if (bytesRead == 0)
                     {
-                        target.Close();
+                        source.Close();
                         return;
                     }
                     await target.WriteAsync(buffer, 0, bytesRead, cancellationToken);

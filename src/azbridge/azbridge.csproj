@@ -2,11 +2,33 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>netcoreapp2.0;netcoreapp2.1;net462</TargetFrameworks>
-    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+    <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
+    <RuntimeIdentifiers>win7-x64;win10-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Packaging.Targets" Version="0.1.1-*" />
+    <DotNetCliToolReference Include="dotnet-deb" Version="0.1.1-*" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <ItemGroup>
+        <Reference Include="System" />
+        <Reference Include="System.ComponentModel.Composition" />
+        <Reference Include="System.Configuration" />
+        <Reference Include="System.Configuration.Install" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Xml.Linq" />
+        <Reference Include="Microsoft.CSharp" />
+        <Reference Include="System.Net.Http" />
+        <Reference Include="System.ServiceProcess" />
+        <Reference Include="System.Xml" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
@@ -14,10 +36,54 @@
     <PackageReference Include="System.IO" Version="$(SystemIOPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingPackageVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsLoggingConsolePackageVersion)" />
+    <PackageReference Include="Serilog.Extensions.Logging.File" Version="$(SerilogExtensionsLoggingFilePackageVersion)" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <ItemGroup>
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="$(MicrosoftDiagnosticsTracingTraceEventPackageVersion)" />
+        <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource" Version="$(MicrosoftDiagnosticsTracingEventSourcePackageVersion)" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <PropertyGroup>
+        <DefineConstants>$(DefineConstants);USE_MDT_EVENTSOURCE</DefineConstants>
+      </PropertyGroup>
+    </When>
+  </Choose>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj">
+      <Private>true</Private>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
+    <Compile Update="Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
+    <ItemGroup>
+      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net462\$(AssemblyName).exe" />
+    </ItemGroup>
+  </Target>
 
 </Project>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Product Id="*" Name="Azure Relay Bridge" Language="1033" Version="1.0.0.0" Manufacturer="Microsoft" UpgradeCode="119729c9-25d5-447f-b9a8-5e2b1cdbc348">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="azbridge_installer" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+  </Product>
+
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <!-- Note using the preprocessor variable here -->
+      <!--<?if $(var.ProcessorArchitecture)=x64 ?>-->
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
+      </Directory>
+      <!--<?else ?>
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
+      </Directory>
+      <?endif ?>-->
+    </Directory>
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    <UIRef Id="WixUI_InstallDir" />
+  </Fragment>
+
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="etwManifest.dll">
+        <File Id="etwManifest.dll" KeyPath="yes"
+              Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.dll" />
+      </Component>
+      <Component Id="etwManifest.man">
+        <File Id="etwManifest.man" KeyPath="yes"
+              Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.man">
+          <util:EventManifest  MessageFile="[etwManifest.dll]"  ResourceFile="[etwManifest.dll]"></util:EventManifest>
+        </File>
+      </Component>
+    </ComponentGroup>
+    <Feature Id="App" Title="Command line bridge" Level="1">
+      <ComponentGroupRef Id="azbridge_Project" />
+    </Feature>
+  </Fragment>
+</Wix>

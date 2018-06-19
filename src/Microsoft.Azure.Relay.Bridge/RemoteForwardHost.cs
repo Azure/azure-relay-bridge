@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Relay.Bridge
         readonly Dictionary<string, TcpRemoteForwardBridge> clientBridges =
             new Dictionary<string, TcpRemoteForwardBridge>();
         private Config config;
-        private EventTraceActivity activity = new EventTraceActivity();
+        private EventTraceActivity activity = BridgeEventSource.NewActivity("RemoteForwardHost");
 
         public RemoteForwardHost(Config config)
         {
@@ -24,36 +24,45 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             try
             {
+                this.activity.DiagnosticsActivity.Start();
                 BridgeEventSource.Log.RemoteForwardHostStarting(this.activity);
                 StartEndpoints(config.RemoteForward);
-                BridgeEventSource.Log.RemoteForwardHostStarted(this.activity);
+                BridgeEventSource.Log.RemoteForwardHostStart(this.activity);
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                BridgeEventSource.Log.RemoteForwardHostFailedToStart(activity, e);
+                BridgeEventSource.Log.RemoteForwardHostStartFailure(activity, exception);
+                this.activity.DiagnosticsActivity.Stop();
             }
         }
 
         public void Stop()
         {
-            BridgeEventSource.Log.RemoteForwardHostStopping(activity);
-            this.StopEndpoints();
-            BridgeEventSource.Log.RemoteForwardHostStopped(activity);
+            try
+            {
+                BridgeEventSource.Log.RemoteForwardHostStopping(activity);
+                this.StopEndpoints();
+                BridgeEventSource.Log.RemoteForwardHostStop(activity);
+            }
+            finally
+            {
+                this.activity.DiagnosticsActivity.Stop();
+            }                                                        
         }
                                                              
 
         void StopEndpoint(TcpRemoteForwardBridge tcpClientBridge)
         {
-            EventTraceActivity epa = new EventTraceActivity(activity);
+            EventTraceActivity stopActivity = BridgeEventSource.NewActivity("RemoteForwardBridgeStop", activity);
             try
             {
-                BridgeEventSource.Log.RemoteForwardBridgeStopping(epa, tcpClientBridge);
+                BridgeEventSource.Log.RemoteForwardBridgeStopping(stopActivity, tcpClientBridge);
                 tcpClientBridge.Close();
-                BridgeEventSource.Log.RemoteForwardBridgeStopped(epa, tcpClientBridge);
+                BridgeEventSource.Log.RemoteForwardBridgeStop(stopActivity, tcpClientBridge);
             }
             catch (Exception exception)
             {
-                BridgeEventSource.Log.RemoteForwardBridgeFailedToStop(epa, exception);
+                BridgeEventSource.Log.RemoteForwardBridgeStopFailure(stopActivity, exception);
                 if (Fx.IsFatal(exception))
                 {
                     throw;
@@ -78,84 +87,92 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             Uri hybridConnectionUri = null;
             TcpRemoteForwardBridge tcpRemoteForwardBridge = null;
-            EventTraceActivity epa = new EventTraceActivity(activity);
-
-            BridgeEventSource.Log.RemoteForwardBridgeStarting(epa, this, remoteForward);
-
-            var rcbs = remoteForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(this.config.AzureRelayConnectionString);
-            rcbs.EntityPath = remoteForward.RelayName;
-            hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
+            EventTraceActivity stopActivity = BridgeEventSource.NewActivity("RemoteForwardBridgeStart", activity);
+            stopActivity.DiagnosticsActivity.Start();
 
             try
             {
-                tcpRemoteForwardBridge = new TcpRemoteForwardBridge(rcbs,
-                    remoteForward.Host, remoteForward.HostPort);
-                tcpRemoteForwardBridge.Online += (s,e)=>
-                {
-                    NotifyOnline(hybridConnectionUri, remoteForward);
-                    BridgeEventSource.Log.RemoteForwardBridgeOnline(epa, hybridConnectionUri, tcpRemoteForwardBridge);
-                };
-                tcpRemoteForwardBridge.Offline += (s, e) =>
-                {
-                    NotifyOffline(hybridConnectionUri, remoteForward);
-                    BridgeEventSource.Log.RemoteForwardBridgeOffline(epa, hybridConnectionUri, tcpRemoteForwardBridge);
-                };
-                tcpRemoteForwardBridge.Connecting += (s, e) =>
-                {
-                    NotifyConnecting(hybridConnectionUri, remoteForward);
-                    BridgeEventSource.Log.RemoteForwardBridgeConnecting(epa, hybridConnectionUri, tcpRemoteForwardBridge);
-                };
-                tcpRemoteForwardBridge.Open().Wait();
+                BridgeEventSource.Log.RemoteForwardBridgeStarting(stopActivity, this, remoteForward);
 
-                this.clientBridges.Add(hybridConnectionUri.AbsoluteUri, tcpRemoteForwardBridge);
-
-                BridgeEventSource.Log.RemoteForwardBridgeStarted(epa, hybridConnectionUri.AbsoluteUri);
-            }
-            catch (Exception exception)
-            {
-                BridgeEventSource.Log.RemoteForwardBridgeFailedToStart(epa, hybridConnectionUri, exception);
-                if (Fx.IsFatal(exception))
-                {
-                    throw;
-                }
+                var rcbs = remoteForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(this.config.AzureRelayConnectionString);
+                rcbs.EntityPath = remoteForward.RelayName;
+                hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
 
                 try
                 {
-                    if (tcpRemoteForwardBridge != null)
+                    tcpRemoteForwardBridge = new TcpRemoteForwardBridge(rcbs,
+                        remoteForward.Host, remoteForward.HostPort);
+                    tcpRemoteForwardBridge.Online += (s, e) =>
                     {
-                        tcpRemoteForwardBridge.Dispose();
-                    }
+                        NotifyOnline(hybridConnectionUri, remoteForward);
+                        BridgeEventSource.Log.RemoteForwardBridgeOnline(stopActivity, hybridConnectionUri, tcpRemoteForwardBridge);
+                    };
+                    tcpRemoteForwardBridge.Offline += (s, e) =>
+                    {
+                        NotifyOffline(hybridConnectionUri, remoteForward);
+                        BridgeEventSource.Log.RemoteForwardBridgeOffline(stopActivity, hybridConnectionUri, tcpRemoteForwardBridge);
+                    };
+                    tcpRemoteForwardBridge.Connecting += (s, e) =>
+                    {
+                        NotifyConnecting(hybridConnectionUri, remoteForward);
+                        BridgeEventSource.Log.RemoteForwardBridgeConnecting(stopActivity, hybridConnectionUri, tcpRemoteForwardBridge);
+                    };
+                    tcpRemoteForwardBridge.Open().Wait();
+
+                    this.clientBridges.Add(hybridConnectionUri.AbsoluteUri, tcpRemoteForwardBridge);
+
+                    BridgeEventSource.Log.RemoteForwardBridgeStart(stopActivity, hybridConnectionUri.AbsoluteUri);
                 }
-                catch (Exception e)
+                catch (Exception exception)
                 {
+                    BridgeEventSource.Log.RemoteForwardBridgeStartFailure(stopActivity, hybridConnectionUri, exception);
                     if (Fx.IsFatal(exception))
                     {
                         throw;
                     }
-                    BridgeEventSource.Log.HandledExceptionAsWarning(this, e);
-                }
 
-                if ( !this.config.ExitOnForwardFailure.HasValue ||
-                     this.config.ExitOnForwardFailure.Value)
-                {
-                    throw;
+                    try
+                    {
+                        if (tcpRemoteForwardBridge != null)
+                        {
+                            tcpRemoteForwardBridge.Dispose();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        if (Fx.IsFatal(exception))
+                        {
+                            throw;
+                        }
+                        BridgeEventSource.Log.HandledExceptionAsWarning(this, e);
+                    }
+
+                    if (!this.config.ExitOnForwardFailure.HasValue ||
+                         this.config.ExitOnForwardFailure.Value)
+                    {
+                        throw;
+                    }
                 }
+            }
+            finally
+            {
+                stopActivity.DiagnosticsActivity.Stop();
             }
         }
 
         private void NotifyConnecting(Uri hybridConnectionUri, RemoteForward remoteForward)
         {
-            throw new NotImplementedException();
+            // this hook will write to a named pipe
         }
 
         private void NotifyOffline(Uri hybridConnectionUri, RemoteForward remoteForward)
         {
-            throw new NotImplementedException();
+            // this hook will write to a named pipe
         }
 
         private void NotifyOnline(Uri hybridConnectionUri, RemoteForward remoteForward)
         {
-            throw new NotImplementedException();
+            // this hook will write to a named pipe
         }
 
         void StartEndpoints(IEnumerable<RemoteForward> tcpClientSettings)

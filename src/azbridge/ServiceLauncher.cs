@@ -1,7 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace mshcmsvc
+#if NET462
+namespace azbridge
 {
     using System;
     using System.Collections;
@@ -10,51 +11,33 @@ namespace mshcmsvc
     using System.IO;
     using System.ServiceProcess;
 
-    static class Program
+    static class ServiceLauncher
     {
-        const string ServiceName = "mshcmsvc";        
+        const string ServiceName = "azbridgesvc";        
 
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
-        static void Main(string[] args)
+        internal static void Run(string[] args)
         {
             var hcs = new RelayBridgeService();
 
-            if (args.Length == 0)
+            if (IsInstalled())
             {
-                if (IsInstalled())
-                {
-                    ServiceBase[] ServicesToRun = new ServiceBase[] { hcs };
-                    ServiceBase.Run(ServicesToRun);
-                }
-                else
-                {
-                    Console.WriteLine("The service is not installed. Install with -install from an elevated command prompt.");
-                }              
+                ServiceBase[] servicesToRun = new ServiceBase[] { hcs };
+                ServiceBase.Run(servicesToRun);
             }
-            else if (args.Length == 1)
+            else
             {
-                switch (args[0])
-                {
-                    case "-install":
-                        InstallService();
-                        StartService();
-                        break;
-                    case "-uninstall":
-                        StopService();
-                        UninstallService();
-                        break;
-                    default:
-                        throw new NotImplementedException();
-                }
-            }
+                Console.WriteLine(Strings.ServiceIsNotInstalled);
+            }              
+            
         }
 
         /// <summary>
         /// Installs the service
         /// </summary>
-        private static void InstallService()
+        internal static void InstallService()
         {
             if (IsInstalled())
                 return;
@@ -86,32 +69,18 @@ namespace mshcmsvc
             }
         }
 
-        private static void UninstallService()
+        internal static void UninstallService()
         {
             if (!IsInstalled())
                 return;
-            try
+            using (AssemblyInstaller installer = GetInstaller())
             {
-                using (AssemblyInstaller installer = GetInstaller())
-                {
-                    IDictionary state = new Hashtable();
-                    try
-                    {
-                        installer.Uninstall(state);
-                    }
-                    catch
-                    {
-                        throw;
-                    }
-                }
-            }
-            catch
-            {
-                throw;
+                IDictionary state = new Hashtable();
+                installer.Uninstall(state);
             }
         }
 
-        private static void StartService()
+        internal static void StartService()
         {
             if (!IsInstalled())
                 return;
@@ -119,23 +88,16 @@ namespace mshcmsvc
             using (ServiceController controller =
                 new ServiceController(ServiceName))
             {
-                try
+                if (controller.Status != ServiceControllerStatus.Running)
                 {
-                    if (controller.Status != ServiceControllerStatus.Running)
-                    {
-                        controller.Start();
-                        controller.WaitForStatus(ServiceControllerStatus.Running,
-                            TimeSpan.FromSeconds(10));
-                    }
-                }
-                catch
-                {
-                    throw;
+                    controller.Start();
+                    controller.WaitForStatus(ServiceControllerStatus.Running,
+                        TimeSpan.FromSeconds(10));
                 }
             }
         }
 
-        private static bool IsInstalled()
+        internal static bool IsInstalled()
         {
             using (ServiceController controller = new ServiceController(ServiceName))
             {
@@ -151,10 +113,9 @@ namespace mshcmsvc
             }
         }
 
-        private static bool IsRunning()
+        internal static bool IsRunning()
         {
-            using (ServiceController controller =
-                new ServiceController(ServiceName))
+            using (var controller = new ServiceController(ServiceName))
             {
                 if (!IsInstalled())
                     return false;
@@ -162,15 +123,14 @@ namespace mshcmsvc
             }
         }
 
-        private static AssemblyInstaller GetInstaller()
+        internal static AssemblyInstaller GetInstaller()
         {
             AssemblyInstaller installer = new AssemblyInstaller(
-                typeof(RelayBridgeService).Assembly, null);
-            installer.UseNewContext = true;
+                typeof(RelayBridgeService).Assembly, null) {UseNewContext = true};
             return installer;
         }
 
-        private static void StopService()
+        internal static void StopService()
         {
             if (!IsInstalled())
                 return;
@@ -194,3 +154,4 @@ namespace mshcmsvc
         }
     }
 }
+#endif

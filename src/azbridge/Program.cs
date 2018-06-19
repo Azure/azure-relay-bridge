@@ -6,22 +6,47 @@ namespace azbridge
     using System;
     using System.IO;
     using System.Threading;
-    using System.Threading.Tasks;
-    using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay.Bridge;
     using Microsoft.Azure.Relay.Bridge.Configuration;
+    using System.Diagnostics;
+#if USE_MDT_EVENTSOURCE
+    using Microsoft.Diagnostics.Tracing;
+#else
+    using System.Diagnostics.Tracing;
+#endif
+    using System.Collections.Generic;
+    using Microsoft.Extensions.Logging;
 
-    class Program
+    partial class Program
     {
+        static ILogger logger = null;
+
         static void Main(string[] args)
         {
-            CommandLineSettings.Run(args, Run);
+            CommandLineSettings.Run(args, (c)=>Run(c,args));
         }
 
-        static int Run(CommandLineSettings settings)
+        static int Run(CommandLineSettings settings, string[] args)
         {
             try
             {
+#if NET462
+                if (settings.ServiceInstall.HasValue && settings.ServiceInstall.Value)
+                {
+                    ServiceLauncher.InstallService();
+                    return 0;
+                }
+                else if (settings.ServiceUninstall.HasValue && settings.ServiceUninstall.Value)
+                {
+                    ServiceLauncher.UninstallService();
+                    return 0;
+                }
+                else if (settings.ServiceRun.HasValue && settings.ServiceRun.Value)
+                {
+                    ServiceLauncher.Run(args);
+                    return 0;
+                }
+#endif
                 Config config = Config.LoadConfig(settings);
                 if (config.LocalForward.Count == 0 &&
                      config.RemoteForward.Count == 0)
@@ -30,6 +55,15 @@ namespace azbridge
                     Console.WriteLine("You must specify at least one -L or -R forwarder.");
                     return 2;
                 }
+
+                var loggerFactory = new LoggerFactory();
+                if (!settings.Quiet.HasValue || !settings.Quiet.Value)
+                {
+                    loggerFactory.AddConsole();
+                }
+                logger = loggerFactory.CreateLogger("azbridge");
+                DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
+
 
                 Console.WriteLine("Press Ctrl+C to stop");
                 SemaphoreSlim semaphore = new SemaphoreSlim(1);

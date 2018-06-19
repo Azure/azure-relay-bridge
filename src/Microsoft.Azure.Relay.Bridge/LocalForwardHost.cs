@@ -14,7 +14,7 @@ namespace Microsoft.Azure.Relay.Bridge
     {
         readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
         private Config config;
-        private EventTraceActivity activity = new EventTraceActivity();
+        private EventTraceActivity activity = BridgeEventSource.NewActivity("LocalForwardHost");
 
         public LocalForwardHost(Config config)
         {
@@ -23,25 +23,33 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Start()
         {
+            activity.DiagnosticsActivity.Start();
             BridgeEventSource.Log.LocalForwardHostStarting(activity);
             this.StartEndpoints(this.config.LocalForward);
-            BridgeEventSource.Log.LocalForwardHostStarted(activity);
+            BridgeEventSource.Log.LocalForwardHostStart(activity);
         }
 
         public void Stop()
         {
-            BridgeEventSource.Log.LocalForwardHostStopping(activity);
-            this.StopEndpoints();
-            BridgeEventSource.Log.LocalForwardHostStopped(activity);
+            try
+            {
+                BridgeEventSource.Log.LocalForwardHostStopping(activity);
+                this.StopEndpoints();
+                BridgeEventSource.Log.LocalForwardHostStop(activity);
+            }
+            finally
+            {
+                activity.DiagnosticsActivity.Stop();
+            }
         }
 
         void StartEndpoint(LocalForward localForward)
         {
-            var epa = new EventTraceActivity(activity);
+            var startActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStart", activity);
             Uri hybridConnectionUri = null;
             TcpLocalForwardBridge tcpListenerBridge = null;
 
-            BridgeEventSource.Log.LocalForwardBridgeStarting(epa, localForward);
+            BridgeEventSource.Log.LocalForwardBridgeStarting(startActivity, localForward);
 
             var rcbs = localForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(config.AzureRelayConnectionString);
             rcbs.EntityPath = localForward.RelayName;
@@ -70,11 +78,11 @@ namespace Microsoft.Azure.Relay.Bridge
                     tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
                 }
-                BridgeEventSource.Log.LocalForwardBridgeStarted(epa, bindToAddress, localForward);
+                BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
             }
             catch (Exception e)
             {
-                BridgeEventSource.Log.LocalForwardBridgeFailedToStart(epa, localForward, e);
+                BridgeEventSource.Log.LocalForwardBridgeStartFailure(startActivity, localForward, e);
                 if ( !config.ExitOnForwardFailure.HasValue ||
                      config.ExitOnForwardFailure.Value)
                 {
@@ -86,8 +94,8 @@ namespace Microsoft.Azure.Relay.Bridge
 
         internal void UpdateConfig(Config config)
         {
-            EventTraceActivity epa = new EventTraceActivity(activity);
-            BridgeEventSource.Log.LocalForwardConfigUpdating(epa, config, this.config);
+            EventTraceActivity updateActivity = BridgeEventSource.NewActivity("UpdateConfig", activity);
+            BridgeEventSource.Log.LocalForwardConfigUpdating(updateActivity, config, this.config);
             this.config = config;
 
             // stopping the listeners will actually not cut existing
@@ -96,7 +104,7 @@ namespace Microsoft.Azure.Relay.Bridge
             StopEndpoints();
             StartEndpoints(config.LocalForward);
 
-            BridgeEventSource.Log.LocalForwardConfigUpdated(epa);
+            BridgeEventSource.Log.LocalForwardConfigUpdated(updateActivity);
         }
 
         void StartEndpoints(IEnumerable<LocalForward> localForwardSettings)
@@ -109,16 +117,16 @@ namespace Microsoft.Azure.Relay.Bridge
 
         void StopEndpoint(TcpLocalForwardBridge tcpLocalForwardBridge)
         {
-            EventTraceActivity epa = new EventTraceActivity(activity);
+            EventTraceActivity stopActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStop", activity);
             try
             {
-                BridgeEventSource.Log.LocalForwardBridgeStopping(epa, tcpLocalForwardBridge);
+                BridgeEventSource.Log.LocalForwardBridgeStopping(stopActivity, tcpLocalForwardBridge);
                 tcpLocalForwardBridge.Close();
-                BridgeEventSource.Log.LocalForwardBridgeStopped(epa, tcpLocalForwardBridge);
+                BridgeEventSource.Log.LocalForwardBridgeStop(stopActivity, tcpLocalForwardBridge);
             }
             catch (Exception e)
             {
-                BridgeEventSource.Log.LocalForwardBridgeFailedToStop(epa, tcpLocalForwardBridge, e);
+                BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, tcpLocalForwardBridge, e);
                 if ( Fx.IsFatal(e))
                 {
                     throw;

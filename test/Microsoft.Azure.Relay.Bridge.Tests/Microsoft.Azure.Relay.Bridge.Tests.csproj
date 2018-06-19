@@ -18,7 +18,7 @@
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotnetSignedPackageVersion)" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\..\src\azbridge\azbridge.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />

@@ -7,19 +7,15 @@ namespace Microsoft.Azure.Relay.Bridge
 
     class EventTraceActivity
     {
-        private EventTraceActivity parentActivity;
+        private System.Diagnostics.Activity diagnosticsActivity;
 
-        public EventTraceActivity()
+        public EventTraceActivity(System.Diagnostics.Activity diagnosticsActivity)
         {
+            this.diagnosticsActivity = diagnosticsActivity;
             this.Activity = Guid.NewGuid();
         }
-
-        public EventTraceActivity(EventTraceActivity activity)
-        {
-            this.parentActivity = activity;
-        }
-
+                                                                                                                                                     
         public Guid Activity { get; private set; }
-        public EventTraceActivity ParentActivity { get => parentActivity; }
+        public System.Diagnostics.Activity DiagnosticsActivity { get => diagnosticsActivity; }
     }
 }

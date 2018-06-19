@@ -1,4 +1,7 @@
-﻿namespace mshcmsvc
+﻿
+
+#if NET462
+namespace azbridge
 {
     partial class RelayBridgeService
     {
@@ -35,3 +38,4 @@
         #endregion
     }
 }
+#endif

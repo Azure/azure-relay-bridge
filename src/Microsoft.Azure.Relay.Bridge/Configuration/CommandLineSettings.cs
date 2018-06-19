@@ -1,6 +1,8 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using McMaster.Extensions.CommandLineUtils.HelpText;
+
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
     using McMaster.Extensions.CommandLineUtils;
@@ -11,6 +13,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
     public class CommandLineSettings
     {
+#if NET462
+        [Option(CommandOptionType.NoValue, LongName = "svcinstall", ShortName = "I")]
+        public bool? ServiceInstall { get; set; }
+        [Option(CommandOptionType.NoValue, LongName = "svcuninstall", ShortName = "U")]
+        public bool? ServiceUninstall { get; set; }
+        [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc")]
+        public bool? ServiceRun { get; set; }
+#endif
         [Option(CommandOptionType.NoValue, LongName = "addhosts")]
         public bool? AddHosts { get; set; }
         [Option(CommandOptionType.NoValue, LongName = "cleanhosts")]
@@ -54,7 +64,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             app.ModelFactory = () => new CommandLineSettings();
             app.Conventions.UseDefaultConventions();
         }
-
+                                                    
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
         {
             app.Parse(args);                                    
