@@ -77,8 +77,8 @@ Azure Relay endpoint URI (see -x).
 
 Specifies an alternative per-user configuration file.  If a configuration 
 file is given on the command line, the system-wide configuration file 
-(Linux: /etc/azbridge/azbridge_config, 
-Windows: %ALLUSERSPROFILE%\Microsoft\AzureBridge\azbridge_config) will be 
+(Linux: /etc/azbridge/azbridge_config.machine.yml, 
+Windows: %ALLUSERSPROFILE%\Microsoft\AzureBridge\azbridge_config.machine.yml) will be 
 ignored. 
    
 The default for the per-user configuration file is ~/.azurebridge/config

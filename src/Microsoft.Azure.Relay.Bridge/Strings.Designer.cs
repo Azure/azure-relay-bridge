@@ -142,6 +142,19 @@ namespace Microsoft.Azure.Relay.Bridge {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Azure Relay Bridge 
+        ///
+        ///&apos;azbridge&apos; can be run in a &quot;local&quot; or &quot;remote&quot; mode. The &quot;local&quot; mode binds a local listener address or socket to a relay name. The &quot;remote&quot; mode binds a relay name to a remote listener adress.
+        ///
+        ///Since azbridge helps with scenarios not dissimilar to SSH tunnels, albeit without requiring peer-to-peer connectivity, the command line syntax of &apos;azbridge&apos; uses elements that resemble SSH&apos;s equivalent tunnel functionality, especially the -L and -R arguments. The key difference to SSH is tha [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string CommandLineOptions {
+            get {
+                return ResourceManager.GetString("CommandLineOptions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Existing configuration {0} found..
         /// </summary>
         internal static string ConfigEntryAlreadyExists {

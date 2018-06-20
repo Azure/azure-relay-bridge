@@ -9,9 +9,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Packaging.Targets" Version="0.1.1-*" />
-    <DotNetCliToolReference Include="dotnet-deb" Version="0.1.1-*" />
+    <None Remove="azbridge_config.machine.yml" />
+    <None Remove="azbridge_config.svc.yml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="azbridge_config.svc.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
+    </Content>
+    <Content Include="azbridge_config.machine.yml" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' != 'net462'">
+      <ItemGroup>
+        <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
+        <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
+        <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net462'">
@@ -78,6 +96,13 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="azbridge_config.machine.yml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
+    </Content>
   </ItemGroup>
 
   <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">

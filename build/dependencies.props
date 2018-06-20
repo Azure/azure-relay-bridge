@@ -3,6 +3,9 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
+    <PackagingTargetsPackageVersion>0.1.1-r318</PackagingTargetsPackageVersion>
+    <DotnetDebPackageVersion>0.1.1-r318</DotnetDebPackageVersion>
+    <DotnetRpmPackageVersion>0.1.1-r318</DotnetRpmPackageVersion>
     <InternalAspNetCoreSdkPackageVersion>2.1.0-rtm-15783</InternalAspNetCoreSdkPackageVersion>
     <MicrosoftAspNetCoreAllPackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreAllPackageVersion>
     <MicrosoftAspNetCoreAuthenticationCorePackageVersion>2.1.0-rtm-30721</MicrosoftAspNetCoreAuthenticationCorePackageVersion>

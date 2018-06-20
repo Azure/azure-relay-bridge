@@ -9,7 +9,11 @@
     <Feature Id="ProductFeature" Title="azbridge_installer" Level="1">
       <ComponentGroupRef Id="ProductComponents" />
     </Feature>
+    <PropertyRef Id="WIX_ACCOUNT_NETWORKSERVICE" />
+    <PropertyRef Id="WIX_ACCOUNT_USERS" />
+    <PropertyRef Id="WIX_ACCOUNT_ADMINISTRATORS" />
   </Product>
+
 
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
@@ -23,6 +27,11 @@
         <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
       </Directory>
       <?endif ?>-->
+      <Directory Id="CommonAppDataFolder">
+        <Directory Id="MicrosoftAppDataFolder" Name="Microsoft">
+          <Directory Id="CONFIGFOLDER" Name="Azure Relay Bridge"/>
+        </Directory>
+      </Directory>
     </Directory>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
     <UIRef Id="WixUI_InstallDir" />

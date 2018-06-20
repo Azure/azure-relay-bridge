@@ -14,14 +14,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     /// </summary>
     public class Config : IDisposable
     {
+        private const string AzureBridgeName = "azbridge";
         RelayConnectionStringBuilder relayConnectionStringBuilder;
-        List<FileSystemWatcher> watchers;
+        readonly List<FileSystemWatcher> fileSystemWatchers;
 
 
         public Config()
         {
             relayConnectionStringBuilder = new RelayConnectionStringBuilder();
-            watchers = new List<FileSystemWatcher>();
+            fileSystemWatchers = new List<FileSystemWatcher>();
         }
 
         /// <summary>
@@ -164,11 +165,11 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         public static Config LoadConfig(CommandLineSettings commandLineSettings)
         {
-            const string azurebridge = "azurebridge";
+            const string azbridge = AzureBridgeName;
             string machineConfigFileName =
                 (Environment.OSVersion.Platform == PlatformID.Unix) ?
-                $"/etc/{azurebridge}/{azurebridge}_config.yml" :
-                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), $"{azurebridge}\\{azurebridge}_config.yml");
+                $"/etc/{azbridge}/{azbridge}_config.machine.yml" :
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), $"{azbridge}\\{azbridge}_config.machine.yml");
 
             Config config = LoadConfigFile(machineConfigFileName);
             Action onchange = () => { var cfg = LoadConfig(commandLineSettings); config.RaiseChanged(cfg); };
@@ -179,15 +180,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 fsw.Created += (o, e) => onchange();
                 fsw.Deleted += (o, e) => onchange();
                 fsw.Changed += (o, e) => onchange();
-                config.watchers.Add(fsw);
+                config.fileSystemWatchers.Add(fsw);
             }
 
             if (commandLineSettings.ConfigFile == null)
             {
                 string userConfigFileName =
                     (Environment.OSVersion.Platform == PlatformID.Unix) ?
-                    Path.Combine(Environment.GetEnvironmentVariable("HOME"), $".{azurebridge}/{azurebridge}_config.yml") :
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), $"{azurebridge}\\{azurebridge}_config.yml");
+                    Path.Combine(Environment.GetEnvironmentVariable("HOME"), $".{azbridge}/{azbridge}_config.yml") :
+                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), $"{azbridge}\\{azbridge}_config.yml");
 
                 Config userConfig = LoadConfigFile(userConfigFileName);
                 config.Merge(userConfig);
@@ -197,7 +198,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     fsw.Created += (o, e) => onchange();
                     fsw.Deleted += (o, e) => onchange();
                     fsw.Changed += (o, e) => onchange();
-                    config.watchers.Add(fsw);
+                    config.fileSystemWatchers.Add(fsw);
                 }
             }
             else
@@ -210,7 +211,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     fsw.Created += (o, e) => onchange();
                     fsw.Deleted += (o, e) => onchange();
                     fsw.Changed += (o, e) => onchange();
-                    config.watchers.Add(fsw);
+                    config.fileSystemWatchers.Add(fsw);
                 }
             }
 
@@ -338,9 +339,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     }
                     else if (lfs.Length == 2)
                     {
-                        int port;
                         // this is either -R relay_name:port or -L relay_name:local_socket
-                        if (int.TryParse(lfs[1], out port))
+                        if (int.TryParse(lfs[1], out var port))
                         {
                             // port
                             // local_socket
@@ -363,9 +363,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     }
                     else
                     {
-                        int port;
                         // this is -L relay_name:host:port
-                        if (int.TryParse(lfs[2], out port))
+                        if (int.TryParse(lfs[2], out var port))
                         {
                             // port
                             // local_socket
@@ -520,7 +519,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 if (disposing)
                 {
-                    foreach (var w in watchers)
+                    foreach (var w in fileSystemWatchers)
                     {
                         w.Dispose();
                     }

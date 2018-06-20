@@ -1,16 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using McMaster.Extensions.CommandLineUtils.HelpText;
-
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
     using McMaster.Extensions.CommandLineUtils;
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Threading.Tasks;
-
+    using McMaster.Extensions.CommandLineUtils.HelpText;
+    
     public class CommandLineSettings
     {
 #if NET462
@@ -62,9 +60,18 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         static CommandLineSettings()
         {
             app.ModelFactory = () => new CommandLineSettings();
+            app.HelpTextGenerator = new HelpTextGenerator();
             app.Conventions.UseDefaultConventions();
         }
-                                                    
+
+        private class HelpTextGenerator : IHelpTextGenerator
+        {
+            public void Generate(CommandLineApplication application, TextWriter output)
+            {
+                output.Write(Strings.CommandLineOptions);
+            }
+        }
+
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
         {
             app.Parse(args);                                    

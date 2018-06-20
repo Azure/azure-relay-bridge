@@ -35,6 +35,16 @@ using Microsoft.Diagnostics.Tracing;
 
         int Run(CommandLineSettings settings)
         {
+            string svcConfigFileName =
+                (Environment.OSVersion.Platform == PlatformID.Unix) ?
+                    $"/etc/azbridge/azbridge_config.svc.yml" :
+             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
+                 $"Mirosoft\\Azure Relay Bridge\\azbridge_config.svc.yml");
+
+            if (File.Exists(svcConfigFileName))
+            {
+                settings.ConfigFile = svcConfigFileName;
+            }
             Config config = Config.LoadConfig(settings);
             var loggerFactory = new LoggerFactory();
             if (!settings.Quiet.HasValue || !settings.Quiet.Value)
