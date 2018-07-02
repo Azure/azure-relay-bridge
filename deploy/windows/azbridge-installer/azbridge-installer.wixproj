@@ -10,6 +10,10 @@
     <OutputType>Package</OutputType>
     <TargetFramework>net462</TargetFramework>
     <EnableProjectHarvesting>false</EnableProjectHarvesting>
+    <ProcessorArchitecture Condition=" '$(ProcessorArchitecture)' == '' ">x64</ProcessorArchitecture>
+    <WixToolPath>$(MSBuildProjectDirectory)\..\wix\v3.11</WixToolPath>
+    <WixTargetsPath>$(WixToolPath)\Wix.targets</WixTargetsPath>
+    <WixTasksPath>$(WixToolPath)\wixtasks.dll</WixTasksPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
@@ -44,6 +48,10 @@
       <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
     </WixExtension>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\azbridge\azbridge.csproj">
@@ -66,6 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="installTransforms.xslt" />
+    <Content Include="LICENSE.rtf" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />

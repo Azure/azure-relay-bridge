@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <Product Id="*" Name="Azure Relay Bridge" Language="1033" Version="1.0.0.0" Manufacturer="Microsoft" UpgradeCode="119729c9-25d5-447f-b9a8-5e2b1cdbc348">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
@@ -12,21 +14,27 @@
     <PropertyRef Id="WIX_ACCOUNT_NETWORKSERVICE" />
     <PropertyRef Id="WIX_ACCOUNT_USERS" />
     <PropertyRef Id="WIX_ACCOUNT_ADMINISTRATORS" />
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED"/>
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)license.rtf" />
+    <Condition Message="This application requires .NET Framework 4.5.2 or later. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]>
+    </Condition>
   </Product>
+
 
 
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Note using the preprocessor variable here -->
-      <!--<?if $(var.ProcessorArchitecture)=x64 ?>-->
+      <?if $(sys.BUILDARCH)=x64?>
       <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
       </Directory>
-      <!--<?else ?>
+      <?else ?>
       <Directory Id="ProgramFilesFolder">
         <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
       </Directory>
-      <?endif ?>-->
+      <?endif ?>
       <Directory Id="CommonAppDataFolder">
         <Directory Id="MicrosoftAppDataFolder" Name="Microsoft">
           <Directory Id="CONFIGFOLDER" Name="Azure Relay Bridge"/>
@@ -48,6 +56,10 @@
               Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.man">
           <util:EventManifest  MessageFile="[etwManifest.dll]"  ResourceFile="[etwManifest.dll]"></util:EventManifest>
         </File>
+      </Component>
+      <Component Id="Path" Guid="{bfc77cbe-3e65-4cb9-a1db-3d0b14bbe11f}" KeyPath="yes">
+        <Environment Id="PATH" Name="PATH" Value="[INSTALLFOLDER]" Permanent="no" Part="last" Action="set" System="yes" />
+        <CreateFolder/>
       </Component>
     </ComponentGroup>
     <Feature Id="App" Title="Command line bridge" Level="1">

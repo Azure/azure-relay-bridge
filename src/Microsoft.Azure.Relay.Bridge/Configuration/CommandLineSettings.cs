@@ -12,46 +12,46 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     public class CommandLineSettings
     {
 #if NET462
-        [Option(CommandOptionType.NoValue, LongName = "svcinstall", ShortName = "I")]
+        [Option(CommandOptionType.NoValue, LongName = "svcinstall", ShortName = "I", Description = "Install as Windows Service")]
         public bool? ServiceInstall { get; set; }
-        [Option(CommandOptionType.NoValue, LongName = "svcuninstall", ShortName = "U")]
+        [Option(CommandOptionType.NoValue, LongName = "svcuninstall", ShortName = "U", Description = "Uninstall Windows Service")]
         public bool? ServiceUninstall { get; set; }
-        [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc")]
+        [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc", Description = "Reserved for Windows service control manager")]
         public bool? ServiceRun { get; set; }
 #endif
         [Option(CommandOptionType.NoValue, LongName = "addhosts")]
         public bool? AddHosts { get; set; }
         [Option(CommandOptionType.NoValue, LongName = "cleanhosts")]
         public bool? CleanHosts { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "b")]
+        [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
-        [Option(CommandOptionType.NoValue, ShortName = "C")]
+        [Option(CommandOptionType.NoValue, ShortName = "C", Description = "Enable compression")]
         public bool? Compression { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "E")]
+        [Option(CommandOptionType.SingleValue, ShortName = "E", Description = "Relay endpoint URI")]
         public Uri EndpointUri { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "F")]
+        [Option(CommandOptionType.SingleValue, ShortName = "F", Description = "Configuration file")]
         public string ConfigFile { get; set; }
-        [Option(CommandOptionType.NoValue, ShortName = "g")]
+        [Option(CommandOptionType.NoValue, ShortName = "g", Description = "Allows remote hosts to connect to local forwarded ports")]
         public bool? GatewayPorts { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "K")]
+        [Option(CommandOptionType.SingleValue, ShortName = "K", Description = "Azure Relay shared access policy name")]
         public string SharedAccessKeyName { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "k")]
+        [Option(CommandOptionType.SingleValue, ShortName = "k", Description = "Azure Relay shared access policy key")]
         public string SharedAccessKey { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "L")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "L", Description = "Local forwarder [address:]port:relay_name")]
         public IEnumerable<string> LocalForward { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "o")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "o", Description = "Configuration file option override key:value")]
         public IEnumerable<string> Option { get; set; }
-        [Option(CommandOptionType.NoValue, ShortName = "q")]
+        [Option(CommandOptionType.NoValue, ShortName = "q", Description = "No log output to stdout/stderr")]
         public bool? Quiet { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "R")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[address:]port ")]
         public IEnumerable<string> RemoteForward { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "S")]
+        [Option(CommandOptionType.SingleValue, ShortName = "S", Description = "Azure Relay shared access signature token")]
         public string Signature { get; set; }
 
-        [Option(CommandOptionType.SingleValue, ShortName = "x")]
+        [Option(CommandOptionType.SingleValue, ShortName = "x", Description = "Azure Relay connection string (overridden with -S -K -k -E)")]
         public string ConnectionString { get; internal set; }
 
-        [Option(CommandOptionType.NoValue, ShortName = "v")]
+        [Option(CommandOptionType.NoValue, ShortName = "v", Description = "Verbose log output")]
         public bool Verbose { get; internal set; }
 
         
@@ -60,18 +60,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         static CommandLineSettings()
         {
             app.ModelFactory = () => new CommandLineSettings();
-            app.HelpTextGenerator = new HelpTextGenerator();
             app.Conventions.UseDefaultConventions();
         }
 
-        private class HelpTextGenerator : IHelpTextGenerator
-        {
-            public void Generate(CommandLineApplication application, TextWriter output)
-            {
-                output.Write(Strings.CommandLineOptions);
-            }
-        }
-
+        
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
         {
             app.Parse(args);                                    

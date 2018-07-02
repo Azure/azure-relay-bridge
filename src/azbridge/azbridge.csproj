@@ -3,9 +3,10 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <RuntimeIdentifiers>win7-x64;win10-x64;osx-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x64;win7-x86;win10;osx-x64;linux-x64</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -110,5 +111,14 @@
       <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net462\$(AssemblyName).exe" />
     </ItemGroup>
   </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-tarball" Version="$(DotnetTarballPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />
+  </ItemGroup>
+  
 
 </Project>
