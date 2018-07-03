@@ -7,7 +7,7 @@
     <Description>Azure Relay Bridge</Description>
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

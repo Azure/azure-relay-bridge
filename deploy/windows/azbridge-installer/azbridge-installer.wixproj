@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" InitialTargets="EnsureWixToolsetInstalled" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\WiX.3.11.1\build\wix.props" Condition="Exists('packages\WiX.3.11.1\build\wix.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -9,11 +10,11 @@
     <OutputName>azbridge_installer</OutputName>
     <OutputType>Package</OutputType>
     <TargetFramework>net462</TargetFramework>
+    <RuntimeIdentifier>win10-$(Platform)</RuntimeIdentifier>
     <EnableProjectHarvesting>false</EnableProjectHarvesting>
-    <ProcessorArchitecture Condition=" '$(ProcessorArchitecture)' == '' ">x64</ProcessorArchitecture>
-    <WixToolPath>$(MSBuildProjectDirectory)\..\wix\v3.11</WixToolPath>
-    <WixTargetsPath>$(WixToolPath)\Wix.targets</WixTargetsPath>
-    <WixTasksPath>$(WixToolPath)\wixtasks.dll</WixTasksPath>
+    <ProcessorArchitecture Condition=" '$(ProcessorArchitecture)' == '' ">x86</ProcessorArchitecture>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
@@ -41,15 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <WixExtension Include="WixUtilExtension">
-      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
       <Name>WixUtilExtension</Name>
     </WixExtension>
     <WixExtension Include="WixUIExtension">
-      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
     </WixExtension>
     <WixExtension Include="WixNetFxExtension">
-      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
       <Name>WixNetFxExtension</Name>
     </WixExtension>
   </ItemGroup>
@@ -75,6 +73,7 @@
   <ItemGroup>
     <Content Include="installTransforms.xslt" />
     <Content Include="LICENSE.rtf" />
+    <Content Include="packages.config" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
@@ -82,11 +81,21 @@
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
   <Target Name="BeforeBuild">
-    <Exec Command="dotnet publish ..\..\..\src\azbridge\azbridge.csproj -c $(Configuration) -f net462 -r win10-x64" />
+     <Exec Command="dotnet publish ..\..\..\src\azbridge\azbridge.csproj -c $(Configuration) -f $(TargetFramework) -r $(RuntimeIdentifier)" /> 
+    <!--<MSBuild Projects="..\..\..\src\azbridge\azbridge.csproj" Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier)" Targets="Publish" />-->
     <PropertyGroup>
-      <LinkerBaseInputPaths>..\..\..\src\azbridge\bin\$(Configuration)\net462\win10-x64\publish</LinkerBaseInputPaths>
-      <DefineConstants>BasePath=..\..\..\src\azbridge\bin\$(Configuration)\net462\win10-x64\publish</DefineConstants>
+      <LinkerBaseInputPaths>..\..\..\src\azbridge\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish</LinkerBaseInputPaths>
+      <DefineConstants>BasePath=..\..\..\src\azbridge\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish</DefineConstants>
     </PropertyGroup>
-    <HeatDirectory OutputFile="azbridge.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="azbridge_Project" SuppressCom="true" Directory="..\..\..\src\azbridge\bin\$(Configuration)\net462\win10-x64\publish" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutoGenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" Transforms="installTransforms.xslt" />
+    <HeatDirectory OutputFile="azbridge.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="azbridge_Project" SuppressCom="true" Directory="..\..\..\src\azbridge\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutoGenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" Transforms="installTransforms.xslt" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\WiX.3.11.1\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\WiX.3.11.1\build\wix.props'))" />
+  </Target>
+  <Target Name="Publish" DependsOnTargets="Build">
+
   </Target>
 </Project>

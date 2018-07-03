@@ -2,13 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <OutputName>azbridge</OutputName>
     <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <RuntimeIdentifiers>win7-x64;win7-x86;win10;osx-x64;linux-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x64;win7-x86;win10;osx-x64;ubuntu-x64</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x86;x64</Platforms>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <None Remove="azbridge_config.machine.yml" />
     <None Remove="azbridge_config.svc.yml" />
@@ -21,16 +22,6 @@
     </Content>
     <Content Include="azbridge_config.machine.yml" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' != 'net462'">
-      <ItemGroup>
-        <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
-        <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
-        <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
-      </ItemGroup>
-    </When>
-  </Choose>
 
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net462'">
@@ -59,6 +50,14 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingPackageVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsLoggingConsolePackageVersion)" />
     <PackageReference Include="Serilog.Extensions.Logging.File" Version="$(SerilogExtensionsLoggingFilePackageVersion)" />
+    <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-tarball" Version="$(DotnetTarballPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />
   </ItemGroup>
 
   <Choose>
@@ -66,6 +65,7 @@
       <ItemGroup>
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="$(MicrosoftDiagnosticsTracingTraceEventPackageVersion)" />
         <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource" Version="$(MicrosoftDiagnosticsTracingEventSourcePackageVersion)" />
+        <PackageReference Include="Wix" Version="$(WixPackageVersion)" />
       </ItemGroup>
     </When>
   </Choose>
@@ -112,13 +112,31 @@
     </ItemGroup>
   </Target>
 
-  <ItemGroup>
-    <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-tarball" Version="$(DotnetTarballPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />
-  </ItemGroup>
-  
 
+  <Target Name="PublishDebian" DependsOnTargets="CreateDeb" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+  </Target>
+  <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+  </Target>
+  <Target Name="PublishWindows" DependsOnTargets="Publish" Condition="('$(TargetFramework)' == 'net462') AND ($(RuntimeIdentifier.StartsWith('win')))">
+    
+  </Target>
+  <Target Name="PublishOSX" DependsOnTargets="Publish" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+    <!-- <ProjectReference Include="Installer/azbridge-installer.wixproj"/> -->
+  </Target>
+  <Target Name="PublishPackages" DependsOnTargets="PublishDebian;PublishRpm;PublishWindows;PublishOSX">
+  </Target>
+  <Target Name="PublishProjectIfFrameworkSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != '' " />
+  <Target Name="PublishProjectForAllRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == ''  ">
+    <ItemGroup>
+      <_PublishRuntimeIdentifier Include="$(RuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="PublishAll" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
+    <ItemGroup>
+      <_PublishFramework Include="$(TargetFrameworks)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="PublishAll" Properties="TargetFramework=%(_PublishFramework.Identity)" />
+  </Target>
+  <Target Name="PublishAll" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllRIDsIfTargetFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" />
 </Project>
