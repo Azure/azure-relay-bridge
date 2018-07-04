@@ -8,14 +8,17 @@
   <Import Project="build\sources.props" />
 
   <PropertyGroup>
-    <Product>Mirosoft Azure Relay Bridge</Product>
-    <RepositoryUrl>https://github.com/azure/azure-relay-bridge</RepositoryUrl>
+    <Product>Microsoft Azure Relay Bridge</Product>
+    <RepositoryUrl>https://github.com/Azure/azure-relay-bridge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
+    <PackageDir>$(RepositoryRoot)/pkg</PackageDir>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableApiCheck>false</EnableApiCheck>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
   </PropertyGroup>
 </Project>

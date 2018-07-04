@@ -5,7 +5,7 @@
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <Description>Azure Relay Bridge Tests</Description>
-    <Platforms>x86;x64</Platforms>
+    <!-- <Platforms>x86;x64</Platforms> -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,5 +24,6 @@
     <ProjectReference Include="..\..\src\azbridge\azbridge.csproj" />
     <ProjectReference Include="..\..\src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
   </ItemGroup>
-
+   <Target Name="Package">
+   </Target>
 </Project>

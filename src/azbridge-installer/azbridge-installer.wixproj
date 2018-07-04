@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Publish" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\WiX.3.11.1\build\wix.props" Condition="Exists('packages\WiX.3.11.1\build\wix.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
+    <ProductVersion>3.10</ProductVersion>
+    <ProjectGuid>{5496840b-ef30-44be-a316-0b69790ea9a3}</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>azbridge_installer</OutputName>
+    <OutputType>Package</OutputType>
+    <TargetFramework>net462</TargetFramework>
+    <RuntimeIdentifier>win10-$(Platform)</RuntimeIdentifier>
+    <AlreadyPublished>false</AlreadyPublished>
+    <EnableProjectHarvesting>false</EnableProjectHarvesting>
+    <DefineSolutionProperties>false</DefineSolutionProperties>    
+    <BridgePublishPath>..\azbridge\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish</BridgePublishPath>
+    <BridgeProjectFile>..\azbridge\azbridge.csproj</BridgeProjectFile>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <!-- <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath> -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <DefineConstants>Debug;ProcessorArchitecture=x86</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <!-- <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath> -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <DefineConstants>ProcessorArchitecture=x86</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <!-- <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath> -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <DefineConstants>Debug;ProcessorArchitecture=x64</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <!-- <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath> -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(Platform)\</IntermediateOutputPath>
+    <DefineConstants>ProcessorArchitecture=x64</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="azbridge.wxs" />
+    <Compile Include="Product.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixUIExtension">
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixNetFxExtension">
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\azbridge\azbridge.csproj">
+      <Name>azbridge</Name>
+      <Project>{ac769774-b065-41e8-b0ab-d15ed6b8d6a8}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>
+      </DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj">
+      <Name>Microsoft.Azure.Relay.Bridge</Name>
+      <Project>{864ae8d8-f770-499b-a9e2-46e07c8fd3d2}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="installTransforms.xslt" />
+    <Content Include="LICENSE.rtf" />
+    <Content Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
+  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
+    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
+  </Target>
+  <Target Name="BeforeBuild">
+     <Exec Command="dotnet publish $(BridgeProjectFile) -c $(Configuration) -f $(TargetFramework) -r $(RuntimeIdentifier)" 
+           Condition="'$(AlreadyPublished)'=='false'"/> 
+    <!--<MSBuild Projects="..\azbridge\azbridge.csproj" Properties="Configuration=$(Configuration);TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier)" Targets="Publish" />-->
+    <PropertyGroup>
+      <LinkerBaseInputPaths>$(BridgePublishPath)</LinkerBaseInputPaths>
+      <DefineConstants>BasePath=$(BridgePublishPath)</DefineConstants>
+    </PropertyGroup>
+    <HeatDirectory OutputFile="azbridge.wxs" DirectoryRefId="INSTALLFOLDER" ComponentGroupName="azbridge_Project" SuppressCom="true" Directory="$(BridgePublishPath)" SuppressFragments="true" SuppressRegistry="true" SuppressRootDirectory="true" AutoGenerateGuids="false" GenerateGuidsNow="true" ToolPath="$(WixToolPath)" PreprocessorVariable="var.BasePath" Transforms="installTransforms.xslt" />
+  </Target>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\WiX.3.11.1\build\wix.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\WiX.3.11.1\build\wix.props'))" />
+  </Target>
+  <Target Name="Publish" DependsOnTargets="Build">
+  </Target>
+  <Target Name="Package">
+   </Target>
+</Project>

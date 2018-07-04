@@ -1,13 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <OutputType>Exe</OutputType>
     <OutputName>azbridge</OutputName>
     <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <RuntimeIdentifiers>win7-x64;win7-x86;win10;osx-x64;ubuntu-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86;osx-x64;ubuntu-x64</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild> 
     <Platforms>x86;x64</Platforms>
+    <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
   
   <ItemGroup>
@@ -113,15 +117,18 @@
   </Target>
 
 
-  <Target Name="PublishDebian" DependsOnTargets="CreateDeb" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+  <Target Name="PublishDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
   </Target>
-  <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+  <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
   </Target>
-  <Target Name="PublishWindows" DependsOnTargets="Publish" Condition="('$(TargetFramework)' == 'net462') AND ($(RuntimeIdentifier.StartsWith('win')))">
+  <Target Name="PublishWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win'))">
+     <PropertyGroup>
+        <MsiDir>$(PublishDir)../msi</MsiDir>
+     </PropertyGroup>
+     <Exec Command="msbuild ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);AlreadyPublished=true" />
+  </Target>
+  <Target Name="PublishOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
     
-  </Target>
-  <Target Name="PublishOSX" DependsOnTargets="Publish" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
-    <!-- <ProjectReference Include="Installer/azbridge-installer.wixproj"/> -->
   </Target>
   <Target Name="PublishPackages" DependsOnTargets="PublishDebian;PublishRpm;PublishWindows;PublishOSX">
   </Target>
@@ -130,13 +137,13 @@
     <ItemGroup>
       <_PublishRuntimeIdentifier Include="$(RuntimeIdentifiers)" />
     </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="PublishAll" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
   </Target>
   <Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
     <ItemGroup>
       <_PublishFramework Include="$(TargetFrameworks)" />
     </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="PublishAll" Properties="TargetFramework=%(_PublishFramework.Identity)" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity)" />
   </Target>
-  <Target Name="PublishAll" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllRIDsIfTargetFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" />
+  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllRIDsIfTargetFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" />
 </Project>
