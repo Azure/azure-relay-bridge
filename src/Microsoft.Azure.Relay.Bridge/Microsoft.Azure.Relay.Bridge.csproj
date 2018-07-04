@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <TargetFrameworks>netcoreapp2.0;netcoreapp2.1;net462</TargetFrameworks>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeEtwManifest</TargetsForTfmSpecificBuildOutput>
-    <RuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86;osx-x64;ubuntu-x64</RuntimeIdentifiers>
+    <WindowsRuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86</WindowsRuntimeIdentifiers>
+    <UnixRuntimeIdentifiers>osx-x64;ubuntu-x64;opensuse-x64;ol-x64;rhel-x64</UnixRuntimeIdentifiers>
+    <RuntimeIdentifiers>$(WindowsRuntimeIdentifiers);$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
     <Description>Azure Relay Bridge</Description>
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Platforms>x86;x64</Platforms>
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
 

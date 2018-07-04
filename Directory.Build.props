@@ -12,13 +12,12 @@
     <RepositoryUrl>https://github.com/Azure/azure-relay-bridge</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryRoot>$(MSBuildThisFileDirectory)</RepositoryRoot>
-    <PackageDir>$(RepositoryRoot)/pkg</PackageDir>
+    <BuildDir>$(RepositoryRoot)/artifacts/build</BuildDir>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)build\Key.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition="'$(OS)' != 'Windows_NT'">true</PublicSign>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableApiCheck>false</EnableApiCheck>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
   </PropertyGroup>
 </Project>

@@ -2,17 +2,47 @@
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <OutputType>Exe</OutputType>
     <OutputName>azbridge</OutputName>
     <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <RuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86;osx-x64;ubuntu-x64</RuntimeIdentifiers>
+    <WindowsRuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86</WindowsRuntimeIdentifiers>
+    <UnixRuntimeIdentifiers>osx-x64;ubuntu-x64;opensuse-x64;ol-x64;rhel-x64</UnixRuntimeIdentifiers>
+    <RuntimeIdentifiers>$(WindowsRuntimeIdentifiers);$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild> 
-    <Platforms>x86;x64</Platforms>
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
+  
+<!-- Determine PlatformTarget (if not already set) from runtime identifier. -->
+  <Choose>
+    <When Condition="'$(PlatformTarget)' != '' or '$(RuntimeIdentifier)' == ''" />
+
+    <When Condition="$(RuntimeIdentifier.EndsWith('-x86')) or $(RuntimeIdentifier.Contains('-x86-'))">
+      <PropertyGroup>
+        <PlatformTarget>x86</PlatformTarget>
+      </PropertyGroup>
+    </When>
+
+    <When Condition="$(RuntimeIdentifier.EndsWith('-x64')) or $(RuntimeIdentifier.Contains('-x64-'))">
+      <PropertyGroup>
+        <PlatformTarget>x64</PlatformTarget>
+      </PropertyGroup>
+    </When>
+
+    <When Condition="$(RuntimeIdentifier.EndsWith('-arm')) or $(RuntimeIdentifier.Contains('-arm-'))">
+      <PropertyGroup>
+        <PlatformTarget>arm</PlatformTarget>
+      </PropertyGroup>
+    </When>
+
+    <!-- NOTE: PlatformTarget=arm64 is not currently supported and therefore no inference of that here. -->
+    <Otherwise>
+      <PropertyGroup>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
   
   <ItemGroup>
     <None Remove="azbridge_config.machine.yml" />
@@ -116,26 +146,43 @@
     </ItemGroup>
   </Target>
 
-
+  <Target Name="PublishZip" DependsOnTargets="CreateZip">
+    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)"/>
+  </Target>
+  <Target Name="PublishTarball" DependsOnTargets="CreateTarball" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)"/>
+  </Target>
   <Target Name="PublishDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+    <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PublishWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win'))">
      <PropertyGroup>
         <MsiDir>$(PublishDir)../msi</MsiDir>
+        <_OutputName>azbridge_installer.$(PackageVersion).$(RuntimeIdentifier)</_OutputName>
      </PropertyGroup>
-     <Exec Command="msbuild ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);AlreadyPublished=true" />
+     <Exec Command="msbuild ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
+     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PublishOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
     
   </Target>
-  <Target Name="PublishPackages" DependsOnTargets="PublishDebian;PublishRpm;PublishWindows;PublishOSX">
+  <Target Name="PublishPackages" DependsOnTargets="PublishDebian;PublishRpm;PublishWindows;PublishOSX;PublishZip;PublishTarball" Condition=" '$(RuntimeIdentifier)' != '' ">
+    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier)" Importance="high"/>
   </Target>
+
   <Target Name="PublishProjectIfFrameworkSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != '' " />
-  <Target Name="PublishProjectForAllRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == ''  ">
+  <Target Name="PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">
     <ItemGroup>
-      <_PublishRuntimeIdentifier Include="$(RuntimeIdentifiers)" />
+      <_PublishRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' ">
+    <ItemGroup>
+      <_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
   </Target>
@@ -143,7 +190,7 @@
     <ItemGroup>
       <_PublishFramework Include="$(TargetFrameworks)" />
     </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity)" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity)" Condition="'$(OS)'!='Unix' OR '%(_PublishFramework.Identity)'!='net462'" />
   </Target>
-  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllRIDsIfTargetFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset" />
+  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset;PublishProjectForAllUnixRIDsIfTargetFrameworkSet;PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" />
 </Project>

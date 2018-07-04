@@ -5,7 +5,6 @@
     <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <Description>Azure Relay Bridge Tests</Description>
-    <!-- <Platforms>x86;x64</Platforms> -->
   </PropertyGroup>
 
   <ItemGroup>

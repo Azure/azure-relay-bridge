@@ -3,7 +3,6 @@
   <Import Project="packages\WiX.3.11.1\build\wix.props" Condition="Exists('packages\WiX.3.11.1\build\wix.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProductVersion>3.10</ProductVersion>
     <ProjectGuid>{5496840b-ef30-44be-a316-0b69790ea9a3}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
