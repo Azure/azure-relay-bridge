@@ -76,6 +76,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 {
                     tcpListenerBridge = TcpLocalForwardBridge.FromConnectionString(rcbs);
                     tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
+                    
                     this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
                 }
                 BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);

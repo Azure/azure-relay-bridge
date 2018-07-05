@@ -157,8 +157,10 @@ namespace Microsoft.Azure.Relay.Bridge
                 {
                     BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, tcpClient, HybridConnectionClient);
                     await Task.WhenAll(
-                        StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(), cancellationTokenSource.Token),
-                        StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream, cancellationTokenSource.Token));
+                        StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(),
+                            () => tcpClient.Client.Shutdown(SocketShutdown.Send), cancellationTokenSource.Token),
+                        StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream,
+                            () => hybridConnectionStream.Shutdown(), cancellationTokenSource.Token));
                 }
                 BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, tcpClient, HybridConnectionClient);
             }

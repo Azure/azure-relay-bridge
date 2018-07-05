@@ -52,7 +52,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 throw new InvalidOperationException();
             }
 
-            shuttingDown.Cancel();            ;
+            shuttingDown.Cancel(); ;
 
             this.IsOpen = false;
             await this.listener.CloseAsync(TimeSpan.FromSeconds(5));
@@ -111,12 +111,16 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             try
             {
-                using (TcpClient client = new TcpClient())
+                using (hybridConnectionStream)
                 {
-                    await client.ConnectAsync(targetServer, targetPort);
-                    await Task.WhenAll(
-                        StreamPump.RunAsync(hybridConnectionStream, client.GetStream(), shuttingDown.Token), 
-                        StreamPump.RunAsync(client.GetStream(), hybridConnectionStream, shuttingDown.Token));
+                    using (TcpClient client = new TcpClient())
+                    {
+                        await client.ConnectAsync(targetServer, targetPort);
+                        var tcpstream = client.GetStream();
+                        await Task.WhenAll(
+                            StreamPump.RunAsync(hybridConnectionStream, tcpstream, () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token),
+                            StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token));
+                    }
                 }
             }
             catch (Exception e)

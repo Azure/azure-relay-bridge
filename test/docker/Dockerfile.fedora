@@ -1,0 +1,10 @@
+FROM fedora AS build
+WORKDIR /tmp
+COPY azbridge.1.0.0-preview-0000.fedora-x64.rpm .
+USER root
+RUN yum update -y
+RUN yum install -y nc libstdc++ libunwind libicu compat-openssl10
+RUN useradd -ms /bin/bash azbridge
+RUN rpm -i azbridge.1.0.0-preview-0000.fedora-x64.rpm
+WORKDIR /test
+COPY testrun.sh .

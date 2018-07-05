@@ -1,0 +1,8 @@
+[Unit]
+Description=Azure Relay Bridge
+  
+[Service]
+ExecStart=/usr/shared/azbridge
+    
+[Install]
+WantedBy=multi-user.target

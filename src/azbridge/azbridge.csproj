@@ -6,55 +6,29 @@
     <OutputName>azbridge</OutputName>
     <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
     <WindowsRuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86</WindowsRuntimeIdentifiers>
-    <UnixRuntimeIdentifiers>osx-x64;ubuntu-x64;opensuse-x64;ol-x64;rhel-x64</UnixRuntimeIdentifiers>
+    <UnixRuntimeIdentifiers>osx-x64;debian-x64;opensuse-x64;ol-x64;rhel-x64;fedora-x64</UnixRuntimeIdentifiers>
     <RuntimeIdentifiers>$(WindowsRuntimeIdentifiers);$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild> 
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
+    <CreateUser>false</CreateUser>
+    <InstallService>false</InstallService>
   </PropertyGroup>
   
-<!-- Determine PlatformTarget (if not already set) from runtime identifier. -->
-  <Choose>
-    <When Condition="'$(PlatformTarget)' != '' or '$(RuntimeIdentifier)' == ''" />
-
-    <When Condition="$(RuntimeIdentifier.EndsWith('-x86')) or $(RuntimeIdentifier.Contains('-x86-'))">
-      <PropertyGroup>
-        <PlatformTarget>x86</PlatformTarget>
-      </PropertyGroup>
-    </When>
-
-    <When Condition="$(RuntimeIdentifier.EndsWith('-x64')) or $(RuntimeIdentifier.Contains('-x64-'))">
-      <PropertyGroup>
-        <PlatformTarget>x64</PlatformTarget>
-      </PropertyGroup>
-    </When>
-
-    <When Condition="$(RuntimeIdentifier.EndsWith('-arm')) or $(RuntimeIdentifier.Contains('-arm-'))">
-      <PropertyGroup>
-        <PlatformTarget>arm</PlatformTarget>
-      </PropertyGroup>
-    </When>
-
-    <!-- NOTE: PlatformTarget=arm64 is not currently supported and therefore no inference of that here. -->
-    <Otherwise>
-      <PropertyGroup>
-        <PlatformTarget>AnyCPU</PlatformTarget>
-      </PropertyGroup>
-    </Otherwise>
-  </Choose>
-  
-  <ItemGroup>
+  <!-- <ItemGroup>
     <None Remove="azbridge_config.machine.yml" />
     <None Remove="azbridge_config.svc.yml" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <ItemGroup>
-    <Content Include="azbridge_config.svc.yml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" />
+    <Content Include="azbridge_config.svc.yml" CopyToOutputDirectory="PreserveNewest"> 
       <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
     </Content>
-    <Content Include="azbridge_config.machine.yml" />
+    <Content Include="azbridge_config.machine.yml" CopyToOutputDirectory="PreserveNewest">
+      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
+    </Content>
   </ItemGroup>
 
   <Choose>
@@ -118,6 +92,11 @@
     </ProjectReference>
   </ItemGroup>
 
+  <!-- <ItemGroup>
+    <RpmDependency Include="libstdc++"/>
+    <RpmDependency Include="libunwind"/>
+  </ItemGroup> -->
+
   <ItemGroup>
     <Compile Update="Strings.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -132,13 +111,7 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="azbridge_config.machine.yml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
-    </Content>
-  </ItemGroup>
+  
 
   <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
     <ItemGroup>
@@ -155,7 +128,7 @@
   <Target Name="PublishDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
     <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
-  <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+  <Target Name="PublishRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
     <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PublishWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win'))">

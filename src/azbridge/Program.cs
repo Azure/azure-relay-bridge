@@ -23,7 +23,7 @@ namespace azbridge
 
         static void Main(string[] args)
         {
-            CommandLineSettings.Run(args, (c)=>Run(c,args));
+            CommandLineSettings.Run(args, (c) => Run(c, args));
         }
 
         static int Run(CommandLineSettings settings, string[] args)
@@ -59,13 +59,39 @@ namespace azbridge
                 var loggerFactory = new LoggerFactory();
                 if (!settings.Quiet.HasValue || !settings.Quiet.Value)
                 {
-                    loggerFactory.AddConsole();
+                    LogLevel logLevel = LogLevel.Error;
+                    if (config.LogLevel != null)
+                    {
+                        switch (config.LogLevel.ToUpper())
+                        {
+                            case "QUIET":
+                                logLevel = LogLevel.None;
+                                break;
+                            case "FATAL":
+                                logLevel = LogLevel.Critical;
+                                break;
+                            case "ERROR":
+                                logLevel = LogLevel.Error;
+                                break;
+                            case "INFO":
+                                logLevel = LogLevel.Information;
+                                break;
+                            case "VERBOSE":
+                                logLevel = LogLevel.Trace;
+                                break;
+                            case "DEBUG":
+                            case "DEBUG1":
+                            case "DEBUG2":
+                            case "DEBUG3":
+                                logLevel = LogLevel.Debug;
+                                break;
+                        }
+                    }
+                    loggerFactory.AddConsole(logLevel);
                 }
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
 
-
-                Console.WriteLine("Press Ctrl+C to stop");
                 SemaphoreSlim semaphore = new SemaphoreSlim(1);
                 semaphore.Wait();
 

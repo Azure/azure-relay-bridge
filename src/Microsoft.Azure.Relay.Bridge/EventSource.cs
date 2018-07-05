@@ -1011,7 +1011,7 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardSocketClosed), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { socket } });
             }
 
-            LocalForwardSocketClosed(eventTraceActivity.Activity, socket.Client.LocalEndPoint.ToString());
+            LocalForwardSocketClosed(eventTraceActivity.Activity, "");
         }
 
         [Event(162, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]

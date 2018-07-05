@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net.Sockets;
     using System.Runtime.Serialization;
     using System.Runtime.Serialization.Json;
     using System.Text;
@@ -14,7 +15,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
     public class StreamPump
     {
-        public static async Task RunAsync(Stream source, Stream target, CancellationToken cancellationToken)
+        public static async Task RunAsync(Stream source, Stream target, Action shutdownAction, CancellationToken cancellationToken)
         {
             try
             {
@@ -25,7 +26,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
                     if (bytesRead == 0)
                     {
-                        source.Close();
+                        shutdownAction?.Invoke();
                         return;
                     }
                     await target.WriteAsync(buffer, 0, bytesRead, cancellationToken);
