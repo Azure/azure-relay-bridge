@@ -8,8 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>azbridge_installer</OutputName>
     <OutputType>Package</OutputType>
-    <TargetFramework>net462</TargetFramework>
-    <RuntimeIdentifier>win10-$(Platform)</RuntimeIdentifier>
+    <Platform>x64</Platform>
     <AlreadyPublished>false</AlreadyPublished>
     <EnableProjectHarvesting>false</EnableProjectHarvesting>
     <DefineSolutionProperties>false</DefineSolutionProperties>    

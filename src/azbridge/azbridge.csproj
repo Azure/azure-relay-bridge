@@ -4,10 +4,6 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <OutputType>Exe</OutputType>
     <OutputName>azbridge</OutputName>
-    <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <WindowsRuntimeIdentifiers>win7-x64;win7-x86;win10-x64;win10-x86</WindowsRuntimeIdentifiers>
-    <UnixRuntimeIdentifiers>osx-x64;debian.8-x64;ubuntu.16.10-x64;ubuntu.16.04-x64;opensuse-x64;ol-x64;rhel-x64;fedora-x64;centos-x64</UnixRuntimeIdentifiers>
-    <RuntimeIdentifiers>$(WindowsRuntimeIdentifiers);$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
     <Description>Azure Relay Bridge CLI</Description>
     <PackageTags>azure</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild> 

@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp2.0;netcoreapp2.1</TargetFrameworks>
-    <RuntimeIdentifiers>win-x64;osx-x64;linux-x64</RuntimeIdentifiers>
     <IsPackable>false</IsPackable>
     <Description>Azure Relay Bridge Tests</Description>
   </PropertyGroup>
@@ -20,8 +18,8 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\..\src\azbridge\azbridge.csproj" />
-    <ProjectReference Include="..\..\src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
+    <ProjectReference Include="..\..\..\src\azbridge\azbridge.csproj" />
+    <ProjectReference Include="..\..\..\src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj" />
   </ItemGroup>
    <Target Name="Package">
    </Target>
