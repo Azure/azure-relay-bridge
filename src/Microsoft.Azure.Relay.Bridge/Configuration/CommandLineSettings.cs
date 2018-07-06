@@ -52,7 +52,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string ConnectionString { get; internal set; }
 
         [Option(CommandOptionType.NoValue, ShortName = "v", Description = "Verbose log output")]
-        public bool Verbose { get; internal set; }
+        public bool? Verbose { get; internal set; }
 
         
         static CommandLineApplication<CommandLineSettings> app = new CommandLineApplication<CommandLineSettings>(true);

@@ -230,6 +230,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 config.Merge(yamlDeserializer.Deserialize<Config>(new StreamReader(memcfg)));
             }
 
+            if (commandLineSettings.Verbose.HasValue && commandLineSettings.Verbose.Value)
+            {
+                config.LogLevel = "VERBOSE";
+            }
             if (commandLineSettings.BindAddress != null)
             {
                 config.BindAddress = commandLineSettings.BindAddress;
@@ -250,7 +254,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 config.GatewayPorts = commandLineSettings.GatewayPorts;
             }
-            if (commandLineSettings.Quiet.HasValue)
+            if (commandLineSettings.Quiet.HasValue && commandLineSettings.Quiet.Value)
             {
                 config.LogLevel = "NONE";
             }
