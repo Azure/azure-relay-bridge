@@ -185,7 +185,7 @@
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
   </Target>
-  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' and '$(WindowsOnly)'=='false'">
+  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and ('$(OS)' == 'Unix' OR '$(WindowsOnly)'=='false')">
     <ItemGroup>
       <_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
     </ItemGroup>
