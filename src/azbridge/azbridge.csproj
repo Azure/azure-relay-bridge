@@ -166,6 +166,7 @@
         <MsiDir>$(PublishDir)../msi</MsiDir>
         <_OutputName>azbridge_installer.$(PackageVersion).$(RuntimeIdentifier)</_OutputName>
      </PropertyGroup>
+     <Exec WorkingDirectory="../azbridge-installer" Command="nuget restore -PackagesDirectory packages" />
      <Exec Command="msbuild ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
      <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)"/>
   </Target>
