@@ -13,6 +13,8 @@
     <DefineSolutionProperties>false</DefineSolutionProperties>    
     <BridgePublishPath>..\azbridge\bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish</BridgePublishPath>
     <BridgeProjectFile>..\azbridge\azbridge.csproj</BridgeProjectFile>
+    <Platform Condition="'$(Platform)'=='' AND $(RuntimeIdentifier.EndsWith('x64'))">x64</Platform>
+    <Platform Condition="'$(Platform)'=='' AND $(RuntimeIdentifier.EndsWith('x86'))">x86</Platform>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>

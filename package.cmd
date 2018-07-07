@@ -1,3 +1,4 @@
+@echo off
 SET _DOCKER_BUILD=true
 docker -v > NUL
 if not errorlevel 0 (
