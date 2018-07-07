@@ -8,6 +8,7 @@
     <PackageTags>azure</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild> 
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
+    <WindowsOnly>false</WindowsOnly>
   </PropertyGroup>
   
   <!-- <ItemGroup>
@@ -151,7 +152,7 @@
   <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
     <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
-  <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+  <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
     <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
@@ -182,7 +183,7 @@
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
   </Target>
-  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' ">
+  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' and '$(WindowsOnly)'=='false'">
     <ItemGroup>
       <_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
     </ItemGroup>
