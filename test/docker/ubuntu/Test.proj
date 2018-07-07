@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <OutputType>None</OutputType>
+  </PropertyGroup>
+
+  <Target Name="Build">
+      <Exec Command="build"/>
+  </Target>
+  <Target Name="VSTest">
+      <Exec Command="test"/>
+  </Target>
+  <Target Name="Clean">
+      <Exec Command="clean"/>
+  </Target>
+</Project>

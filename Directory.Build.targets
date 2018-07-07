@@ -7,4 +7,7 @@
     <!-- aspnet/BuildTools#662 Don't police what version of NetCoreApp we use -->
     <NETCoreAppMaximumVersion>99.9</NETCoreAppMaximumVersion>
   </PropertyGroup>
+  <Target Name="VSTestIfTestProject">
+    <CallTarget Targets="VSTest" Condition="'$(IsTestProject)' == 'true'" />
+  </Target>
 </Project>

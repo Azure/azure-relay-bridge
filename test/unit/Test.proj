@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="Microsoft.Azure.Relay.Bridge.Tests\Microsoft.Azure.Relay.Bridge.Tests.csproj" />
+  </ItemGroup>
+  <Target Name="BeforeBuild" DependsOnTargets="ResolveProjectReferences;ResolveAssemblyReferences"/>
+  <ItemGroup>
+    <DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />
+  </ItemGroup>
+   <Target Name="VSTest">
+        <xunit Assemblies="@(_ResolveAssemblyReferenceResolvedFiles)" />
+   </Target>
+</Project>

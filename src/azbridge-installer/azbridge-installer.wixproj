@@ -8,7 +8,6 @@
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>azbridge_installer</OutputName>
     <OutputType>Package</OutputType>
-    <Platform>x64</Platform>
     <AlreadyPublished>false</AlreadyPublished>
     <EnableProjectHarvesting>false</EnableProjectHarvesting>
     <DefineSolutionProperties>false</DefineSolutionProperties>    

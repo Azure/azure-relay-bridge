@@ -148,7 +148,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PackageZip" DependsOnTargets="CreateZip">
+  <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
     <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
   <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
@@ -160,7 +160,7 @@
   <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
     <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)"/>
   </Target>
-  <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win'))">
+  <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
      <PropertyGroup>
         <MsiDir>$(PublishDir)../msi</MsiDir>
         <_OutputName>azbridge_installer.$(PackageVersion).$(RuntimeIdentifier)</_OutputName>
@@ -171,18 +171,18 @@
   <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
     
   </Target>
-  <Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != '' ">
-    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier)" Importance="high"/>
+  <Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">
+    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high"/>
   </Target>
 
-  <Target Name="PublishProjectIfFrameworkSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != '' " />
-  <Target Name="PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">
+  <Target Name="PublishProjectIfFrameworkAndRIDSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != ''  and '$(RuntimeIdentifier)' != ''" />
+  <Target Name="PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">
     <ItemGroup>
       <_PublishRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
     </ItemGroup>
     <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
   </Target>
-  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifiers)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' ">
+  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and '$(OS)' == 'Unix' ">
     <ItemGroup>
       <_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
     </ItemGroup>
@@ -192,7 +192,7 @@
     <ItemGroup>
       <_PublishFramework Include="$(TargetFrameworks)" />
     </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity)" Condition="'$(OS)'!='Unix' OR '%(_PublishFramework.Identity)'!='net462'" />
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity);RuntimeIdentifier=$(RuntimeIdentifier)" Condition="!('$(OS)' == 'Unix' AND '%(_PublishFramework.Identity)'=='net462')" />
   </Target>
-  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkSet;PublishProjectForAllFrameworksIfFrameworkUnset;PublishProjectForAllUnixRIDsIfTargetFrameworkSet;PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" />
+  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkAndRIDSet;PublishProjectForAllFrameworksIfFrameworkUnset;PublishProjectForAllUnixRIDsIfTargetFrameworkSet;PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" />
 </Project>

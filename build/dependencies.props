@@ -18,8 +18,8 @@
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
     <MicrosoftDiagnosticsTracingTraceEventPackageVersion>2.0.19</MicrosoftDiagnosticsTracingTraceEventPackageVersion>
     <MicrosoftNETCoreApp20PackageVersion>2.0.0</MicrosoftNETCoreApp20PackageVersion>
-    <MicrosoftNETCoreApp21PackageVersion>2.1.0-rtm-26502-02</MicrosoftNETCoreApp21PackageVersion>
-    <MicrosoftNetHttpHeadersPackageVersion>2.1.0-rtm-30721</MicrosoftNetHttpHeadersPackageVersion>
+    <MicrosoftNETCoreApp21PackageVersion>2.1.0</MicrosoftNETCoreApp21PackageVersion>
+    <MicrosoftNetHttpHeadersPackageVersion>2.1.0</MicrosoftNetHttpHeadersPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>15.6.1</MicrosoftNETTestSdkPackageVersion>
     <NETStandardLibrary20PackageVersion>2.0.3</NETStandardLibrary20PackageVersion>
     <SystemNetHttpWinHttpHandlerPackageVersion>4.5.0-rtm-26502-02</SystemNetHttpWinHttpHandlerPackageVersion>
@@ -37,6 +37,7 @@
     <XunitPackageVersion>2.3.1</XunitPackageVersion>
     <DotnetXunitPackageVersion>2.3.1</DotnetXunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.3.1</XunitRunnerVisualStudioPackageVersion>
+    <XunitRunnerMsBuildPackageVersion>2.3.1</XunitRunnerMsBuildPackageVersion>
     <NewtonsoftJsonPackageVersion>11.0.2</NewtonsoftJsonPackageVersion>
     <MicrosoftAzureRelayPackageVersion>1.1.0-preview</MicrosoftAzureRelayPackageVersion>
     <McMasterExtensionsCommandLineUtilsPackageVersion>2.2.4</McMasterExtensionsCommandLineUtilsPackageVersion>
