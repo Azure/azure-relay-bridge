@@ -19,10 +19,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc", Description = "Reserved for Windows service control manager")]
         public bool? ServiceRun { get; set; }
 #endif
-        [Option(CommandOptionType.NoValue, LongName = "addhosts")]
-        public bool? AddHosts { get; set; }
-        [Option(CommandOptionType.NoValue, LongName = "cleanhosts")]
-        public bool? CleanHosts { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
         [Option(CommandOptionType.NoValue, ShortName = "C", Description = "Enable compression")]

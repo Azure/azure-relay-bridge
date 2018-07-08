@@ -282,10 +282,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 config.BindAddress = commandLineSettings.BindAddress;
             }
-            if (commandLineSettings.CleanHosts.HasValue)
-            {
-                config.ClearAllForwardings = commandLineSettings.CleanHosts;
-            }
             if (commandLineSettings.Compression.HasValue)
             {
                 config.Compression = commandLineSettings.Compression;

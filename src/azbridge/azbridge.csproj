@@ -24,6 +24,10 @@
     <Content Include="azbridge_config.machine.yml" CopyToOutputDirectory="PreserveNewest">
       <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
     </Content>
+    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="../tools/bash/hostnames.sh" CopyToOutputDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
   </ItemGroup>
 
   <Choose>
@@ -124,6 +128,7 @@
       <PostInstallScript>
         sudo /bin/echo #!/bin/sh > /etc/profile.d/azbridge.sh;
         sudo /bin/echo export PATH="\$PATH:/usr/share/azbridge" >> /etc/profile.d/azbridge.sh;
+        sudo /bin/echo source /usr/share/hostnames.sh >> /etc/profile.d/azbridge.sh;
         sudo chmod a+x /etc/profile.d/azbridge.sh;
         if [ ! -d "/etc/azbridge" ]; then sudo mkdir /etc/azbridge; fi
         if [ ! -a "/etc/azbridge/azbridge_config.machine.yml" ]; then 

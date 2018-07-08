@@ -41,15 +41,6 @@ the configured relay entity.
 
 Arguments:
 
-**--addhosts** / **--cleanhosts**
-
-When `azbridge` is run with the `--addhosts` option, which
-requires running with administrative privileges, all hostname values from the 
-configuration files' `LocalForward` section are added to the local machine's "hosts"
-file. The `--cleanhosts` option removes all entries added by `--addhosts`. 
-
-These options cannot be combined with use of the -L or -R options below.
-
 **-b bind_address**
 
 Use bind_address on the local machine as the source address of
@@ -281,11 +272,9 @@ omitted, the default is for the listener to bind to all interfaces.
 
 The `RelayName` option is always required.
 
-The `HostName` is property optional and used by the `--addhosts` command
-line option of `azbridge`. When `azbridge` is run with that option, which
-requires running with administrative privileges, the hostname value is added 
-to the local machine's "hosts" file. The `--cleanhosts` option removes all
-entries added by `--addhosts`.
+The `HostName` is property optional and used for documentation. Host
+names that shall resolve to the -L local forwarder address need to
+be added to the local hosts file.
 
 The `ConnectionString` property is optional and overrides the global settings
 if supplied.

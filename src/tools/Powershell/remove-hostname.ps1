@@ -1,57 +1,59 @@
 <#
 .SYNOPSIS
-Adds one or more hostnames to the hosts file.
+Removes one or more hostnames from the hosts file.
 
 .DESCRIPTION
 The hosts file is used to map hostnames to IP addresses.
 
-.PARAMETER IPAddress
-The IP address to map the hostname(s) to.
-
 .PARAMETER Hostnames
-One or more hostnames to map to the specified IP address.
-
-.PARAMETER Comment
-Optional comment that is written above the new hosts entry.
+One or more hostnames to remove from the hosts file.
 
 .EXAMPLE
-.\Add-Hostnames.ps1 127.0.0.1 foobar
+.\Remove-Hostnames.ps1 foobar
 
 Description
 -----------
-Adds the following line to the hosts file (assuming "foobar" does not already
-exist in the hosts file):
+Assume the following line was previously added to the hosts file:
 
 127.0.0.1    foobar
 
-A warning is displayed if "foobar" already exists in the hosts file and is
-mapped to the specified IP address. An error occurs if "foobar" is already
-mapped to a different IP address.
+After running "Remove-Hostnames.ps1 foobar" the hosts file no longer contains this
+line.
 
 .EXAMPLE
-.\Add-Hostnames.ps1 127.0.0.1 foo, bar "This is a comment"
+.\Remove-Hostnames.ps1 foo
 
 Description
 -----------
-Adds the following lines to the hosts file (assuming "foo" and "bar" do not
-already exist in the hosts file):
+Assume the following line was previously added to the hosts file:
 
-# This is a comment
-127.0.0.1    foo bar
+127.0.0.1    foobar foo bar
 
-A warning is displayed if either "foo" or "bar" already exists in the hosts
-file and is mapped to the specified IP address. An error occurs if "foo" or
-"bar" is already mapped to a different IP address.
+After running "Remove-Hostnames.ps1 foo" the line in the hosts file is updated
+to remove the specified hostname ("foo"):
+
+127.0.0.1    foobar bar
+
+.EXAMPLE
+.\Remove-Hostnames.ps1 foo, bar
+
+Description
+-----------
+Assume the following line was previously added to the hosts file:
+
+127.0.0.1    foobar foo bar
+
+After running "Remove-Hostnames.ps1 foo, bar" the line in the hosts file is updated to
+remove the specified hostnames ("foo" and "bar"):
+
+127.0.0.1    foobar
 
 .NOTES
 This script must be run with administrator privileges.
 #>
 param(
-    [parameter(Mandatory = $true)]
-    [string] $IPAddress,
     [parameter(Mandatory = $true, ValueFromPipeline = $true)]
-    [string[]] $Hostnames,
-    [string] $Comment
+    [string[]] $Hostnames
 )
 
 begin
@@ -232,13 +234,8 @@ process
         $items = $Hostnames
     }
 
-    $newHostsEntry = CreateHostsEntryObject $IpAddress
-    $hostsEntries.Add($newHostsEntry) | Out-Null
-
     $items | foreach {
         [string] $hostname = $_
-
-        [bool] $isHostnameInHostsEntries = $false
 
         for ([int] $i = 0; $i -lt $hostsEntries.Count; $i++)
         {
@@ -261,28 +258,23 @@ process
 
                 If ([string]::Compare($hostname, $parsedHostname, $true) -eq 0)
                 {
-                    $isHostnameInHostsEntries = $true
+                    Write-Debug "Removing hostname ($hostname) from host entry ($hostsEntry)..."
 
-                    If ($ipAddress -ne $hostsEntry.IpAddress)
-                    {
-                        Throw "The hosts file already contains the" `
-                            + " specified hostname ($parsedHostname) and it is" `
-                            + " mapped to a different address" `
-                            + " ($($hostsEntry.IpAddress))."
-                    }
+                    $hostsEntry.Hostnames.RemoveAt($j)
+                    $j--
 
-                    Write-Verbose ("The hosts file already contains the" `
-                        + " specified hostname ($($hostsEntry.IpAddress) $parsedHostname).")
+                    $pendingUpdates++
                 }
             }
-        }
 
-        If ($isHostnameInHostsEntries -eq $false)
-        {
-            Write-Debug ("Adding hostname ($hostname) to hosts entry...")
+            If ($hostsEntry.Hostnames.Count -eq 0)
+            {
+                Write-Debug ("Removing host entry (because it no longer specifies" `
+                    + " any hostnames)...")
 
-            $newHostsEntry.Hostnames.Add($hostname) | Out-Null
-            $pendingUpdates++
+                $hostsEntries.RemoveAt($i)
+                $i--
+            }
         }
     }
 }
