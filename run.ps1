@@ -1,1 +1,1 @@
-dotnet msbuild -t:Clean,Restore,Package
+msbuild -t:Clean,Restore,Package $args 

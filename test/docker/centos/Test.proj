@@ -4,12 +4,15 @@
   </PropertyGroup>
 
   <Target Name="Build">
-      <Exec Command="build"/>
+      <Exec Command="build.cmd" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./build.sh" Condition="'$(OS)'=='Unix'"/>
   </Target>
   <Target Name="VSTest">
-      <Exec Command="test"/>
+      <Exec Command="test.cmd"  Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh" Condition="'$(OS)'=='Unix'"/>
   </Target>
   <Target Name="Clean">
-      <Exec Command="clean"/>
+      <Exec Command="clean.cmd" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./clean.sh" Condition="'$(OS)'=='Unix'"/>
   </Target>
 </Project>

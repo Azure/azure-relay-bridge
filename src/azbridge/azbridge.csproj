@@ -150,16 +150,16 @@
   </Target>
 
   <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
-    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)"/>
+    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
   </Target>
   <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
-    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)"/>
+    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
   </Target>
   <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
-    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)"/>
+    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
   </Target>
   <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
-    <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)"/>
+    <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
   </Target>
   <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
      <PropertyGroup>
@@ -168,8 +168,9 @@
      </PropertyGroup>
      <Exec WorkingDirectory="../azbridge-installer" Command="restore.cmd" />
      <!-- MUST USE 32-bit for WiX -->
+     <Error Condition="'$(MSBuildToolsPath32)'==''" Text="MSBuildToolsPath32 is not set. MSI installers MUST be built with msbuild.exe and not with dotnet msbuild"/>
      <Exec Command="&quot;$(MSBuildToolsPath32)\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
-     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)"/>
+     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
   </Target>
   <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
     

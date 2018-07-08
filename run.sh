@@ -1,7 +1,7 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -euo pipefail
 
 dotnet restore
-dotnet test
-dotnet build -c Release
+dotnet test $@
+dotnet build -c Release $@

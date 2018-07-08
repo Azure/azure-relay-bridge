@@ -18,4 +18,4 @@ if "%_IMAGE_ID%"=="" call build.cmd
 FOR /F %%i IN ("%cd%\..") DO set _MOUNTPATH=%%~fi
 set _TESTNAME=test_nc_ping_pong
 call ../_scripts/runtest.cmd
-exit /b %_RESULT%
+exit %_RESULT%
