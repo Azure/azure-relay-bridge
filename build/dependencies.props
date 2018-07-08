@@ -31,7 +31,7 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.5.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemNetHttpPackageVersion>4.3.1</SystemNetHttpPackageVersion>
     <SystemNetNameResolutionPackageVersion>4.3.0</SystemNetNameResolutionPackageVersion>
-    <YamlDotNetSignedPackageVersion>4.3.1</YamlDotNetSignedPackageVersion>
+    <YamlDotNetSignedPackageVersion>5.0.0</YamlDotNetSignedPackageVersion>
     <MicrosoftExtensionsLoggingPackageVersion>2.1.0</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftExtensionsLoggingConsolePackageVersion>2.1.0</MicrosoftExtensionsLoggingConsolePackageVersion>
     <XunitPackageVersion>2.3.1</XunitPackageVersion>

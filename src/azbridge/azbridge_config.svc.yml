@@ -4,39 +4,39 @@
 # arguments are "any", "inet" (use IPv4 only), or "inet6"
 # (use IPv6 only).  The default is "any".
 
-AddressFamily: 
+AddressFamily :
 
 # Azure Relay connection string for a Relay namespace. Only one 
 # namespace connection string can be specified per configuration
 # file.
 
-AzureRelayConnectionString: 
+AzureRelayConnectionString :
 
 # Azure Relay endpoint URI for a Relay namespace. Overrides 
 # the 'Endpoint' property of the connection string, if present.
 
-AzureRelayEndpoint: 
+AzureRelayEndpoint :
 
 #  Azure Relay shared access policy name. Overrides the 'SharedAccessKeyName' 
 # property of the connection string, if present.
 
-AzureRelaySharedAccessKeyName:
+AzureRelaySharedAccessKeyName :
 
 # Azure Relay shared access policy key. Overrides the 'SharedAccessKey' 
 # property of the connection string, if present.
 
-AzureRelaySharedAccessKey:
+AzureRelaySharedAccessKey :
 
 # Azure Relay shared access policy signature. Overrides the 'SharedAccessSignature' 
 # property of the connection string, if present.
 
-AzureRelaySharedAccessSignature:
+AzureRelaySharedAccessSignature :
 
 # Use the specified address on the local machine as the source
 # address of the connection.  Only useful on systems with more than
 # one address.  
 
-BindAddress:
+BindAddress :
 
 # Specifies that all local, and remote port forwardings
 # specified in the configuration files or on the command line be
@@ -44,38 +44,38 @@ BindAddress:
 # command line to clear port forwardings set in configura-
 # tion files. The argument must be "true" or "false".  The default is "false".
 
-ClearAllForwardings:
+ClearAllForwardings :
 
 # Specifies whether to use compression. The argument must be
 # "true" or "false".  The default is "false".
 
-Compression:
+Compression :
 
 #  Specifies the compression level to use if compression 
 #  is enabled. The argument must be an integer from 1 (fast) to 9 (slow, best).
 #  The default level is 6, which is good for most applications.
 
-CompressionLevel:
+CompressionLevel :
 
 #  Specifies the number of tries (one per second) to make
 #  before exiting.  The argument must be an integer.  This may be useful in scripts
 #  if the connection sometimes fails.  The default is 1.
 
-ConnectionAttempts:
+ConnectionAttempts :
 
 #  Specifies the timeout (in seconds) used when connecting to the
 #  relay server, instead of using the default system TCP timeout.
 #  This value is used only when the target is down or really
 #  unreachable, not when it refuses the connection.
 
-ConnectTimeout:
+ConnectTimeout :
 
 #  Specifies whether azbridge(1) should terminate the 
 #  connection if it  cannot set up all requested local, and remote port forwardings, 
 #  (e.g. if either end is unable to bind and listen on a specified port). 
 #  The argument must be "true" or "false". The default is "false".
 
-ExitOnForwardFailure:
+ExitOnForwardFailure :
 
 #  Specifies whether remote hosts are allowed to connect to local
 #  forwarded ports.  By default, azbridge(1) binds local port forwardings
@@ -85,25 +85,30 @@ ExitOnForwardFailure:
 #  hosts to connect to forwarded ports. The argument must be "true" or "false".  
 #  The default is "false". 
 
-GatewayPorts:
+GatewayPorts :
 
 #  Specifies that a (set of) TCP ports on the local machine 
 #  shall be forwarded via the Azure Relay. Each entry can have four properties,
-#  "BindAddress", "Port", "LocalSocket", and "RelayName". See [below](#localforward-properties) for 
-#  details.
+#  "BindAddress", "Port", "LocalSocket", and "RelayName". 
 
-LocalForward:
+LocalForward :
+#   - BindAddress: 127.0.8.1
+#     Port: 443
+#     RelayName: a1
 
 #  Gives the verbosity level that is used when logging messages 
-#  from azbridge(1). The possible values are: QUIET, FATAL, ERROR, INFO, VERBOSE, 
+#  from azbridge(1). The possible values are : QUIET, FATAL, ERROR, INFO, VERBOSE, 
 #  DEBUG, DEBUG1, DEBUG2, and DEBUG3.  The default is INFO.
 #  DEBUG and DEBUG1 are equivalent.  DEBUG2 and DEBUG3 each specify
 #  higher levels of verbose output.
 
-LogLevel: ERROR
+LogLevel : ERROR
 
 # Specifies that a TCP port on the remote machine be bound to 
 # a name on the Azure Relay. Each entry can have four properties, "RelayName", "Host", 
-# "HostPort", and "LocalSocket". See [below](#remoteforward-properties) for details.
+# "HostPort", and "LocalSocket". 
 
-RemoteForward:
+RemoteForward :
+#   - RelayName: a1
+#     Host: localhost
+#     HostPort: 443

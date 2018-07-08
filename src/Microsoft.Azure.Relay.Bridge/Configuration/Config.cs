@@ -17,12 +17,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         private const string AzureBridgeName = "azbridge";
         RelayConnectionStringBuilder relayConnectionStringBuilder;
         readonly List<FileSystemWatcher> fileSystemWatchers;
-
+        List<LocalForward> localForward;
+        List<RemoteForward> remoteForward;
 
         public Config()
         {
             relayConnectionStringBuilder = new RelayConnectionStringBuilder();
             fileSystemWatchers = new List<FileSystemWatcher>();
+            localForward = new List<LocalForward>();
+            remoteForward = new List<RemoteForward>();
         }
 
         /// <summary>
@@ -50,7 +53,20 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <summary>
         /// Azure Relay endpoint URI for a Relay namespace.
         /// </summary>
-        public string AzureRelayEndpoint { get => RelayConnectionStringBuilder.Endpoint?.ToString(); set => RelayConnectionStringBuilder.Endpoint = (value != null)?new Uri(value):null; }
+        public string AzureRelayEndpoint { 
+            get => RelayConnectionStringBuilder.Endpoint?.ToString(); 
+            set 
+            {
+                if ( value == null ) 
+                {
+                    RelayConnectionStringBuilder.Endpoint = new Uri("sb://undefined"); 
+                }
+                else
+                {
+                    RelayConnectionStringBuilder.Endpoint = new Uri(value); 
+                }
+            }
+        }
 
         /// <summary>
         /// Azure Relay shared access policy name.
@@ -141,7 +157,21 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a (set of) TCP ports on the local machine 
         /// shall be forwarded via the Azure Relay.
         /// </summary>
-        public List<LocalForward> LocalForward { get; set; } = new List<LocalForward>();
+        public List<LocalForward> LocalForward 
+        { 
+            get
+            {
+                return localForward;
+            }
+            set
+            {
+                localForward.Clear();
+                if ( value != null )
+                {
+                    localForward.AddRange(value);
+                }
+            }
+        }
 
         /// <summary>
         ///  Gives the verbosity level that is used when logging messages 
@@ -155,7 +185,21 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
-        public List<RemoteForward> RemoteForward { get; set; } = new List<RemoteForward>();
+        public List<RemoteForward> RemoteForward 
+        { 
+            get
+            {
+                return remoteForward;
+            }
+            set
+            {
+                remoteForward.Clear();
+                if ( value != null )
+                {
+                    remoteForward.AddRange(value);
+                }
+            }
+        }
 
         internal event EventHandler<ConfigChangedEventArgs> Changed;
         void RaiseChanged(Config newConfig)
@@ -481,8 +525,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 this.RemoteForward.Clear();
             }
 
-            this.LocalForward.AddRange(otherConfig.LocalForward);
-            this.RemoteForward.AddRange(otherConfig.RemoteForward);
+            this.LocalForward?.AddRange(otherConfig.LocalForward);
+            this.RemoteForward?.AddRange(otherConfig.RemoteForward);
         }
 
         public static Config LoadConfigFile(string fileName)
@@ -497,7 +541,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
                 using (var reader = new StreamReader(fileName))
                 {
-                    return yamlDeserializer.Deserialize<Config>(reader);
+                    try
+                    {
+                        return yamlDeserializer.Deserialize<Config>(reader);
+                    }
+                    catch(Exception e)
+                    {
+                        Console.WriteLine($"ser: {e.Message} {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
+                        throw;
+                    }
                 }
             }
             else
@@ -509,7 +561,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         static Deserializer yamlDeserializer =
             new DeserializerBuilder()
             .IgnoreUnmatchedProperties()
-            .WithNamingConvention(new PascalCaseNamingConvention()).Build();
+            .WithNamingConvention(new PascalCaseNamingConvention())
+            .Build();
 
         static Serializer yamlSerializer =
             new SerializerBuilder()
