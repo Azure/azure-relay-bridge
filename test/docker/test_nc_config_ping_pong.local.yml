@@ -1,0 +1,4 @@
+LocalForward:
+   - RelayName: a1
+     Port: 8888
+     Address: 127.0.8.1

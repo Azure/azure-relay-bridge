@@ -155,6 +155,11 @@ namespace Microsoft.Azure.Relay.Bridge
                 BridgeEventSource.Log.LocalForwardBridgeConnectionStarting(bridgeActivity, tcpClient, HybridConnectionClient);
                 using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
                 {
+                    // read and write 4-byte header
+                    byte[] rd=new byte[4];
+                    int read = 0;
+                    hybridConnectionStream.Write(new byte[]{1,0,0,0},0,4);
+                    for(; read < 4; read +=hybridConnectionStream.Read(rd,read,4-read));
                     BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, tcpClient, HybridConnectionClient);
                     await Task.WhenAll(
                         StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(),

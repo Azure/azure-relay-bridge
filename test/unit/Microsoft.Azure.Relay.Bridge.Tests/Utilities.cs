@@ -13,7 +13,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
         internal static string GetConnectionString()
         {
-            return Environment.GetEnvironmentVariable("RELAY_TEST_CONNECTIONSTRING_AZBRIDGE");
+            return Environment.GetEnvironmentVariable("AZBRIDGE_TEST_CXNSTRING")?.Trim('\"');
         }
     }
 }

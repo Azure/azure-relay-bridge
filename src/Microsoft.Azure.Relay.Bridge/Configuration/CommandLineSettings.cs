@@ -21,11 +21,11 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 #endif
         [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
-        [Option(CommandOptionType.NoValue, ShortName = "C", Description = "Enable compression")]
+        [Option(CommandOptionType.NoValue, ShortName = "c", Description = "Enable compression")]
         public bool? Compression { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "E", Description = "Relay endpoint URI")]
+        [Option(CommandOptionType.SingleValue, ShortName = "e", Description = "Relay endpoint URI")]
         public Uri EndpointUri { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "F", Description = "Configuration file")]
+        [Option(CommandOptionType.SingleValue, ShortName = "f", Description = "Configuration file")]
         public string ConfigFile { get; set; }
         [Option(CommandOptionType.NoValue, ShortName = "g", Description = "Allows remote hosts to connect to local forwarded ports")]
         public bool? GatewayPorts { get; set; }
@@ -41,7 +41,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public bool? Quiet { get; set; }
         [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[address:]port ")]
         public IEnumerable<string> RemoteForward { get; set; }
-        [Option(CommandOptionType.SingleValue, ShortName = "S", Description = "Azure Relay shared access signature token")]
+        [Option(CommandOptionType.SingleValue, ShortName = "s", Description = "Azure Relay shared access signature token")]
         public string Signature { get; set; }
 
         [Option(CommandOptionType.SingleValue, ShortName = "x", Description = "Azure Relay connection string (overridden with -S -K -k -E)")]

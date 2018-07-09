@@ -15,6 +15,7 @@ namespace azbridge
     using System.Diagnostics.Tracing;
 #endif
     using System.Collections.Generic;
+    using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Extensions.Logging;
 
     partial class Program
@@ -23,7 +24,14 @@ namespace azbridge
 
         static void Main(string[] args)
         {
-            CommandLineSettings.Run(args, (c) => Run(c, args));
+            try
+            { 
+                CommandLineSettings.Run(args, (c) => Run(c, args));
+            }
+            catch(CommandParsingException exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
         }
 
         static int Run(CommandLineSettings settings, string[] args)

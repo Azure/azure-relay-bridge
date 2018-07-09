@@ -20,9 +20,9 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         string CreateMaxCommandLine()
         {
             return "-b 127.0.0.4" +
-                   " -C" +
-                   " -E sb://cvrelay.servicebus.windows.net/" +
-                   " -F foo.txt" +
+                   " -c" +
+                   " -e sb://cvrelay.servicebus.windows.net/" +
+                   " -f foo.txt" +
                    " -g" +
                    " -K send" +
                    " -k abcdefgh" +

@@ -111,6 +111,12 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             try
             {
+                // read and write 4-byte header
+                byte[] rd=new byte[4];
+                int read = 0;
+                for(; read < 4; read +=hybridConnectionStream.Read(rd,read,4-read));
+                hybridConnectionStream.Write(new byte[]{1,0,0,0},0,4);
+                
                 using (hybridConnectionStream)
                 {
                     using (TcpClient client = new TcpClient())

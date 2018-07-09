@@ -1,10 +1,11 @@
-_CXNSTRING=$RELAY_CXNSTRING
+#!/bin/bash
+_CXNSTRING=$AZBRIDGE_TEST_CXNSTRING
 if [ -z $_CXNSTRING ] && [ -n ${@+x} ]; then
    _CXNSTRING="$@"
 fi
 
 if [ -z $_CXNSTRING ]; then 
-    echo RELAY_CXNSTRING environment variable must be set to valid relay connection string
+    echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
     exit 
 fi
 
@@ -15,5 +16,9 @@ fi
 
 _MOUNTPATH=$(dirname $(pwd))
 _TESTNAME=test_nc_ping_pong
+source ../_scripts/runtest.sh
+if [ _RESULT -ne 0 ] exit $_RESULT
+
+_TESTNAME=test_nc_config_ping_pong
 source ../_scripts/runtest.sh
 exit $_RESULT
