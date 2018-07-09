@@ -125,6 +125,12 @@
   </ItemGroup>
 
   <PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
+      <!-- 
+      The .DEB Packager doesn't correctly place files into  directories other
+      than the target, so we create the profile startup file on the fly here.
+      The profile startup file buts the tool on the path and also registers 
+      the addhost and removehost bash extensions.
+      -->
       <PostInstallScript>
         sudo /bin/echo #!/bin/bash > /etc/profile.d/azbridge.sh;
         sudo /bin/echo export PATH="\$PATH:/usr/share/azbridge" >> /etc/profile.d/azbridge.sh;
