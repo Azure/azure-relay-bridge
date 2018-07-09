@@ -21,6 +21,8 @@ echo "ping" | nc 127.0.8.1 8888 | xargs echo reply: > ~/testoutputreq.log 2>&1
 sleep 5 
 kill -INT $LOCAL_LISTENER_PID
 kill -INT $REMOTE_LISTENER_PID
+rm $_LOCALCONFIG
+rm $_REMOTECONFIG
 cat ~/testoutput.log
 cat ~/testoutputres.log
 cat ~/testoutputreq.log
