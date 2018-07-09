@@ -1,11 +1,12 @@
 <Project>
+
   <PropertyGroup>
     <OutputType>None</OutputType>
   </PropertyGroup>
 
   <Target Name="Build">
-      <Exec Command="build.cmd" Condition="'$(OS)'=='Windows_NT'"/>
-      <Exec Command="bash ./build.sh" Condition="'$(OS)'=='Unix'"/>
+      <Exec Command="build.cmd $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./build.sh $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Unix'"/>
   </Target>
   <Target Name="VSTest">
       <Exec Command="test.cmd"  Condition="'$(OS)'=='Windows_NT'"/>

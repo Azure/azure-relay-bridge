@@ -89,11 +89,11 @@ GatewayPorts :
 
 #  Specifies that a (set of) TCP ports on the local machine 
 #  shall be forwarded via the Azure Relay. Each entry can have four properties,
-#  "BindAddress", "Port", "LocalSocket", and "RelayName". 
+#  "BindAddress", "BindPort", "LocalSocket", and "RelayName". 
 
 LocalForward :
 #   - BindAddress: 127.0.8.1
-#     Port: 443
+#     BindPort: 443
 #     RelayName: a1
 
 #  Gives the verbosity level that is used when logging messages 

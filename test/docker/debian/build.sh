@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -z $1 ]; then BuildNumber=$1; fi
+if [ ! -z $2 ]; then VersionSuffix=$2; fi
+if [ ! -z $3 ]; then VersionPrefix=$3; fi
+if [ ! -z $4 ]; then TargetFramework=$4; fi
+
 if [ -z ${BuildNumber+x} ]; then BuildNumber='0000'; fi
 if [ -z ${VersionSuffix+x} ]; then VersionSuffix='preview'; fi
 if [ -z ${VersionPrefix+x} ]; then VersionPrefix='1.0.0'; fi

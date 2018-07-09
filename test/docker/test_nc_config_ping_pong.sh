@@ -1,16 +1,16 @@
-#!/bin/bash
+#! /bin/bash
 
 pushd "${0%/*}" > /dev/null 
 rm -f ~/testoutput.log
-_LOCALCONFIG=$(maketmp)
+_LOCALCONFIG=$(mktemp)
 cat test_nc_config_ping_pong.local.yml > $_LOCALCONFIG
-echo ServiceBusConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_LOCALCONFIG 
+echo AzureRelayConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_LOCALCONFIG 
 /usr/share/azbridge/azbridge -f $_LOCALCONFIG >> ~/testoutput.log 2>&1 &
 LOCAL_LISTENER_PID=$!
-_REMOTECONFIG=$(maketmp)
+_REMOTECONFIG=$(mktemp)
 cat test_nc_config_ping_pong.remote.yml > $_REMOTECONFIG
-echo ServiceBusConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_REMOTECONFIG 
-/usr/share/azbridge/azbridge -f $_REMOTECONFIG >> ~/testoutput.log 2>&1 &
+echo AzureRelayConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_REMOTECONFIG 
+/usr/share/azbridge/azbridge -f $_REMOTECONFIG  >> ~/testoutput.log 2>&1 &
 REMOTE_LISTENER_PID=$!
 sleep 5 
 #expected request: ping
@@ -26,4 +26,4 @@ rm $_REMOTECONFIG
 cat ~/testoutput.log
 cat ~/testoutputres.log
 cat ~/testoutputreq.log
-popd
+popd > /dev/null

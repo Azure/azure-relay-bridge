@@ -1,12 +1,11 @@
 ﻿<Project>
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
-    <VersionSuffix>preview</VersionSuffix>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(VersionSuffix)' != 'rtm' ">$(VersionPrefix)-$(VersionSuffix)-final</PackageVersion>
+    <ReleaseSuffix>preview</ReleaseSuffix>
+    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
+    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' != 'rtm' ">$(VersionPrefix)-$(ReleaseSuffix)-final</PackageVersion>
     <BuildNumber Condition="'$(BuildNumber)' == ''">180709-2000</BuildNumber>
-    <FeatureBranchVersionPrefix Condition="'$(FeatureBranchVersionPrefix)' == ''">a-</FeatureBranchVersionPrefix>
-    <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(FeatureBranchVersionSuffix)' != ''">$(FeatureBranchVersionPrefix)$(VersionSuffix)-$([System.Text.RegularExpressions.Regex]::Replace('$(FeatureBranchVersionSuffix)', '[^\w-]', '-'))</VersionSuffix>
-    <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(ReleaseSuffix)' != '' And '$(BuildNumber)' != ''">$(ReleaseSuffix)-$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(ReleaseSuffix)' == '' And '$(BuildNumber)' != ''">$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
 </Project>
