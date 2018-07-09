@@ -107,7 +107,7 @@ the [Configuration and Command Line Options](CONFIG.md) document.
 ## Downloads
 
 This is an early preview. Unsigned (!) binaries are available for direct download
-from the [Github Releases]() page for evaluation. Signed binaries will eventually
+from the [Github Releases](../../releases) page for evaluation. Signed binaries will eventually
 be available for download with common package managers.
 
 ## Installation 
@@ -124,10 +124,9 @@ The easiest way to install the bridge on Windows is by using the appropriate
 the "azbridge" Windows service. The service is configured for on-demand
 (manual) start at installation time.
 
-* [Windows 10 x64]()
-* [Windows 10 x86]()
-* [Windows 7 x64]()
-* [Windows 7 x86]()
+> **KNOWN ISSUE:** These early builds are not signed. Download the MSI file,
+unblock it, and then install. Otherwise the application may not work as
+expected.
 
 ### Linux
 
