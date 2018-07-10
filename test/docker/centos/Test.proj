@@ -1,5 +1,5 @@
 <Project>
-  
+  <Import Project="..\..\..\version.props" />
   <PropertyGroup>
     <OutputType>None</OutputType>
   </PropertyGroup>
