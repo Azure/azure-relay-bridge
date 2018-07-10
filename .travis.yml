@@ -5,13 +5,12 @@ env:
   global:
   - DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   - DOTNET_CLI_TELEMETRY_OPTOUT: 1
-  matrix:
-  - secure: gvg/6MhNPOKJyk4JrOPsqi6jH9IQ5mSYQR+S+q/jHYNetsm9yZHKproqQEMegW/L99Y/WNpi7EzBfasCBfQsJrJq9/WYBrj0VmqstszcsWYbUpU9V8B0vQSAewSHq/FkxFjqMRtA7AZCYViddBloD3Sb9/FVy7yfFv7BRZFX5ukYnK2EU6foJaz/5r8A2efLZ5C/CdEEMsn/OcrtnYMu5tstWFy1JWS2Gk+vgzrwchVqncLI60AvwnRuPyMMbsyIY8cJidcKojr6gcGJ9S5ATtK0DfIoGV9+9CPLDtzVJJltYl1677zEoRL7RIz9Ly5Yydk17b5whES6Mh+GbPokhRxx8B/9Ag9I7TjAyMNVwTZ6AlQSYycG0m/FLZmKJvBa2RkzhALUuN/oXL/SLkU7isCzbk03wrWYY6/gv5T6249FNf5z5I8GNhm7eJGhz+A3FudRDkqCIGHV8rs3iiQLrXfHZCpyBlA8g+oHHmAPtmfpXmNALUD6Y6c4OCAaApjFj3UIN+LGtV/AMFGq0yvNXd14qo5h1doI27A5sIeOhRXntpOapPkgmlDWe048NNDUnLdRj0pUMebm0uqepK/M8etQ38HSTQpKFdrY6JVfaFiq/5Dd0S6M8rdYEdUh9E4lGZqzhr5WKTV8vkUtdsWIMvi2wY5q6DT//kSLxzmOjLA=
-  - secure: HquUNjKDznaeW2fLV1+Xv9pJlTu8zCrggC/Et+22emgdANv3CYczQ/M9vLzdOEyfkSjWKfKQngNX/YbSQPzIT+Gty6NFFXYDOrxtI7M4ceTEDw2BUmZtNk0wmidifoBUy27yn88iFxssxRsdNMYXhNqV5GJSWf+6y6v2CFlb/nws6HcGcelPeQJqSSMMplo4B+hbLbce2t12L+VV77A9rWt52DL4OtEAb012l6JofW0k3WwQsWo8/j/AbkkMmofPQowIY9Y+MnsifynRdv26PjOgGkCODS6jVWskKZJlfH+raH7rW6v87BpMVVfPPon6vQO6jVHQWhOQ1nPG4VUVuyAPIIZ7A15ZmiXZpMklMvBtiGv8n5lRCz4qQvgOa5WCZuWxFboFOiwcoCmdqgGk1SJx4Lf6ySBX3hSer3Kd9aZY9OoxuOd+dL5DAsxK8pr4mCZDZcYSFSD3N486Sbmp9/ZyU1qV4wda2yXIdtQtTYix5u5AoxdROUAitaayr2DNDnmzokDON54hNK6t7UPEGSww8g8cywWKQSwSK0p00tGQXtHdYFQCPwMJptAQ4YBh3CvOmyR5ZN1P5gjrdOig+SKc8pilCobOYsqM+LbKy9I5tFjX06GDFsS189ECH+OgNl0hzQgX1dAN3QHCifYIevrblVmmPnkk5j8wUlEfqQY=
 mono: none
+dotnet: 2.1
 os:
 - linux
 - osx
+- windows
 osx_image: xcode8.2
 addons:
   apt:
@@ -19,7 +18,7 @@ addons:
     - libunwind8
 branches:
   only:
-  - dev
+  - master
   - "/^release\\/.*$/"
   - "/^(.*\\/)?ci-.*$/"
 before_install:
