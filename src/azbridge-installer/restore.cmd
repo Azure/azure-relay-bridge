@@ -6,6 +6,7 @@ REM here. This is called from the build process in the package step.
 REM
 
 @echo off
+pushd "%~dp0"
 if not exist ".\.nuget" mkdir ".\.nuget"
 if not exist ".\.nuget\nuget.exe" powershell -Command "Invoke-WebRequest https://www.nuget.org/nuget.exe -OutFile .\.nuget\nuget.exe"
 if not exist ".\.nuget\nuget.config" (
@@ -15,4 +16,5 @@ if not exist ".\.nuget\nuget.config" (
     echo ^</packageSources^>^</configuration^> >> .\.nuget\nuget.config
 )
 
-".nuget\NuGet.exe" restore -PackagesDirectory packages -ConfigFile .nuget\nuget.config
+".nuget\NuGet.exe" restore packages.config -PackagesDirectory packages -ConfigFile .nuget\nuget.config  -Verbosity detailed
+popd
