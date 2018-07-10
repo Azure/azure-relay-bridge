@@ -1,6 +1,7 @@
 #!/bin/bash
 
-pushd "${0%/*}" > /dev/null 
+pushd "${0%/*}"
+echo verifying build starting in $(pwd)
 cd test/docker
 dotnet clean
 dotnet build
