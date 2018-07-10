@@ -111,32 +111,54 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             try
             {
-                // read and write 4-byte header
-                byte[] rd=new byte[4];
-                int read = 0;
-                for(; read < 4; read +=hybridConnectionStream.Read(rd,read,4-read));
-                hybridConnectionStream.Write(new byte[]{1,0,0,0},0,4);
-                
                 using (hybridConnectionStream)
                 {
+                    hybridConnectionStream.WriteTimeout = 60000;
+
+                    // read and write 4-byte header
+                    // we don't do anything with this version preamble just yet; it really 
+                    // is insurance for when we might have to break protocol.
+                    byte[] versionPreamble = new byte[4];
+                    for (int read = 0; read < versionPreamble.Length; read += await hybridConnectionStream.ReadAsync(versionPreamble, read, versionPreamble.Length - read)) ;
+                    versionPreamble = new byte[] { 1, 0, 0, 0 };
+                    await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
+
                     using (TcpClient client = new TcpClient())
                     {
+                        client.NoDelay = true;
+                        client.SendBufferSize = client.ReceiveBufferSize = 65536;
+                        client.SendTimeout = 60000;
                         await client.ConnectAsync(targetServer, targetPort);
                         var tcpstream = client.GetStream();
-                        await Task.WhenAll(
-                            StreamPump.RunAsync(hybridConnectionStream, tcpstream, () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token),
-                            StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token));
+                            
+                        try
+                        {
+                            await Task.WhenAll(
+                                StreamPump.RunAsync(hybridConnectionStream, tcpstream, 
+                                    () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token)
+                                    .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
+                                StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token))
+                                    .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+                        }
+                        catch
+                        {
+                            // if this ends unhappy we'll immediately tear down the HC
+                            hybridConnectionStream.Shutdown();
+                            hybridConnectionStream.Dispose();  
+                            tcpstream.Dispose();
+                            throw;
+                        }
                     }
+                }
+
+                using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+                {
+                    await hybridConnectionStream.CloseAsync(cts.Token);
                 }
             }
             catch (Exception e)
             {
                 BridgeEventSource.Log.HandledExceptionAsWarning(activity, e);
-            }
-
-            using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-            {
-                await hybridConnectionStream.CloseAsync(cts.Token);
             }
         }
 

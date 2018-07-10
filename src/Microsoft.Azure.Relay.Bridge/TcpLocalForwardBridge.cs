@@ -49,7 +49,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 if (!this.IsOpen)
                 {
                     throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(), this);
-                }   
+                }
                 this.IsOpen = false;
                 this.cancellationTokenSource.Cancel();
                 this.tcpListener?.Stop();
@@ -77,7 +77,7 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             if (this.IsOpen)
             {
-                throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(),this);
+                throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(), this);
             }
 
             this.listenerActivity = BridgeEventSource.NewActivity("LocalForwardListener");
@@ -106,6 +106,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 var socketActivity = BridgeEventSource.NewActivity("LocalForwardSocket");
                 var socket = await this.tcpListener.AcceptTcpClientAsync();
+                var endpointInfo = socket.Client.LocalEndPoint.ToString();
                 BridgeEventSource.Log.LocalForwardSocketAccepted(socketActivity, socket);
 
                 this.LastAttempt = DateTime.Now;
@@ -113,7 +114,10 @@ namespace Microsoft.Azure.Relay.Bridge
                 BridgeSocketConnectionAsync(socket)
                     .ContinueWith((t, s) =>
                     {
-                        BridgeEventSource.Log.LocalForwardSocketError(socketActivity, socket, t.Exception);
+                        if (t.Exception != null)
+                        {
+                            BridgeEventSource.Log.LocalForwardSocketError(socketActivity, endpointInfo, t.Exception);
+                        }
                         socket.Dispose();
                     }, TaskContinuationOptions.OnlyOnFaulted)
                     .ContinueWith((t, s) =>
@@ -121,9 +125,9 @@ namespace Microsoft.Azure.Relay.Bridge
 
                         try
                         {
-                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, socket);
+                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, endpointInfo);
                             socket.Close();
-                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, socket);
+                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, endpointInfo);
                         }
                         catch (Exception e)
                         {
@@ -131,11 +135,11 @@ namespace Microsoft.Azure.Relay.Bridge
                             {
                                 throw;
                             }
-                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, socket, e);
+                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, endpointInfo, e);
                             socket.Dispose();
                         }
                     }, TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .Fork();                                                            
+                    .Fork();
             }
         }
 
@@ -151,31 +155,56 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             EventTraceActivity bridgeActivity = BridgeEventSource.NewActivity("LocalForwardBridgeConnection");
             try
-            {   
+            {
                 BridgeEventSource.Log.LocalForwardBridgeConnectionStarting(bridgeActivity, tcpClient, HybridConnectionClient);
+
+                tcpClient.SendBufferSize = tcpClient.ReceiveBufferSize = 65536;
+                tcpClient.SendTimeout = 60000;
+                var endpointInfo = tcpClient.Client.LocalEndPoint.ToString();
+                var tcpstream = tcpClient.GetStream();
+                var socket = tcpClient.Client;
+                
                 using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
                 {
                     // read and write 4-byte header
-                    byte[] rd=new byte[4];
-                    int read = 0;
-                    hybridConnectionStream.Write(new byte[]{1,0,0,0},0,4);
-                    for(; read < 4; read +=hybridConnectionStream.Read(rd,read,4-read));
+                    // we don't do anything with this version preamble just yet; it really 
+                    // is insurance for when we might have to break protocol.
+                    hybridConnectionStream.WriteTimeout = 60000;
+                    byte[] versionPreamble = { 1, 0, 0, 0 };
+                    await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
+                    for (int read = 0; read < versionPreamble.Length; read += await hybridConnectionStream.ReadAsync(versionPreamble, read, versionPreamble.Length - read)) ;
+
+
                     BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, tcpClient, HybridConnectionClient);
-                    if ( tcpClient.Connected ) 
+
+                    try
                     {
                         await Task.WhenAll(
-                            StreamPump.RunAsync(hybridConnectionStream, tcpClient.GetStream(),
-                                () => tcpClient.Client.Shutdown(SocketShutdown.Send), cancellationTokenSource.Token),
-                            StreamPump.RunAsync(tcpClient.GetStream(), hybridConnectionStream,
-                                () => hybridConnectionStream.Shutdown(), cancellationTokenSource.Token));
+                            StreamPump.RunAsync(hybridConnectionStream, tcpstream,
+                                () => socket.Shutdown(SocketShutdown.Send), cancellationTokenSource.Token)
+                                .ContinueWith((t)=>cancellationTokenSource.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
+                            StreamPump.RunAsync(tcpstream, hybridConnectionStream,
+                                () => hybridConnectionStream?.Shutdown(), cancellationTokenSource.Token))
+                                .ContinueWith((t) => cancellationTokenSource.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
                     }
+                    catch
+                    {
+                        hybridConnectionStream.Dispose();
+                        socket.Disconnect(false);
+                        tcpstream.Dispose();
+                        throw;
+                    }
+
+                    using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+                    {
+                        await hybridConnectionStream.CloseAsync(cts.Token);
+                    }                
                 }
-                BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, tcpClient, HybridConnectionClient);
+                BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, endpointInfo, HybridConnectionClient);
             }
             catch (Exception e)
             {
                 BridgeEventSource.Log.LocalForwardBridgeConnectionFailed(bridgeActivity, e);
-                throw;
             }
         }
     }

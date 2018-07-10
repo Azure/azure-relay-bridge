@@ -493,15 +493,15 @@ using Microsoft.Diagnostics.Tracing;
 
         [NonEvent]
 
-        internal void LocalForwardBridgeConnectionStop(EventTraceActivity bridgeActivity, TcpClient tcpClient, HybridConnectionClient hybridConnectionClient)
+        internal void LocalForwardBridgeConnectionStop(EventTraceActivity bridgeActivity, string endpointInfo, HybridConnectionClient hybridConnectionClient)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeConnectionStop)))
             {
-                diags.Write(nameof(LocalForwardBridgeConnectionStop), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, tcpClient, hybridConnectionClient } });
+                diags.Write(nameof(LocalForwardBridgeConnectionStop), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, tcpClient = endpointInfo, hybridConnectionClient } });
             }
             LocalForwardBridgeConnectionStop(
                 bridgeActivity.Activity,
-                tcpClient.Client.LocalEndPoint.ToString(),
+                endpointInfo,
                 hybridConnectionClient.Address.ToString());
         }
 
@@ -525,10 +525,10 @@ using Microsoft.Diagnostics.Tracing;
             LocalForwardBridgeConnectionFailed(bridgeActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(122, Channel = EventChannel.Admin, Level = EventLevel.Error, Keywords = Keywords.LocalForward, Message = "Local forward bridge connection failed with exception {0}, message {1}")]
+        [Event(122, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward bridge connection failed with exception {0}, message {1}")]
         void LocalForwardBridgeConnectionFailed(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.LocalForward))
+            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
             {
                 this.WriteEventWithRelatedActivityId(122, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
             }
@@ -984,13 +984,13 @@ using Microsoft.Diagnostics.Tracing;
         }
 
         [NonEvent]
-        internal void LocalForwardSocketError(EventTraceActivity eventTraceActivity, TcpClient socket, AggregateException exception)
+        internal void LocalForwardSocketError(EventTraceActivity eventTraceActivity, string endpoint, AggregateException exception)
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketError)))
             {
-                diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket, exception } });
+                diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { endpoint, exception } });
             }
-            LocalForwardSocketError(eventTraceActivity.Activity, socket.Client.LocalEndPoint.ToString(), exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardSocketError(eventTraceActivity.Activity, endpoint, exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
         [Event(161, Channel = EventChannel.Debug, Level = EventLevel.Warning, Keywords = Keywords.LocalForward)]
@@ -1004,7 +1004,7 @@ using Microsoft.Diagnostics.Tracing;
 
 
         [NonEvent]
-        internal void LocalForwardSocketClosed(EventTraceActivity eventTraceActivity, TcpClient socket)
+        internal void LocalForwardSocketClosed(EventTraceActivity eventTraceActivity, string socket)
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketClosed)))
             {
@@ -1024,13 +1024,13 @@ using Microsoft.Diagnostics.Tracing;
         }
 
         [NonEvent]
-        internal void LocalForwardSocketCloseFailed(EventTraceActivity eventTraceActivity, TcpClient socket, Exception exception)
+        internal void LocalForwardSocketCloseFailed(EventTraceActivity eventTraceActivity, string socket, Exception exception)
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketCloseFailed)))
             {
                 diags.Write(nameof(LocalForwardSocketCloseFailed), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket, exception } });
             }
-            LocalForwardSocketCloseFailed(eventTraceActivity.Activity, socket.Client.LocalEndPoint.ToString(), exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardSocketCloseFailed(eventTraceActivity.Activity, socket, exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
         [Event(163, Level = EventLevel.Warning, Keywords = Keywords.LocalForward)]
@@ -1043,13 +1043,13 @@ using Microsoft.Diagnostics.Tracing;
         }
 
         [NonEvent]
-        internal void LocalForwardSocketComplete(EventTraceActivity eventTraceActivity, TcpClient socket)
+        internal void LocalForwardSocketComplete(EventTraceActivity eventTraceActivity, string endpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketComplete)))
             {
-                diags.Write(nameof(LocalForwardSocketComplete), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { socket } });
+                diags.Write(nameof(LocalForwardSocketComplete), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { endpoint } });
             }
-            LocalForwardSocketComplete(eventTraceActivity.Activity, socket.Client.LocalEndPoint.ToString());
+            LocalForwardSocketComplete(eventTraceActivity.Activity, endpoint);
         }
 
         [Event(164, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]

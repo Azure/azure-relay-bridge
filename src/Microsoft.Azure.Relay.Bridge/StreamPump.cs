@@ -22,8 +22,10 @@ namespace Microsoft.Azure.Relay.Bridge
                 var buffer = new byte[65536];
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                    int bytesRead;
 
+                    bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                    
                     if (bytesRead == 0)
                     {
                         shutdownAction?.Invoke();
@@ -34,7 +36,7 @@ namespace Microsoft.Azure.Relay.Bridge
             }
             catch (Exception e)
             {
-                BridgeEventSource.Log.HandledExceptionAsError(source, e);
+                BridgeEventSource.Log.HandledExceptionAsWarning(source, e);
                 throw;
             }
         }

@@ -59,7 +59,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     }
                 }
             });
-            
+
 
             var s = new TcpClient();
             s.Connect("127.0.97.1", 29876);
@@ -75,7 +75,60 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
             s.Dispose();
             l.Stop();
+            host.Stop();
         }
 
+        [Fact]
+        public void TcpBridgeBadListener()
+        {
+            // set up the bridge first
+            Config cfg = new Config
+            {
+                AzureRelayConnectionString = Utilities.GetConnectionString()
+            };
+            cfg.LocalForward.Add(new LocalForward
+            {
+                BindAddress = "127.0.97.1",
+                BindPort = 29876,
+                RelayName = "a1"
+            });
+            cfg.RemoteForward.Add(new RemoteForward
+            {
+                Host = "127.0.97.2",
+                HostPort = 29877,
+                RelayName = "a1"
+            });
+            Host host = new Host(cfg);
+            host.Start();
+
+            // now try to use it
+            var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+            l.Start();
+            l.AcceptTcpClientAsync().ContinueWith((t) =>
+            {
+                t.Result.Client.Close(0);
+                l.Stop();
+            });
+
+
+            var s = new TcpClient();
+            s.Connect("127.0.97.1", 29876);
+            s.NoDelay = true;
+            s.Client.Blocking = true;
+            using (var w = s.GetStream())
+            {
+                byte[] bytes = new byte[1024 * 1024];
+                Assert.Throws<IOException>(() =>
+                {
+                    for (int i = 0; i < 5; i++)
+                    {
+                        w.Write(bytes, 0, bytes.Length);
+                    }
+                });
+            }
+            s.Dispose();
+            host.Stop();
+        }
+                                    
     }
 }
