@@ -11,7 +11,7 @@
 <PropertyGroup>
       <WindowsOnly>false</WindowsOnly>
       <WindowsFrameworks Condition="'$(OS)'=='Windows_NT'">net462;</WindowsFrameworks>
-      <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp2.0;netcoreapp2.1</CoreFrameworks>
+      <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp2.1</CoreFrameworks>
       <TargetFrameworks>$(WindowsFrameworks)$(CoreFrameworks)</TargetFrameworks>
       <WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win7-x64;win7-x86;win10-x64;win10-x86;</WindowsRuntimeIdentifiers>
       <UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;debian.8-x64;ubuntu.16.10-x64;ubuntu.16.04-x64;opensuse-x64;ol-x64;rhel-x64;fedora-x64;centos-x64</UnixRuntimeIdentifiers>
