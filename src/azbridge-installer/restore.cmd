@@ -12,7 +12,7 @@ if not exist ".\.nuget\nuget.exe" powershell -Command "Invoke-WebRequest https:/
 if not exist ".\.nuget\nuget.config" (
     echo ^<?xml version="1.0" encoding="utf-8"?^> > .\.nuget\nuget.config
     echo ^<configuration^>^<packageSources^> >> .\.nuget\nuget.config
-    echo ^<add key="NuGet" value="https://api.nuget.org/v3/index.json" /^> >> .\.nuget\nuget.config
+    echo ^<add key="NuGet" value="https://api.nuget.org/v3/index.json" protocolVersion="3" /^> >> .\.nuget\nuget.config
     echo ^</packageSources^>^</configuration^> >> .\.nuget\nuget.config
 )
 
