@@ -1,8 +1,8 @@
 #!/bin/bash
 
 if [ ! -z $1 ]; then BuildNumber=$1; fi
-if [ ! -z $2 ]; then VersionSuffix=$2; fi
-if [ ! -z $3 ]; then VersionPrefix=$3; fi
+if [ ! -z $2 ]; then VersionPrefix=$2; fi
+if [ ! -z $3 ]; then VersionSuffix=$3; fi
 if [ ! -z $4 ]; then TargetFramework=$4; fi
 
 if [ -z ${BuildNumber+x} ]; then BuildNumber='0000'; fi
