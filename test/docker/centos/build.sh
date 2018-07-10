@@ -12,7 +12,7 @@ if [ -z ${TargetFramework+x} ]; then TargetFramework='netcoreapp2.1'; fi
 
 pushd "${0%/*}" > /dev/null 
 if [ ! -d "tmp" ]; then mkdir tmp; fi
-RpmFile=azbridge.$VersionPrefix-$VersionSuffix-$BuildNumber.centos-x64.rpm
+RpmFile=azbridge.$VersionPrefix-$VersionSuffix.centos-x64.rpm
 
 cp ../../../artifacts/build/$TargetFramework/$RpmFile tmp/ > /dev/null
 docker build -f Dockerfile . --tag azbridge_centos_test --build-arg rpm_package=$RpmFile
