@@ -1,0 +1,5 @@
+LocalForward:
+  - RelayName: a1
+    BindAddress: 127.0.8.1
+    BindPort: 8888
+    

@@ -1,0 +1,2 @@
+request: ping
+reply: pong
