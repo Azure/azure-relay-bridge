@@ -10,6 +10,5 @@ else
     cat $_OUTFILE
     echo Error $_RESULT
 fi
-
 rm $_OUTFILE
-exit $_RESULT
+echo $_TESTNAME done.

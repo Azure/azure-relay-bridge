@@ -194,19 +194,20 @@ namespace Microsoft.Azure.Relay.Bridge
                             StreamPump.RunAsync(tcpstream, hybridConnectionStream,
                                 () => hybridConnectionStream?.Shutdown(), cancellationTokenSource.Token))
                                 .ContinueWith((t) => cancellationTokenSource.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+
+                        using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
+                        {
+                            await hybridConnectionStream.CloseAsync(cts.Token);
+                        }
                     }
                     catch
                     {
-                        hybridConnectionStream.Dispose();
-                        socket.Disconnect(false);
-                        tcpstream.Dispose();
+                        if (socket.Connected)
+                        {
+                            socket.Close(0);
+                        }
                         throw;
                     }
-
-                    using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-                    {
-                        await hybridConnectionStream.CloseAsync(cts.Token);
-                    }                
                 }
                 BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, endpointInfo, HybridConnectionClient);
             }

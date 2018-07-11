@@ -130,31 +130,23 @@ namespace Microsoft.Azure.Relay.Bridge
                         client.SendTimeout = 60000;
                         await client.ConnectAsync(targetServer, targetPort);
                         var tcpstream = client.GetStream();
-                            
-                        try
+
+                        await Task.WhenAll(
+                            StreamPump.RunAsync(hybridConnectionStream, tcpstream,
+                                () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token)
+                                .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
+                            StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token))
+                                .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+
+
+                        using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                         {
-                            await Task.WhenAll(
-                                StreamPump.RunAsync(hybridConnectionStream, tcpstream, 
-                                    () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token)
-                                    .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
-                                StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token))
-                                    .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
-                        }
-                        catch
-                        {
-                            // if this ends unhappy we'll immediately tear down the HC
-                            hybridConnectionStream.Shutdown();
-                            hybridConnectionStream.Dispose();  
-                            tcpstream.Dispose();
-                            throw;
+                            await hybridConnectionStream.ShutdownAsync(cts.Token);
+                            await hybridConnectionStream.CloseAsync(cts.Token);
                         }
                     }
                 }
 
-                using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-                {
-                    await hybridConnectionStream.CloseAsync(cts.Token);
-                }
             }
             catch (Exception e)
             {

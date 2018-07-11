@@ -17,7 +17,7 @@ fi
 _MOUNTPATH=$(dirname $(pwd))
 _TESTNAME=test_nc_ping_pong
 source ../_scripts/runtest.sh
-if [ _RESULT -ne 0 ] exit $_RESULT
+if [ $_RESULT -ne 0 ]; then exit $_RESULT; fi
 
 _TESTNAME=test_nc_config_ping_pong
 source ../_scripts/runtest.sh

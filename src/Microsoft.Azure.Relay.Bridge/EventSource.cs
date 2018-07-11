@@ -519,7 +519,7 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeConnectionFailed)))
             {
-                diags.Write(nameof(LocalForwardBridgeConnectionFailed), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { bridgeActivity, exception } });
+                diags.Write(nameof(LocalForwardBridgeConnectionFailed), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, exception } });
             }
 
             LocalForwardBridgeConnectionFailed(bridgeActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
