@@ -32,6 +32,10 @@ namespace azbridge
             {
                 Console.WriteLine(exception.Message);
             }
+            catch (ConfigException exception)
+            {
+                Console.WriteLine($"{exception.FileName}: {exception.Message}");
+            }
         }
 
         static int Run(CommandLineSettings settings, string[] args)
@@ -59,7 +63,6 @@ namespace azbridge
                 if (config.LocalForward.Count == 0 &&
                      config.RemoteForward.Count == 0)
                 {
-                    CommandLineSettings.Help();
                     Console.WriteLine("You must specify at least one -L or -R forwarder.");
                     return 2;
                 }

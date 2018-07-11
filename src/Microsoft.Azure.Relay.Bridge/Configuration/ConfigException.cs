@@ -7,18 +7,22 @@ using System.Runtime.Serialization;
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
     [Serializable]
-    internal class ConfigException : Exception
+    public class ConfigException : Exception
     {
+        public string FileName { get; }
+
         public ConfigException()
         {
         }
 
-        public ConfigException(string message) : base(message)
+        public ConfigException(string fileName, string message) : base(message)
         {
+            FileName = fileName;
         }
 
-        public ConfigException(string message, Exception innerException) : base(message, innerException)
+        public ConfigException(string fileName, string message, Exception innerException) : base(message, innerException)
         {
+            FileName = fileName;
         }
 
         protected ConfigException(SerializationInfo info, StreamingContext context) : base(info, context)

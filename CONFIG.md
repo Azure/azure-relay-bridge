@@ -47,15 +47,6 @@ Use bind_address on the local machine as the source address of
 forwarding connections.  Only useful on systems with more than one
 address.
 
-**-C**    
-
-Requests compression for the tunnel. The compression algorithm is the
-same used by gzip(1), and the "level" can be controlled by the 
-CompressionLevel configuration option. Compression is desirable on slow
-connections, but may cause significant throughput and other performance 
-issues on fast networks. The default value can be set on a host-by-host
-basis in the configuration files; see the Compression configuration option.
-
 **-D**   
 
 Reserved. Not presently supported
@@ -218,11 +209,6 @@ the -L and -R command line options above.
   cleared.  This option is primarily useful when used from the
   command line to clear port forwardings set in configura-
   tion files. The argument must be "true" or "false".  The default is "false".
-* **Compression** - Specifies whether to use compression. The argument must be
-  "true" or "false".  The default is "false".
-* **CompressionLevel** - Specifies the compression level to use if compression 
-  is enabled. The argument must be an integer from 1 (fast) to 9 (slow, best).
-  The default level is 6, which is good for most applications.
 * **ConnectionAttempts** - Specifies the number of tries (one per second) to make
   before exiting.  The argument must be an integer.  This may be useful in scripts
   if the connection sometimes fails.  The default is 1.

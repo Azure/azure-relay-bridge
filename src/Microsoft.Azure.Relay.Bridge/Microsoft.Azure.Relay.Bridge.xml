@@ -60,22 +60,6 @@
               <c>true</c> to clear all forwardings; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.Compression">
-            <summary>
-            Specifies whether to use compression.
-            </summary>
-            <value>
-              <c>true</c> if compression is enabled; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.CompressionLevel">
-            <summary>
-            Gets or sets the compression level.
-            </summary>
-            <value>
-            The compression level.
-            </value>
-        </member>
         <member name="P:Microsoft.Azure.Relay.Bridge.Configuration.Config.ConnectionAttempts">
             <summary>
             Gets or sets the connection attempts.

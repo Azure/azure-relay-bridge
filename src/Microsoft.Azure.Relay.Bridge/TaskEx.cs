@@ -357,29 +357,5 @@ namespace Microsoft.Azure.Relay.Bridge
 
             return tcs.Task;
         }
-
-        public static void EndAsyncResult(IAsyncResult asyncResult)
-        {
-            Task task = asyncResult as Task;
-            if (task == null)
-            {
-                throw BridgeEventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
-            }
-
-            // using GetAwaiter/GetResult will avoid exceptions being wrapped in AggregateException
-            task.ConfigureAwait(false).GetAwaiter().GetResult();
-        }
-
-        public static TResult EndAsyncResult<TResult>(IAsyncResult asyncResult)
-        {
-            Task<TResult> task = asyncResult as Task<TResult>;
-            if (task == null)
-            {
-                throw BridgeEventSource.Log.ThrowingException(new ArgumentException(Strings.InvalidAsyncResult));
-            }
-
-            // using GetAwaiter/GetResult will avoid exceptions being wrapped in AggregateException
-            return task.ConfigureAwait(false).GetAwaiter().GetResult();
-        }
     }
 }

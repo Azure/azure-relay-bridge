@@ -8,10 +8,12 @@ namespace Microsoft.Azure.Relay.Bridge
     using System.Net.Sockets;
     using System.Threading;
     using System.Threading.Tasks;
+    using Configuration;
     using Microsoft.Azure.Relay;
 
     sealed class TcpLocalForwardBridge : IDisposable
     {
+        private readonly Config config;
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
         readonly HybridConnectionClient hybridConnectionClient;
@@ -20,8 +22,9 @@ namespace Microsoft.Azure.Relay.Bridge
 
         TcpListener tcpListener;
 
-        public TcpLocalForwardBridge(RelayConnectionStringBuilder connectionString)
+        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString)
         {
+            this.config = config;
             this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
         }
 
@@ -35,9 +38,10 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
-        public static TcpLocalForwardBridge FromConnectionString(RelayConnectionStringBuilder connectionString)
+        public static TcpLocalForwardBridge FromConnectionString(Config config,
+            RelayConnectionStringBuilder connectionString)
         {
-            return new TcpLocalForwardBridge(connectionString);
+            return new TcpLocalForwardBridge(config, connectionString);
         }
 
         public void Close()
@@ -167,12 +171,16 @@ namespace Microsoft.Azure.Relay.Bridge
                 using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
                 {
                     // read and write 4-byte header
-                    // we don't do anything with this version preamble just yet; it really 
-                    // is insurance for when we might have to break protocol.
                     hybridConnectionStream.WriteTimeout = 60000;
-                    byte[] versionPreamble = { 1, 0, 0, 0 };
-                    await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
-                    for (int read = 0; read < versionPreamble.Length; read += await hybridConnectionStream.ReadAsync(versionPreamble, read, versionPreamble.Length - read)) ;
+                    byte[] preamble =
+                    {
+                        /*major*/ 1, 
+                        /*minor*/ 0, 
+                        /*features*/ 0,
+                        /*reserved*/ 0
+                    };
+                    await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length);
+                    for (int read = 0; read < preamble.Length; read += await hybridConnectionStream.ReadAsync(preamble, read, preamble.Length - read));
 
 
                     BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, tcpClient, HybridConnectionClient);

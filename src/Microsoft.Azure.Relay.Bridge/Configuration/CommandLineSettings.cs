@@ -7,8 +7,11 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Net;
+    using System.Reflection;
+    using McMaster.Extensions.CommandLineUtils.Abstractions;
     using McMaster.Extensions.CommandLineUtils.HelpText;
-    
+
     public class CommandLineSettings
     {
 #if NET462
@@ -21,8 +24,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 #endif
         [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
-        [Option(CommandOptionType.NoValue, ShortName = "c", Description = "Enable compression")]
-        public bool? Compression { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "e", Description = "Relay endpoint URI")]
         public Uri EndpointUri { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "f", Description = "Configuration file")]
@@ -50,25 +51,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         [Option(CommandOptionType.NoValue, ShortName = "v", Description = "Verbose log output")]
         public bool? Verbose { get; internal set; }
 
-        
-        static CommandLineApplication<CommandLineSettings> app = new CommandLineApplication<CommandLineSettings>(true);
 
-        static CommandLineSettings()
-        {
-            app.ModelFactory = () => new CommandLineSettings();
-            app.Conventions.UseDefaultConventions();
-        }
-
-        
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
         {
-            app.Parse(args);                                    
+            CommandLineApplication<CommandLineSettings> app = new CommandLineApplication<CommandLineSettings>(throwOnUnexpectedArg: true);
+            app.ModelFactory = () => new CommandLineSettings();
+            app.Conventions.UseDefaultConventions().SetAppNameFromEntryAssembly();
+            app.Parse(args);
             callback(app.Model);
-        }
-
-        public static void Help()
-        {
-            app.ShowHelp();
         }
     }
 }

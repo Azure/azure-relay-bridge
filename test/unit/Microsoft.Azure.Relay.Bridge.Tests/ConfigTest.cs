@@ -1,6 +1,7 @@
 namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
+    using System.Configuration;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -20,7 +21,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         string CreateMaxCommandLine()
         {
             return "-b 127.0.0.4" +
-                   " -c" +
                    " -e sb://cvrelay.servicebus.windows.net/" +
                    " -f foo.txt" +
                    " -g" +
@@ -45,12 +45,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
                 {
                     textWriter.Write(
-                       @"AddressFamily : inet4" + textWriter.NewLine +
+                       @"AddressFamily : inet" + textWriter.NewLine +
                         "AzureRelayConnectionString: Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=" + textWriter.NewLine +
                         "BindAddress : 127.0.0.4" + textWriter.NewLine +
                         "ClearAllForwardings : false " + textWriter.NewLine +
-                        "Compression : true " + textWriter.NewLine +
-                        "CompressionLevel : 9 " + textWriter.NewLine +
                         "ConnectionAttempts : 1 " + textWriter.NewLine +
                         "ConnectTimeout : 60 " + textWriter.NewLine +
                         "ExitOnForwardFailure : true " + textWriter.NewLine +
@@ -77,7 +75,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
             return myFile;
         }
-                 
+
         [Fact]
         public void ConfigFileMaxTest()
         {
@@ -92,13 +90,13 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             File.Delete(configFileName);
         }
 
-        
+
 
         [Fact]
         public void CommandLineMaxTest()
         {
             bool callbackInvoked = false;
-            CommandLineSettings.Run(CreateMaxCommandLine().Split(' '), 
+            CommandLineSettings.Run(CreateMaxCommandLine().Split(' '),
                 (settings) =>
                 {
                     Config config = Config.LoadConfig(settings);
@@ -106,8 +104,200 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     callbackInvoked = true;
                     return 0;
                 });
-            
+
             Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void CommandLineBadArgumentTest()
+        {
+            var ex = Assert.Throws<CommandParsingException>(() =>
+            {
+                CommandLineSettings.Run(new string[] { "-bad" },
+                    (settings) => { return 0; });
+            });
+            Assert.Contains("-bad", ex.Message);
+        }
+
+        [Fact]
+        public void CommandLineBadConnectionStringTest()
+        {
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                CommandLineSettings.Run(new string[] { "-x", "Endpoint=total^^^garbage" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-x", ex.Message);
+        }
+
+        [Fact]
+        public void CommandLineBadBindAddressTest()
+        {
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                CommandLineSettings.Run(new string[] { "-b", "abc^^$foo" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-b", ex.Message);
+        }
+
+        [Fact]
+        public void CommandLineGoodBindAddressTest()
+        {
+            CommandLineSettings.Run(new string[] { "-b", "localhost" },
+                (settings) =>
+                {
+                    Config.LoadConfig(settings);
+                    return 0;
+                });
+
+            CommandLineSettings.Run(new string[] { "-b", "\"127.0.1.0\"" },
+                (settings) =>
+                {
+                    Config.LoadConfig(settings);
+                    return 0;
+                });
+
+            CommandLineSettings.Run(new string[] { "-b", "\"[::1]\"" },
+                (settings) =>
+                {
+                    Config.LoadConfig(settings);
+                    return 0;
+                });
+        }
+
+        [Fact]
+        public void CommandLineBadEndpointUriTest()
+        {
+            {
+                var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                {
+                    CommandLineSettings.Run(new string[] { "-e", "\"^^^^\"" },
+                        (settings) =>
+                        {
+                            Config.LoadConfig(settings);
+                            return 0;
+                        });
+                });
+                Assert.Contains("-e", ex.Message);
+            }
+        }
+
+        [Fact]
+        public void CommandLineBadKeyNameTest()
+        {
+            {
+                var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                {
+                    CommandLineSettings.Run(new string[] { "-K", "\"^^^^\"" },
+                        (settings) =>
+                        {
+                            Config.LoadConfig(settings);
+                            return 0;
+                        });
+                });
+                Assert.Contains("-K", ex.Message);
+            }
+        }
+
+        [Fact]
+        public void CommandLineGoodKeyNameTest()
+        {
+            CommandLineSettings.Run(new string[] { "-K", "\"sendlisten\"" },
+                (settings) =>
+                {
+                    Config.LoadConfig(settings);
+                    return 0;
+                });
+        }
+
+        [Fact]
+        public void CommandLineBadKeyValueTest()
+        {
+            {
+                var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+                {
+                    CommandLineSettings.Run(new string[] { "-k", "\"^^^^\"" },
+                        (settings) =>
+                        {
+                            Config.LoadConfig(settings);
+                            return 0;
+                        });
+                });
+                Assert.Contains("-k", ex.Message);
+            }
+        }
+
+        [Fact]
+        public void CommandLineGoodKeyValueTest()
+        {
+            CommandLineSettings.Run(new string[] { "-k", "\"e29y7Y09bQpdcc/0KfO4WYUOJIMvs6I8cNM8EZpAdHQ=\"" },
+                (settings) =>
+                {
+                    Config.LoadConfig(settings);
+                    return 0;
+                });
+        }
+
+
+        [Fact]
+        public void ConfigBadOptionTest()
+        {
+            string myFile = Path.GetTempFileName();
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write("Fompa : ssjsjshshjs" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains("Fompa", ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+        }
+
+        [Fact]
+        public void ConfigBadBindAddressTest()
+        {
+            string myFile = Path.GetTempFileName();
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write("BindAddress : ssjs^^^hjs" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains("BindAddress", ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
         }
 
         private static void CheckMaxCommandLine(Config config)
@@ -119,8 +309,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("127.0.0.4", config.BindAddress);
             Assert.Equal(44, config.ConnectTimeout);
             Assert.True(config.GatewayPorts);
-            Assert.True(config.Compression);
-            
+
             Assert.Equal(3, config.LocalForward.Count);
             Assert.Equal("127.0.100.1", config.LocalForward[0].BindAddress);
             Assert.Equal(8008, config.LocalForward[0].BindPort);
@@ -139,12 +328,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
             Assert.Equal("baz", config.RemoteForward[2].RelayName);
             Assert.Equal("abc", config.RemoteForward[2].LocalSocket);
-            
+
         }
 
         private static void CheckMaxConfig(Config config)
         {
-            Assert.Equal("inet4", config.AddressFamily);
+            Assert.Equal("inet", config.AddressFamily);
             Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
             Assert.Equal("RootManageSharedAccessKey", config.AzureRelaySharedAccessKeyName);
@@ -152,8 +341,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Null(config.AzureRelaySharedAccessSignature);
             Assert.Equal("127.0.0.4", config.BindAddress);
             Assert.False(config.ClearAllForwardings);
-            Assert.True(config.Compression);
-            Assert.Equal(9, config.CompressionLevel);
             Assert.Equal(1, config.ConnectionAttempts);
             Assert.Equal(60, config.ConnectTimeout);
             Assert.True(config.ExitOnForwardFailure);
@@ -169,7 +356,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("bar.example.com", config.LocalForward[1].HostName);
             Assert.Equal("test", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
-            
+
             Assert.Equal(3, config.RemoteForward.Count);
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
             Assert.Equal(123, config.RemoteForward[0].HostPort);
@@ -184,18 +371,22 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         public void ConfigSaveLoadFileTest()
         {
             var configFileName = CreateMaxConfig();
+            try
+            {
+                CommandLineSettings settings = new CommandLineSettings();
+                settings.ConfigFile = configFileName;
+                Config config = Config.LoadConfig(settings);
 
-            CommandLineSettings settings = new CommandLineSettings();
-            settings.ConfigFile = configFileName;
-            Config config = Config.LoadConfig(settings);
+                config.SaveConfigFile(configFileName, false);
 
-            config.SaveConfigFile(configFileName, false);
+                config = Config.LoadConfigFile(configFileName);
 
-            config = Config.LoadConfigFile(configFileName);
-
-            CheckMaxConfig(config);
-
-            File.Delete(configFileName);
+                CheckMaxConfig(config);
+            }
+            finally
+            {
+                File.Delete(configFileName);
+            }
         }
     }
 }

@@ -46,17 +46,6 @@ BindAddress :
 
 ClearAllForwardings :
 
-# Specifies whether to use compression. The argument must be
-# "true" or "false".  The default is "false".
-
-Compression :
-
-#  Specifies the compression level to use if compression 
-#  is enabled. The argument must be an integer from 1 (fast) to 9 (slow, best).
-#  The default level is 6, which is good for most applications.
-
-CompressionLevel :
-
 #  Specifies the number of tries (one per second) to make
 #  before exiting.  The argument must be an integer.  This may be useful in scripts
 #  if the connection sometimes fails.  The default is 1.

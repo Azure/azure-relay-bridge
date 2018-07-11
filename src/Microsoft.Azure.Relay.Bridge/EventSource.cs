@@ -83,14 +83,14 @@ using Microsoft.Diagnostics.Tracing;
 
 
         [NonEvent]
-        public ArgumentOutOfRangeException ArgumentOutOfRange(string paramName, object actualValue, string message,
+        public ArgumentOutOfRangeException ArgumentOutOfRange(string paramName, string message,
             object source = null, EventLevel level = EventLevel.Error)
         {
             if (diags.IsEnabled(nameof(ArgumentOutOfRangeException)))
             {
-                diags.Write(nameof(ArgumentOutOfRangeException), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { paramName, actualValue, message, source } });
+                diags.Write(nameof(ArgumentOutOfRangeException), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { paramName, message, source } });
             }
-            return this.ThrowingException(new ArgumentOutOfRangeException(paramName, actualValue, message), source,
+            return this.ThrowingException(new ArgumentOutOfRangeException(paramName, message), source,
                 level);
         }
 

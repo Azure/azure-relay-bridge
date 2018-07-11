@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using YamlDotNet.Serialization;
@@ -9,6 +10,13 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
+    using System.Collections.Specialized;
+    using System.Net;
+    using System.Reflection;
+    using System.Runtime.Serialization;
+    using System.Text.RegularExpressions;
+    using YamlDotNet.Core;
+
     /// <summary>
     /// 
     /// </summary>
@@ -29,11 +37,29 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         }
 
         /// <summary>
-        /// Specifies which address family to use when connecting.Valid
+        /// Specifies which address family to use when connecting. Valid
         /// arguments are Unspecified ("any"), InterNetwork ("inet", IPv4 only), 
         /// or InterNetworkV6 ("inet6", IPv6 only).  The default is Unspecified. 
         /// </summary>
-        public string AddressFamily { get; set; }
+        public string AddressFamily
+        {
+            get => addressFamily;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (!string.IsNullOrEmpty(val) &&
+                    val != "any" &&
+                    val != "inet" &&
+                    val != "inet6")
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(AddressFamily),
+                        string.Format(Strings.MsgConfigInvalidAddressFamilyValue, val),
+                        this);
+                }
+                addressFamily = val;
+            }
+        }
 
         /// <summary>
         /// Azure Relay connection string for a Relay namespace.
@@ -41,7 +67,21 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string AzureRelayConnectionString
         {
             get { return relayConnectionStringBuilder.ToString(); }
-            set { relayConnectionStringBuilder = ((value != null) ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder()); }
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                try
+                {
+                    relayConnectionStringBuilder = ((val != null) ? new RelayConnectionStringBuilder(val) : new RelayConnectionStringBuilder());
+                }
+                catch (ArgumentException e)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(AzureRelayConnectionString),
+                        string.Format(Strings.MsgConfigInvalidAzureRelayConnectionStringValue, e.Message, val),
+                        this);
+                }
+            }
         }
 
         RelayConnectionStringBuilder RelayConnectionStringBuilder
@@ -53,17 +93,29 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <summary>
         /// Azure Relay endpoint URI for a Relay namespace.
         /// </summary>
-        public string AzureRelayEndpoint { 
-            get => RelayConnectionStringBuilder.Endpoint?.ToString(); 
-            set 
+        public string AzureRelayEndpoint
+        {
+            get => RelayConnectionStringBuilder.Endpoint?.ToString();
+            set
             {
-                if ( value == null ) 
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (string.IsNullOrWhiteSpace(val))
                 {
-                    RelayConnectionStringBuilder.Endpoint = new Uri("sb://undefined"); 
+                    RelayConnectionStringBuilder.Endpoint = new Uri("sb://undefined");
                 }
                 else
                 {
-                    RelayConnectionStringBuilder.Endpoint = new Uri(value); 
+                    try
+                    {
+                        RelayConnectionStringBuilder.Endpoint = new Uri(val);
+                    }
+                    catch (UriFormatException e)
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(AzureRelayEndpoint),
+                            string.Format(Strings.MsgConfigInvalidAzureRelayEndpointValue, e.Message, val),
+                            this);
+                    }
                 }
             }
         }
@@ -71,24 +123,95 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <summary>
         /// Azure Relay shared access policy name.
         /// </summary>
-        public string AzureRelaySharedAccessKeyName { get => RelayConnectionStringBuilder.SharedAccessKeyName; set => RelayConnectionStringBuilder.SharedAccessKeyName = value; }
+        public string AzureRelaySharedAccessKeyName
+        {
+            get => RelayConnectionStringBuilder.SharedAccessKeyName;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                foreach (var ch in val)                          
+                {
+                    if (!char.IsLetterOrDigit(ch) &&
+                        ch != '-' && ch != '_')
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(AzureRelaySharedAccessKeyName),
+                            $"Invalid -K/AzureRelaySharedAccessKeyName value {val}",
+                            this);
+                    }
+                }
+                RelayConnectionStringBuilder.SharedAccessKeyName = val;
+            }
+        }
 
         /// <summary>
         /// Azure Relay shared access policy key.
         /// </summary>
-        public string AzureRelaySharedAccessKey { get => RelayConnectionStringBuilder.SharedAccessKey; set => RelayConnectionStringBuilder.SharedAccessKey = value; }
+        public string AzureRelaySharedAccessKey
+        {
+            get => RelayConnectionStringBuilder.SharedAccessKey;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                try
+                {
+                    Convert.FromBase64String(val);
+                    RelayConnectionStringBuilder.SharedAccessKey = val;
+                }
+                catch (FormatException e)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(AzureRelaySharedAccessKey),
+                        $"Invalid -k/AzureRelaySharedAccessKey value. {e.Message}: {val}",
+                        this);
+                }
+            }
+        }
 
         /// <summary>
         /// Azure Relay shared access policy signature
         /// </summary>                                
-        public string AzureRelaySharedAccessSignature { get => RelayConnectionStringBuilder.SharedAccessSignature; set => RelayConnectionStringBuilder.SharedAccessSignature = value; }
+        public string AzureRelaySharedAccessSignature
+        {
+            get { return RelayConnectionStringBuilder.SharedAccessSignature; }
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                try
+                {
+                    RelayConnectionStringBuilder.SharedAccessSignature = val;
+                }
+                catch (ArgumentException e)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(AzureRelaySharedAccessSignature),
+                        $"Invalid -s/AzureRelaySharedAccessSignature value. {e.Message}: {val}",
+                        this);
+                }
+            }
+        }
 
         /// <summary>
         /// Use the specified address on the local machine as the source
         /// address of the connection. Only useful on systems with more than
         /// one address. 
         /// </summary>
-        public string BindAddress { get; set; }
+        public string BindAddress
+        {
+            get => bindAddress;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(BindAddress),
+                        $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression for the local host",
+                        this);
+                }
+                bindAddress = value;
+            }
+        }
 
         /// <summary>
         /// Specifies that all local, and remote port forwardings
@@ -101,22 +224,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         ///   <c>true</c> to clear all forwardings; otherwise, <c>false</c>.
         /// </value>
         public bool? ClearAllForwardings { get; set; }
-
-        /// <summary>
-        /// Specifies whether to use compression.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if compression is enabled; otherwise, <c>false</c>.
-        /// </value>
-        public bool? Compression { get; set; }
-
-        /// <summary>
-        /// Gets or sets the compression level.
-        /// </summary>
-        /// <value>
-        /// The compression level.
-        /// </value>
-        public int? CompressionLevel { get; set; }
 
         /// <summary>
         /// Gets or sets the connection attempts.
@@ -157,8 +264,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies that a (set of) TCP ports on the local machine 
         /// shall be forwarded via the Azure Relay.
         /// </summary>
-        public List<LocalForward> LocalForward 
-        { 
+        public List<LocalForward> LocalForward
+        {
             get
             {
                 return localForward;
@@ -166,7 +273,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 localForward.Clear();
-                if ( value != null )
+                if (value != null)
                 {
                     localForward.AddRange(value);
                 }
@@ -180,13 +287,44 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// DEBUG and DEBUG1 are equivalent.DEBUG2 and DEBUG3 each specify
         /// higher levels of verbose output.
         /// </summary>
-        public string LogLevel { get; set; }
+        public string LogLevel
+        {
+            get => logLevel;
+            set
+            {
+                var s = new List<string>
+                {
+                    "none",
+                    "quiet",
+                    "fatal",
+                    "error",
+                    "info",
+                    "verbose",
+                    "debug",
+                    "debug1",
+                    "debug2",
+                    "debug3"
+                };
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (string.IsNullOrEmpty(val) || s.Contains(val.ToLower()))
+                {
+                    logLevel = val;
+                }
+                else
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(LogLevel),
+                        $"Invalid LogLevel value {val}.", this);
+                }
+            }
+        }
+
         /// <summary>
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
-        public List<RemoteForward> RemoteForward 
-        { 
+        public List<RemoteForward> RemoteForward
+        {
             get
             {
                 return remoteForward;
@@ -194,7 +332,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 remoteForward.Clear();
-                if ( value != null )
+                if (value != null)
                 {
                     remoteForward.AddRange(value);
                 }
@@ -282,10 +420,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 config.BindAddress = commandLineSettings.BindAddress;
             }
-            if (commandLineSettings.Compression.HasValue)
-            {
-                config.Compression = commandLineSettings.Compression;
-            }
             if (commandLineSettings.EndpointUri != null)
             {
                 config.AzureRelayEndpoint = commandLineSettings.EndpointUri?.ToString();
@@ -322,7 +456,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     string[] lfs = lf.Split(':');
                     if (lfs.Length == 1 || lfs.Length > 3)
                     {
-                        throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -L expression: {lf}"), config);
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(commandLineSettings.LocalForward),
+                            $"Invalid -L expression: {lf}", config);
                     }
                     else if (lfs.Length == 2)
                     {
@@ -366,7 +502,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         }
                         else
                         {
-                            throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -L 'port' expression: {lfs[1]}"), config);
+                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                nameof(commandLineSettings.LocalForward),
+                                $"Invalid -L 'port' expression: {lfs[1]}", config);
                         }
                     }
                 }
@@ -379,7 +517,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     string[] lfs = lf.Split(':');
                     if (lfs.Length == 1 || lfs.Length > 3)
                     {
-                        throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -R expression: {lf}"), config);
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(commandLineSettings.RemoteForward),
+                                $"Invalid -R expression: {lf}",
+                                config);
                     }
                     else if (lfs.Length == 2)
                     {
@@ -421,7 +562,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         }
                         else
                         {
-                            throw BridgeEventSource.Log.ThrowingException(new ConfigException($"Invalid -R 'port' expression: {lfs[2]}"), config);
+                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                nameof(commandLineSettings.RemoteForward),
+                                $"Invalid -R 'port' expression: {lfs[2]}",
+                                config);
                         }
                     }
                 }
@@ -486,14 +630,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 this.ClearAllForwardings = otherConfig.ClearAllForwardings;
             }
-            if (otherConfig.Compression.HasValue)
-            {
-                this.Compression = otherConfig.Compression;
-            }
-            if (otherConfig.CompressionLevel.HasValue)
-            {
-                this.CompressionLevel = otherConfig.CompressionLevel;
-            }
             if (otherConfig.ConnectionAttempts.HasValue)
             {
                 this.ConnectionAttempts = otherConfig.ConnectionAttempts;
@@ -541,10 +677,30 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     {
                         return yamlDeserializer.Deserialize<Config>(reader);
                     }
-                    catch(Exception e)
+                    catch (YamlException e)
                     {
-                        Console.WriteLine($"ser: {e.Message} {e.StackTrace} {e.InnerException?.Message} {e.InnerException?.StackTrace}");
-                        throw;
+                        if (e.InnerException is SerializationException)
+                        {
+                            var msg = e.InnerException?.Message;
+                            if (!string.IsNullOrWhiteSpace(msg))
+                            {
+                                var propNotFound = new Regex("Property '([^']+)' not found");
+                                var matchPropNotFound = propNotFound.Match(msg);
+                                if (matchPropNotFound.Success && matchPropNotFound.Groups.Count > 1)
+                                {
+                                    msg = $"Unknown configuration attribute: {matchPropNotFound.Groups[1].Value}";
+                                }
+                            }
+
+                            throw BridgeEventSource.Log.ThrowingException(new ConfigException(fileName, msg, e));
+                        }
+                        if (e.InnerException is TargetInvocationException)
+                        {
+                            throw BridgeEventSource.Log.ThrowingException(new ConfigException(
+                                fileName, e.InnerException.InnerException?.Message, e));
+                        }
+                        throw BridgeEventSource.Log.ThrowingException(new ConfigException(
+                            fileName, e.InnerException?.Message, e));
                     }
                 }
             }
@@ -556,7 +712,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         static Deserializer yamlDeserializer =
             new DeserializerBuilder()
-            .IgnoreUnmatchedProperties()
             .WithNamingConvention(new PascalCaseNamingConvention())
             .Build();
 
@@ -565,6 +720,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             .WithNamingConvention(new PascalCaseNamingConvention()).Build();
 
         private bool disposedValue = false; // To detect redundant calls
+        private string bindAddress;
+        private string addressFamily;
+        private string logLevel;
 
         protected virtual void Dispose(bool disposing)
         {

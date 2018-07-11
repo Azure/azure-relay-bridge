@@ -78,7 +78,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             host.Stop();
         }
 
-        [Fact]
+        [Fact(Skip = "true")]
         public void TcpBridgeBadListener()
         {
             // set up the bridge first
