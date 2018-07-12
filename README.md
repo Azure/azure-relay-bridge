@@ -187,10 +187,12 @@ All other versions are built with the .NET Core 2.0 or .NET Core 2.1 SDK. The DE
 RPM packages are only created when building on a Unix (i.e. Linux or macOS) host.
 
 The ideal build environment is a Windows 10/Windows Server 2016 host with Docker for
-Windows installed. The `package.cmd` script will first build and package all Windows
+Windows installed. The `package-all.cmd` script will first build and package all Windows
 targets, and then launch a docker-based build with the official Microsoft .NET Core 2.1
-SDK image for the remaining targets. The `package.sh` script will only build and package 
-the Unix targets.
+SDK image for the remaining targets. The `package.sh` script will only build and package
+the Unix targets, the `package.cmd` script only Windows targets.
+
+The latter two scripts are used with the AppVeyor build as well.
 
 All build output is placed into `./artifacts/build`
 
