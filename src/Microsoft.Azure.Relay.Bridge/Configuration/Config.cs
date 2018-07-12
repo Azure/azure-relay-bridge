@@ -67,7 +67,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// </summary>
         public string AzureRelayConnectionString
         {
-            get { return relayConnectionStringBuilder.ToString(); }
+            get
+            {
+                if (relayConnectionStringBuilder.Endpoint == null)
+                {
+                    return null;
+                }
+                return relayConnectionStringBuilder.ToString();
+            }
             set
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;

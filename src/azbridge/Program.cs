@@ -16,7 +16,9 @@ namespace azbridge
 #endif
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using McMaster.Extensions.CommandLineUtils;
+    using Microsoft.Azure.Relay;
     using Microsoft.Extensions.Logging;
 
     partial class Program
@@ -72,6 +74,16 @@ namespace azbridge
                 {
                     Console.WriteLine("You must specify at least one -L or -R forwarder.");
                     return 2;
+                }
+
+                var globalCxn = config.AzureRelayConnectionString;
+                if ( globalCxn == null &&
+                    (config.LocalForward.Any((f)=>f.ConnectionString == null) ||
+                    config.RemoteForward.Any((f) => f.ConnectionString == null)))
+                {
+                    Console.WriteLine("Connection string(s) undefined; -x/AzureRelayConnectionString. azbridge -h for help.");
+
+                    return 3;
                 }
 
                 var loggerFactory = new LoggerFactory();
