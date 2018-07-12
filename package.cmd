@@ -1,4 +1,4 @@
-msbuild /t:clean,restore,package /p:WindowsOnly=true %*
+msbuild /t:clean,restore,build,package /p:WindowsOnly=true %*
 set xunitrunner=xunit.console.exe
 %xunitrunner% -? 2>&1 > NUL 
 if ERRORLEVEL 1 set xunitrunner=%userprofile%\.nuget\packages\dotnet-xunit\2.3.1\tools\net452\xunit.console.exe
