@@ -6,9 +6,6 @@ branches:
   - master
   - /^release\/.*$/
   - /^(.*\/)?ci-.*$/
-dotnet_csproj:
-  patch: true
-  file: 'version.props'
 build_script:
 - ps: .\run.ps1
 clone_depth: 1
