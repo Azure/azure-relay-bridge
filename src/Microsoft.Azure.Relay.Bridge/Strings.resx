@@ -126,4 +126,7 @@
   <data name="MsgConfigInvalidAddressFamilyValue" xml:space="preserve">
     <value>Invalid -a/AddressFamily value: {0}. Valid values are "any" (Unspecified), "inet" (IPv4 only), or "inet6" (IPv6 only).  The default is "any".</value>
   </data>
+  <data name="MsgConfigInvalidConnectionStringValue" xml:space="preserve">
+    <value>Invalid -x/ConnectionString value. {0}: {1}.</value>
+  </data>
 </root>

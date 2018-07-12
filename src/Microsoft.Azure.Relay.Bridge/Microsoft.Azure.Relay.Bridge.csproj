@@ -25,6 +25,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
+    <PackageReference Include="System.Net.NetworkInformation" Version="$(SystemNetNetworkInformationPackageVersion)" />
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotNetSignedPackageVersion)" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="$(SystemDiagnosticsTracingPackageVersion)" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />

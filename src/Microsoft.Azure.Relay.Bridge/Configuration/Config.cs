@@ -12,6 +12,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
     using System.Collections.Specialized;
     using System.Net;
+    using System.Net.NetworkInformation;
     using System.Reflection;
     using System.Runtime.Serialization;
     using System.Text.RegularExpressions;
@@ -129,7 +130,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
-                foreach (var ch in val)                          
+                foreach (var ch in val)
                 {
                     if (!char.IsLetterOrDigit(ch) &&
                         ch != '-' && ch != '_')
@@ -202,13 +203,68 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
-                if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
+                if (val == null)
                 {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(BindAddress),
-                        $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression for the local host",
-                        this);
+                    bindAddress = null;
                 }
+                else
+                {
+                    // invalid characters in expression?
+                    if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(BindAddress),
+                            $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression bindable on the local host",
+                            this);
+                    }
+
+                    // "any" address?
+                    if (!val.Equals("0.0.0.0") &&
+                        !val.Equals("::") &&
+                        !val.Equals("any", StringComparison.InvariantCultureIgnoreCase) &&
+                        !val.Equals("anyv6", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        try
+                        {
+                            var computerProperties = IPGlobalProperties.GetIPGlobalProperties();
+                            var unicastAddresses = computerProperties.GetUnicastAddresses();
+                            IList<IPAddress> ipAddresses = null;
+
+                            ipAddresses = IPAddress.TryParse(val, out var ipAddress)
+                               ? new[] { ipAddress }
+                               : Dns.GetHostEntry(val).AddressList;
+
+                            // check whether at least one of the resolved addresses is indeed
+                            // locally bindable or a loopback address
+                            if ((from hostAddress in ipAddresses
+                                 where IPAddress.IsLoopback(hostAddress)
+                                 select hostAddress).FirstOrDefault() != null ||
+                                (from unicastAddress in unicastAddresses
+                                 join hostAddress in ipAddresses on unicastAddress.Address equals hostAddress
+                                 select hostAddress).FirstOrDefault() != null)
+                            {
+                                // we're only picking up the string. We do this resolution again
+                                // when we bind the listener for real because we may have to 
+                                // pick by family and we may run into used ports.
+                                bindAddress = val;
+                                return;
+                            }
+                        }
+                        catch
+                        {
+                            // if the resolution fails we'll want to throw
+                            // the same (below) as if the query fails
+                        }
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            nameof(BindAddress),
+                            $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression bindable on the local host",
+                            this);
+                    }
+
+                    // if the address is "any", we just set it to null
+                    bindAddress = null;
+                }
+
                 bindAddress = value;
             }
         }
@@ -231,7 +287,23 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// <value>
         /// The connection attempts.
         /// </value>
-        public int? ConnectionAttempts { get; set; }
+        public int? ConnectionAttempts
+        {
+            get => connectionAttempts;
+            set
+            {
+                if (value.HasValue && (
+                    value.Value < 1 ||
+                    value.Value > 10))
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(BindAddress),
+                        $"Invalid ConnectionAttempts value: {value}. Must be between 1 and 10.",
+                        this);
+                }
+                connectionAttempts = value;
+            }
+        }
 
         /// <summary>
         /// Specifies the timeout (in seconds) used when connecting to the
@@ -239,7 +311,23 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// This value is used only when the target is down or really
         /// unreachable, not when it refuses the connection.
         /// </summary>
-        public int? ConnectTimeout { get; set; }
+        public int? ConnectTimeout
+        {
+            get => connectTimeout;
+            set
+            {
+                if (value.HasValue && (
+                        value.Value < 0 ||
+                        value.Value > 120))
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(BindAddress),
+                        $"Invalid ConnectTimeout value: {value}. Must be between 0 and 120.",
+                        this);
+                }
+                connectTimeout = value;
+            }
+        }
 
         /// <summary>
         /// Specifies whether the client should terminate the 
@@ -409,7 +497,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 w.Flush();
                 memcfg.Position = 0;
 
-                config.Merge(yamlDeserializer.Deserialize<Config>(new StreamReader(memcfg)));
+                try
+                {
+                    config.Merge(yamlDeserializer.Deserialize<Config>(new StreamReader(memcfg)));
+                }
+                catch (YamlException e)
+                {
+                    throw MapYamlException(null, e);
+                }
             }
 
             if (commandLineSettings.Verbose.HasValue && commandLineSettings.Verbose.Value)
@@ -466,23 +561,42 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         // this is either -L local_socket:relay_name or -L port:relay_name
                         if (int.TryParse(lfs[0], out port))
                         {
-                            // port
-                            // local_socket
-                            config.LocalForward.Add(new Configuration.LocalForward
+                            try
                             {
-                                BindAddress = "localhost",
-                                BindPort = port,
-                                RelayName = lfs[1]
-                            });
+
+                                // port
+                                // local_socket
+                                config.LocalForward.Add(new Configuration.LocalForward
+                                {
+                                    BindAddress = "localhost",
+                                    BindPort = port,
+                                    RelayName = lfs[1]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.LocalForward),
+                                    $"Invalid -L expression: {lf}; {e.Message}");
+                            }
                         }
                         else
                         {
-                            // local_socket
-                            config.LocalForward.Add(new Configuration.LocalForward
+                            try
                             {
-                                BindLocalSocket = lfs[0],
-                                RelayName = lfs[1]
-                            });
+                                // local_socket
+                                config.LocalForward.Add(new Configuration.LocalForward
+                                {
+                                    BindLocalSocket = lfs[0],
+                                    RelayName = lfs[1]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.LocalForward),
+                                    $"Invalid -L expression: {lf}; {e.Message}");
+                            }
                         }
                     }
                     else
@@ -491,14 +605,23 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         // this is -L host:port:relay_name
                         if (int.TryParse(lfs[1], out port))
                         {
-                            // port
-                            // local_socket
-                            config.LocalForward.Add(new Configuration.LocalForward
+                            try
                             {
-                                BindAddress = lfs[0],
-                                BindPort = port,
-                                RelayName = lfs[2]
-                            });
+                                // port
+                                // local_socket
+                                config.LocalForward.Add(new Configuration.LocalForward
+                                {
+                                    BindAddress = lfs[0],
+                                    BindPort = port,
+                                    RelayName = lfs[2]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.LocalForward),
+                                    $"Invalid -L expression: {lf}; {e.Message}");
+                            }
                         }
                         else
                         {
@@ -512,59 +635,86 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             if (commandLineSettings.RemoteForward != null)
             {
-                foreach (var lf in commandLineSettings.RemoteForward)
+                foreach (var rf in commandLineSettings.RemoteForward)
                 {
-                    string[] lfs = lf.Split(':');
-                    if (lfs.Length == 1 || lfs.Length > 3)
+                    string[] rfs = rf.Split(':');
+                    if (rfs.Length == 1 || rfs.Length > 3)
                     {
                         throw BridgeEventSource.Log.ArgumentOutOfRange(
                             nameof(commandLineSettings.RemoteForward),
-                                $"Invalid -R expression: {lf}",
+                                $"Invalid -R expression: {rf}",
                                 config);
                     }
-                    else if (lfs.Length == 2)
+                    else if (rfs.Length == 2)
                     {
                         // this is either -R relay_name:port or -L relay_name:local_socket
-                        if (int.TryParse(lfs[1], out var port))
+                        if (int.TryParse(rfs[1], out var port))
                         {
-                            // port
-                            // local_socket
-                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            try
                             {
-                                Host = "localhost",
-                                HostPort = port,
-                                RelayName = lfs[0]
-                            });
+                                // port
+                                // local_socket
+                                config.RemoteForward.Add(new Configuration.RemoteForward
+                                {
+                                    Host = "localhost",
+                                    HostPort = port,
+                                    RelayName = rfs[0]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.RemoteForward),
+                                    $"Invalid -R expression: {rf}; {e.Message}");
+                            }
                         }
                         else
                         {
-                            // local_socket
-                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            try
                             {
-                                LocalSocket = lfs[1],
-                                RelayName = lfs[0]
-                            });
+                                // local_socket
+                                config.RemoteForward.Add(new Configuration.RemoteForward
+                                {
+                                    LocalSocket = rfs[1],
+                                    RelayName = rfs[0]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.RemoteForward),
+                                    $"Invalid -R expression: {rf}; {e.Message}");
+                            }
                         }
                     }
                     else
                     {
                         // this is -L relay_name:host:port
-                        if (int.TryParse(lfs[2], out var port))
+                        if (int.TryParse(rfs[2], out var port))
                         {
-                            // port
-                            // local_socket
-                            config.RemoteForward.Add(new Configuration.RemoteForward
+                            try
                             {
-                                Host = lfs[1],
-                                HostPort = port,
-                                RelayName = lfs[0]
-                            });
+                                // port
+                                // local_socket
+                                config.RemoteForward.Add(new Configuration.RemoteForward
+                                {
+                                    Host = rfs[1],
+                                    HostPort = port,
+                                    RelayName = rfs[0]
+                                });
+                            }
+                            catch (ArgumentOutOfRangeException e)
+                            {
+                                throw new ArgumentOutOfRangeException(
+                                    nameof(commandLineSettings.RemoteForward),
+                                    $"Invalid -R expression: {rf}; {e.Message}");
+                            }
                         }
                         else
                         {
                             throw BridgeEventSource.Log.ArgumentOutOfRange(
                                 nameof(commandLineSettings.RemoteForward),
-                                $"Invalid -R 'port' expression: {lfs[2]}",
+                                $"Invalid -R 'port' expression: {rfs[2]}",
                                 config);
                         }
                     }
@@ -583,9 +733,16 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             Config savedConfig = null;
             if (merge && File.Exists(configFileName))
             {
-                using (var reader = new StreamReader(configFileName))
+                try
                 {
-                    savedConfig = yamlDeserializer.Deserialize<Config>(reader);
+                    using (var reader = new StreamReader(configFileName))
+                    {
+                        savedConfig = yamlDeserializer.Deserialize<Config>(reader);
+                    }
+                }
+                catch (YamlException e)
+                {
+                    throw MapYamlException(configFileName, e);
                 }
                 savedConfig.Merge(this);
             }
@@ -679,28 +836,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     }
                     catch (YamlException e)
                     {
-                        if (e.InnerException is SerializationException)
-                        {
-                            var msg = e.InnerException?.Message;
-                            if (!string.IsNullOrWhiteSpace(msg))
-                            {
-                                var propNotFound = new Regex("Property '([^']+)' not found");
-                                var matchPropNotFound = propNotFound.Match(msg);
-                                if (matchPropNotFound.Success && matchPropNotFound.Groups.Count > 1)
-                                {
-                                    msg = $"Unknown configuration attribute: {matchPropNotFound.Groups[1].Value}";
-                                }
-                            }
-
-                            throw BridgeEventSource.Log.ThrowingException(new ConfigException(fileName, msg, e));
-                        }
-                        if (e.InnerException is TargetInvocationException)
-                        {
-                            throw BridgeEventSource.Log.ThrowingException(new ConfigException(
-                                fileName, e.InnerException.InnerException?.Message, e));
-                        }
-                        throw BridgeEventSource.Log.ThrowingException(new ConfigException(
-                            fileName, e.InnerException?.Message, e));
+                        throw MapYamlException(fileName, e);
                     }
                 }
             }
@@ -708,6 +844,47 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 return new Config();
             }
+        }
+
+        static Exception MapYamlException(string fileName, YamlException e)
+        {
+            if (e.InnerException is SerializationException)
+            {
+                var msg = e.InnerException?.Message;
+                if (!string.IsNullOrWhiteSpace(msg))
+                {
+                    var propNotFound = new Regex("Property '([^']+)' not found");
+                    var matchPropNotFound = propNotFound.Match(msg);
+                    if (matchPropNotFound.Success && matchPropNotFound.Groups.Count > 1)
+                    {
+                        msg = $"Unknown configuration attribute: {matchPropNotFound.Groups[1].Value}";
+                    }
+                }
+
+                return BridgeEventSource.Log.ThrowingException(new ConfigException(fileName, msg, e));
+            }
+
+            if (e.InnerException is TargetInvocationException)
+            {
+                return BridgeEventSource.Log.ThrowingException(new ConfigException(
+                    fileName, e.InnerException.InnerException?.Message, e));
+            }
+
+            if (fileName != null)
+            {
+                using (var sr = new StreamReader(File.OpenRead(fileName)))
+                {
+                    string line = null;
+                    for (int i = 0; i < e.Start.Line; i++)
+                    {
+                        line = sr.ReadLine();
+                    }
+                    return BridgeEventSource.Log.ThrowingException(new ConfigException(
+                        fileName, $"Invalid value at {e.Start.Line}, {e.Start.Column}: {line} (message: {e.InnerException?.Message})", e));
+                }
+            }
+            return BridgeEventSource.Log.ThrowingException(new ConfigException(
+                fileName, e.InnerException?.Message, e));
         }
 
         static Deserializer yamlDeserializer =
@@ -723,6 +900,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         private string bindAddress;
         private string addressFamily;
         private string logLevel;
+        private int? connectionAttempts;
+        private int? connectTimeout;
 
         protected virtual void Dispose(bool disposing)
         {

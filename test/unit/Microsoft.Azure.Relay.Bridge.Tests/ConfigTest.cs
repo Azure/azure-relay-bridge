@@ -2,6 +2,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
     using System.Configuration;
+    using System.Globalization;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -16,6 +17,11 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         public ConfigTest(LaunchSettingsFixture launchSettingsFixture)
         {
             this.launchSettingsFixture = launchSettingsFixture;
+            // before we localize, make sure we have all the error
+            // messages in en-us. Mirroring Program.cs
+            CultureInfo.CurrentUICulture =
+                    CultureInfo.DefaultThreadCurrentUICulture =
+                    CultureInfo.GetCultureInfoByIetfLanguageTag("en-us");
         }
 
         string CreateMaxCommandLine()
@@ -147,6 +153,114 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     });
             });
             Assert.Contains("-b", ex.Message);
+
+            var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-b", "1.1.1.1" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-b", ex1.Message);
+
+            var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-b", "bing.com" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-b", ex2.Message);
+        }
+
+        [Fact]
+        public void CommandLineBadLocalForwardTest()
+        {
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                CommandLineSettings.Run(new string[] { "-L", "70000:foobar" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-L", ex.Message);
+            Assert.Contains("BindPort", ex.Message);
+
+            var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-L", "80:foo^^^bar" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-L", ex1.Message);
+            Assert.Contains("RelayName", ex1.Message);
+
+            var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-L", "1.1.1.1:80:foobar" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-L", ex2.Message);
+            Assert.Contains("BindAddress", ex2.Message);
+        }
+
+        [Fact]
+        public void CommandLineBadRemoteForwardTest()
+        {
+            var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                CommandLineSettings.Run(new string[] { "-R", "foobar:70000" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-R", ex.Message);
+            Assert.Contains("HostPort", ex.Message);
+
+            var ex1 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-R", "foo^^^bar:80" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-R", ex1.Message);
+            Assert.Contains("RelayName", ex1.Message);
+
+            var ex2 = Assert.Throws<ArgumentOutOfRangeException>(() =>
+            {
+                // public IP address that isn't "here" and thus can't be bound
+                CommandLineSettings.Run(new string[] { "-R", "foobar:foo^^^bar:80" },
+                    (settings) =>
+                    {
+                        Config.LoadConfig(settings);
+                        return 0;
+                    });
+            });
+            Assert.Contains("-R", ex2.Message);
+            Assert.Contains("Host", ex2.Message);
         }
 
         [Fact]
@@ -300,6 +414,144 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
+        [Fact]
+        public void ConfigBadConnectionAttemptsTest()
+        {
+            string myFile = Path.GetTempFileName();
+            const string optionName = "ConnectionAttempts";
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : ssjs^^^hjs" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : -1" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : 11" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+        }
+
+
+        [Fact]
+        public void ConfigBadConnectTimeoutTest()
+        {
+            string myFile = Path.GetTempFileName();
+            const string optionName = "ConnectTimeout";
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : ssjs^^^hjs" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : -1" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+
+            try
+            {
+                using (var myFileStream = File.OpenWrite(myFile))
+                {
+                    using (var textWriter = new StreamWriter(myFileStream, Encoding.UTF8))
+                    {
+                        textWriter.Write($"{optionName} : 121" + textWriter.NewLine);
+                    }
+                }
+
+                var ex = Assert.Throws<ConfigException>(() =>
+                {
+                    Config.LoadConfigFile(myFile);
+                });
+                Assert.Contains(optionName, ex.Message);
+            }
+            finally
+            {
+                File.Delete(myFile);
+            }
+        }
         private static void CheckMaxCommandLine(Config config)
         {
             Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=abcdefgh;", config.AzureRelayConnectionString);

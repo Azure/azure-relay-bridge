@@ -15,6 +15,7 @@ namespace azbridge
     using System.Diagnostics.Tracing;
 #endif
     using System.Collections.Generic;
+    using System.Globalization;
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Extensions.Logging;
 
@@ -24,6 +25,12 @@ namespace azbridge
 
         static void Main(string[] args)
         {
+            // before we localize, make sure we have all the error
+            // messages in en-us
+            CultureInfo.CurrentUICulture =
+                CultureInfo.DefaultThreadCurrentUICulture =
+                    CultureInfo.GetCultureInfoByIetfLanguageTag("en-us");
+
             try
             { 
                 CommandLineSettings.Run(args, (c) => Run(c, args));

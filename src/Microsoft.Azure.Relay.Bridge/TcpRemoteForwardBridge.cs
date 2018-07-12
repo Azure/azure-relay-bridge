@@ -4,16 +4,22 @@
 namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Net.NetworkInformation;
     using System.Net.Sockets;
     using System.Security;
     using System.Threading;
     using System.Threading.Tasks;
+    using Configuration;
     using Microsoft.Azure.Relay;
     using Microsoft.Win32;
 
     sealed class TcpRemoteForwardBridge : IDisposable
     {
+        private readonly Config config;
         readonly RelayConnectionStringBuilder connectionString;
         static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
         readonly int targetPort;
@@ -21,9 +27,11 @@ namespace Microsoft.Azure.Relay.Bridge
         HybridConnectionListener listener;
         CancellationTokenSource shuttingDown = new CancellationTokenSource();
         EventTraceActivity activity = BridgeEventSource.NewActivity("RemoteForwardBridge");
+        static Random rnd = new Random();
 
-        internal TcpRemoteForwardBridge(RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
+        internal TcpRemoteForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string targetServer, int targetPort)
         {
+            this.config = config;
             this.connectionString = connectionString;
             this.targetServer = targetServer;
             this.targetPort = targetPort;
@@ -128,6 +136,27 @@ namespace Microsoft.Azure.Relay.Bridge
                         client.NoDelay = true;
                         client.SendBufferSize = client.ReceiveBufferSize = 65536;
                         client.SendTimeout = 60000;
+                        if (config.BindAddress != null)
+                        {
+                            var computerProperties = IPGlobalProperties.GetIPGlobalProperties();
+                            var unicastAddresses = computerProperties.GetUnicastAddresses();
+                            IList<IPAddress> ipAddresses = null;
+
+                            ipAddresses = IPAddress.TryParse(config.BindAddress, out var ipAddress)
+                                ? new[] { ipAddress }
+                                : Dns.GetHostEntry(config.BindAddress).AddressList;
+
+                            List<IPAddress> eligibleAddresses = new List<IPAddress>();
+                            eligibleAddresses.AddRange(from hostAddress in ipAddresses
+                                where IPAddress.IsLoopback(hostAddress)
+                                select hostAddress);
+                            eligibleAddresses.AddRange(from unicastAddress in unicastAddresses
+                                join hostAddress in ipAddresses on unicastAddress.Address equals hostAddress
+                                where !IPAddress.IsLoopback(hostAddress)
+                                select hostAddress);
+                            // pick one of those eligible endpoints
+                            client.Client.Bind( new IPEndPoint(eligibleAddresses[rnd.Next(eligibleAddresses.Count)],0));
+                        }
                         await client.ConnectAsync(targetServer, targetPort);
                         var tcpstream = client.GetStream();
 

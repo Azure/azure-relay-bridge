@@ -3,6 +3,8 @@
 
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
+    using System;
+    using System.Text.RegularExpressions;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
@@ -10,6 +12,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     public class RemoteForward
     {
         private RelayConnectionStringBuilder relayConnectionStringBuilder;
+        private string relayName;
+        private string host;
+        private int hostPort;
+        private string localSocket;
 
         public RemoteForward()
         {
@@ -25,7 +31,21 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string ConnectionString
         {
             get { return relayConnectionStringBuilder?.ToString(); }
-            set { relayConnectionStringBuilder = value != null ? new RelayConnectionStringBuilder(value) : new RelayConnectionStringBuilder(); }
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                try
+                {
+                    relayConnectionStringBuilder = ((val != null) ? new RelayConnectionStringBuilder(val) : new RelayConnectionStringBuilder());
+                }
+                catch (ArgumentException e)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(ConnectionString),
+                        string.Format(Strings.MsgConfigInvalidConnectionStringValue, e.Message, val),
+                        this);
+                }
+            }
         }
 
         internal RelayConnectionStringBuilder RelayConnectionStringBuilder
@@ -33,12 +53,73 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             get { return relayConnectionStringBuilder; }
         }
 
-        public string Host { get; set; }
+        public string Host
+        {
+            get => host;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(Host),
+                        $"Invalid Host value: {val}. Must be a valid host name",
+                        this);
+                }
+                host = val;
+            }
+        }
 
-        public int HostPort { get; set; }
+        public int HostPort
+        {
+            get => hostPort;
+            set
+            {
+                if (value < 0 || value > 65535)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(HostPort),
+                        $"Invalid HostPort value: {value}. Must be in the IP port range 0..65535.",
+                        this);
+                }
+                hostPort = value;
+            }
+        }
 
-        public string RelayName { get; set; }
+        public string RelayName
+        {
+            get => relayName;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (val != null &&
+                    !new Regex("^[A-Za-z_-]+$").Match(val).Success)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(RelayName),
+                        $"Invalid RelayName value: {val}. Must be a valid relay name expression",
+                        this);
+                }
+                relayName = val;
+            }
+        }
 
-        public string LocalSocket { get; set; }
+        public string LocalSocket
+        {
+            get => localSocket;
+            set
+            {
+                var val = value != null ? value.Trim('\'', '\"') : value;
+                if (val != null &&
+                    !new Regex("^[A-Za-z_-]+$").Match(val).Success)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        nameof(LocalSocket),
+                        $"Invalid LocalSocket value: {val}. Must be a valid local socket expression",
+                        this);
+                }
+                localSocket = val;
+            }
+        }
     }
 }

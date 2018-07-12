@@ -86,5 +86,14 @@ namespace Microsoft.Azure.Relay.Bridge {
                 return ResourceManager.GetString("MsgConfigInvalidAzureRelayEndpointValue", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid -x/ConnectionString value. {0}: {1}..
+        /// </summary>
+        internal static string MsgConfigInvalidConnectionStringValue {
+            get {
+                return ResourceManager.GetString("MsgConfigInvalidConnectionStringValue", resourceCulture);
+            }
+        }
     }
 }

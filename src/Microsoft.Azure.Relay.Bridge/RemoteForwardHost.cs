@@ -100,7 +100,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 try
                 {
-                    tcpRemoteForwardBridge = new TcpRemoteForwardBridge(rcbs,
+                    tcpRemoteForwardBridge = new TcpRemoteForwardBridge(config, rcbs,
                         remoteForward.Host, remoteForward.HostPort);
                     tcpRemoteForwardBridge.Online += (s, e) =>
                     {
