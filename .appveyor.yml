@@ -21,3 +21,9 @@ test: 'auto'
 image: 
   - Visual Studio 2017
   - Ubuntu
+artifacts:
+  - path: 'artifacts\build\**\*.tar.gz'
+  - path: 'artifacts\build\**\*.zip'
+  - path: 'artifacts\build\**\*.deb'
+  - path: 'artifacts\build\**\*.rpm'
+  - path: 'artifacts\build\**\*.msi'
