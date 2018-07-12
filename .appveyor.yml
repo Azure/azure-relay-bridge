@@ -11,7 +11,7 @@ build_script:
 - sh: ./package.sh
 clone_depth: 1
 environment:
-  BUILD_NUMBER : '{build}'
+  BUILDNUMBER : '{build}'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   AZBRIDGE_TEST_CXNSTRING:
