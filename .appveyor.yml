@@ -1,4 +1,4 @@
-version: '{build}'
+version: {build}
 init:
 - git config --global core.autocrlf true
 branches:
@@ -11,7 +11,6 @@ build_script:
 - sh: ./package.sh
 clone_depth: 1
 environment:
-  BUILDNUMBER : '{build}'
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   AZBRIDGE_TEST_CXNSTRING:
