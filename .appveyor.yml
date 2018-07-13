@@ -15,10 +15,16 @@ environment:
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
   AZBRIDGE_TEST_CXNSTRING:
     secure: DLwQwbX0CCtVlezqK0rPcIgnxFofTos/c3UMLTGSIWdHFwO9YHIU8a6fbxVaH5sFP+MS/ELLP66C4KVY8KwAf2EkF5ZgNm8624d1ERwN6xNCQbIVprzXw0TfgWRdIp76/07R1BnGZ/+lawAieosU9v/r6L8ibaoWB3f+mfOAgAz+dkm+azytP9A3NgrbKhr6LiRirVTrzz4+JgVDrwTgKA==
+  DOCKER_USER:
+    secure: hNy9HBcjNhhWaM96cjKZYw==
+  DOCKER_PASS:
+    secure: gMshhMI/3eiFO2D7A59gpkzwpyuuyRG1lEga3a5p1xM=
 deploy: 'off'
 test_script:
-  cmd: .\verify_build.cmd
-  sh: .\verify_build.sh
+  - cmd: docker login -u="%DOCKER_USER%" -p="%DOCKER_PASS%"
+  - cmd: .\verify-build.cmd
+  - sh: docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+  - sh: ./verify-build.sh
 image: 
   - Visual Studio 2017
   - Ubuntu
