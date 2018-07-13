@@ -1,9 +1,7 @@
 ﻿<Project>
   <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
-    <ReleaseSuffix>preview</ReleaseSuffix>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
-    <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' != 'rtm' ">$(VersionPrefix)-$(ReleaseSuffix)-final</PackageVersion>
-    <VersionSuffix Condition="'$(ReleaseSuffix)' != ''">$(ReleaseSuffix)</VersionSuffix>
+    <BuildNumber></BuildNumber>
+    <VersionSuffix>preview</VersionSuffix>
   </PropertyGroup>
 </Project>
