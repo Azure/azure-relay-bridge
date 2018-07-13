@@ -16,7 +16,9 @@ environment:
   AZBRIDGE_TEST_CXNSTRING:
     secure: DLwQwbX0CCtVlezqK0rPcIgnxFofTos/c3UMLTGSIWdHFwO9YHIU8a6fbxVaH5sFP+MS/ELLP66C4KVY8KwAf2EkF5ZgNm8624d1ERwN6xNCQbIVprzXw0TfgWRdIp76/07R1BnGZ/+lawAieosU9v/r6L8ibaoWB3f+mfOAgAz+dkm+azytP9A3NgrbKhr6LiRirVTrzz4+JgVDrwTgKA==
 deploy: 'off'
-test: 'auto'
+test_script:
+  cmd: .\verify_build.cmd
+  sh: .\verify_build.sh
 image: 
   - Visual Studio 2017
   - Ubuntu

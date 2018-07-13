@@ -4,9 +4,6 @@
     <ReleaseSuffix>preview</ReleaseSuffix>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' == 'rtm' ">$(VersionPrefix)</PackageVersion>
     <PackageVersion Condition="'$(IsFinalBuild)' == 'true' AND '$(ReleaseSuffix)' != 'rtm' ">$(VersionPrefix)-$(ReleaseSuffix)-final</PackageVersion>
-    <BuildNumber Condition="'$(BuildNumber)' == ''"></BuildNumber>
-    <VersionSuffix Condition="'$(ReleaseSuffix)' != '' And '$(BuildNumber)' == ''">$(ReleaseSuffix)</VersionSuffix>
-    <VersionSuffix Condition="'$(ReleaseSuffix)' != '' And '$(BuildNumber)' != ''">$(ReleaseSuffix)-$(BuildNumber)</VersionSuffix>
-    <VersionSuffix Condition="'$(ReleaseSuffix)' == '' And '$(BuildNumber)' != ''">$(BuildNumber)</VersionSuffix>
+    <VersionSuffix Condition="'$(ReleaseSuffix)' != ''">$(ReleaseSuffix)</VersionSuffix>
   </PropertyGroup>
 </Project>

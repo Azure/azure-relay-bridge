@@ -3,5 +3,5 @@
 set -euo pipefail
 
 dotnet restore
-dotnet test $@
 dotnet msbuild $@
+dotnet test $@
