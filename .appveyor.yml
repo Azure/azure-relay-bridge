@@ -23,8 +23,8 @@ deploy: 'off'
 test_script:
   - cmd: docker login -u="%DOCKER_USER%" -p="%DOCKER_PASS%"
   - cmd: .\verify-build.cmd
-#  - sh: docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
-#  - sh: ./verify-build.sh
+  - sh: docker login -u="$DOCKER_USER" -p="$DOCKER_PASS"
+  - sh: ./verify-build.sh
 image: 
   - Visual Studio 2017
   - Ubuntu

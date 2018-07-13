@@ -137,15 +137,18 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
-                foreach (var ch in val)
+                if (val != null)
                 {
-                    if (!char.IsLetterOrDigit(ch) &&
-                        ch != '-' && ch != '_')
+                    foreach (var ch in val)
                     {
-                        throw BridgeEventSource.Log.ArgumentOutOfRange(
-                            nameof(AzureRelaySharedAccessKeyName),
-                            $"Invalid -K/AzureRelaySharedAccessKeyName value {val}",
-                            this);
+                        if (!char.IsLetterOrDigit(ch) &&
+                            ch != '-' && ch != '_')
+                        {
+                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                nameof(AzureRelaySharedAccessKeyName),
+                                $"Invalid -K/AzureRelaySharedAccessKeyName value {val}",
+                                this);
+                        }
                     }
                 }
                 RelayConnectionStringBuilder.SharedAccessKeyName = val;
@@ -163,7 +166,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 var val = value != null ? value.Trim('\'', '\"') : value;
                 try
                 {
-                    Convert.FromBase64String(val);
+                    if (val != null)
+                    {
+                        Convert.FromBase64String(val);
+                    }
                     RelayConnectionStringBuilder.SharedAccessKey = val;
                 }
                 catch (FormatException e)
