@@ -5,7 +5,7 @@ branches:
   only:
   - master
   - /^v\d+\.\d+\.\d+.*$/
-  build_script:
+build_script:
 - cmd: .\package.cmd
 - sh: ./package.sh
 clone_depth: 1
