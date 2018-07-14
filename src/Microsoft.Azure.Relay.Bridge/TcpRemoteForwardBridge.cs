@@ -160,12 +160,13 @@ namespace Microsoft.Azure.Relay.Bridge
                         await client.ConnectAsync(targetServer, targetPort);
                         var tcpstream = client.GetStream();
 
+                        CancellationTokenSource socketAbort = new CancellationTokenSource();
                         await Task.WhenAll(
                             StreamPump.RunAsync(hybridConnectionStream, tcpstream,
-                                () => client.Client.Shutdown(SocketShutdown.Send), shuttingDown.Token)
-                                .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
-                            StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), shuttingDown.Token))
-                                .ContinueWith((t) => shuttingDown.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+                                () => client.Client.Shutdown(SocketShutdown.Send), socketAbort.Token)
+                                .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
+                            StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), socketAbort.Token))
+                                .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
 
 
                         using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
