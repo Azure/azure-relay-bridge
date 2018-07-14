@@ -19,7 +19,6 @@ environment:
     secure: hNy9HBcjNhhWaM96cjKZYw==
   DOCKER_PASS:
     secure: gMshhMI/3eiFO2D7A59gpkzwpyuuyRG1lEga3a5p1xM=
-deploy: 'off'
 test_script:
   - cmd: docker login -u="%DOCKER_USER%" -p="%DOCKER_PASS%"
   - cmd: .\verify-build.cmd
@@ -34,3 +33,14 @@ artifacts:
   - path: 'artifacts\build\**\*.deb'
   - path: 'artifacts\build\**\*.rpm'
   - path: 'artifacts\build\**\*.msi'
+deploy:
+  release: azbuild-v$(appveyor_build_version)
+  description: 'Azure Relay Bridge'
+  provider: GitHub
+  auth_token:
+    secure: y86dwXyXNSKbC78BtVOuwkdd3apz6wFaZvy42Sy56PtREJnLRV/KkBIkOK1iucSZ
+  draft: false
+  prerelease: true
+  on:
+    branch: master                 # release from master branch only
+    appveyor_repo_tag: true        # deploy on tag push only
