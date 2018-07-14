@@ -4,9 +4,8 @@ init:
 branches:
   only:
   - master
-  - /^release\/.*$/
-  - /^(.*\/)?ci-.*$/
-build_script:
+  - /^v\d+\.\d+\.\d+.*$/
+  build_script:
 - cmd: .\package.cmd
 - sh: ./package.sh
 clone_depth: 1
