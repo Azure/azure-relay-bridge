@@ -298,28 +298,28 @@ GatewayPorts : no
 LocalForward:
 
   # RDP to remote machine abcxyz
-  - bind_address: 127.0.10.1
-    hostname: abcxyz.intra-de.example.com
-    port: 3389
-    relay_name: abcxyz-rdp
+  - BindAddress: 127.0.10.1
+    HostName: abcxyz.intra-de.example.com
+    BindPort: 3389
+    RelayName: abcxyzrdp
 
 # SQL to remote machine abcxyz
-  - bind_address: 127.0.10.1
-    hostname: abcxyz.intra-de.example.com
-    port: 1433
-    relay_name: abcxyz-sql
+  - BindAddress: 127.0.10.1
+    HostName: abcxyz.intra-de.example.com
+    BindPort: 1433
+    RelayName: abcxyzsql
 
   # RDP to remote machine defijk
-  - bind_address: 127.0.10.2
-    hostname: defijk.intra-us.example.com
-    port: 3389
-    relay_name: defijk-rdp
+  - BindAddress: 127.0.10.2
+    HostName: defijk.intra-us.example.com
+    BindPort: 3389
+    RelayName: defijkrdp
   
   # RDP to remote machine ghiuvw
-  - bind_address: 127.0.10.3
-    hostname: ghiuvw.intra-jp.example.com
-    port: 3389
-    relay_name: ghiuvw-rdp 
+  - BindAddress: 127.0.10.3
+    HostName: ghiuvw.intra-jp.example.com
+    BindPort: 3389
+    RelayName: ghiuvwrdp 
 ```
 
 ## Example 2
@@ -334,8 +334,8 @@ GatewayPorts : no
 RemoteForward:
 
   # RDP to this machine abcxyz
-  - relay_name: abcxyz-rdp
-    hostport: 3389
+  - RelayName: abcxyzrdp
+    HostPort: 3389
 ```
 
 ## Example 3
@@ -349,13 +349,10 @@ on the remote network, but from a different computer.
 ---
 GatewayPorts : no
 RemoteForward:
-machine:
-
-
-  # RDP to remote machine defijk
-  - relay_name: defijk-rdp
-    host: defijk.intra-us.example.com
-    hostport: 3389
+# RDP to remote machine defijk
+  - RelayName: defijkrdp
+    Host: defijk.intra-us.example.com
+    HostPort: 3389
 ```
 
 ## Example 4
@@ -369,10 +366,10 @@ GatewayPorts : true
 LocalForward:
 
   # SQL to remote machine abcxyz
-  - bind_address: 10.10.100.2
-    hostname: abcxyz.intra-de.example.com
-    port: 1433
-    relay_name: abcxyz-sql
+  - BindAddress: 10.10.100.2
+    HostName: abcxyz.intra-de.example.com
+    BindPort: 1433
+    RelayName: abcxyzsql
 ```
 
 
