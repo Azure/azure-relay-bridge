@@ -1,4 +1,6 @@
-FROM microsoft/dotnet-framework:4.6.2 AS build
+# escape=`
+
+FROM microsoft/windowsservercore:ltsc2016 AS build
 ARG msi_package
-COPY .\tmp\$msi_package c:\tmp
-RUN msiexec.exe /i  c:\tmp\$msi_package /qn
+ADD ${msi_package} .
+RUN msiexec.exe /qn /i %msi_package%
