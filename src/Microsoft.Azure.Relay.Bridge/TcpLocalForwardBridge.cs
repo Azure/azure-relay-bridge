@@ -21,6 +21,7 @@ namespace Microsoft.Azure.Relay.Bridge
         Task<Task> acceptSocketLoop;
 
         TcpListener tcpListener;
+        string localEndpoint;
 
         public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString)
         {
@@ -46,7 +47,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Close()
         {
-            BridgeEventSource.Log.LocalForwardListenerStopping(listenerActivity, tcpListener);
+            BridgeEventSource.Log.LocalForwardListenerStopping(listenerActivity, localEndpoint);
 
             try
             {
@@ -62,9 +63,8 @@ namespace Microsoft.Azure.Relay.Bridge
             catch (Exception ex)
             {
                 BridgeEventSource.Log.LocalForwardListenerStoppingFailed(listenerActivity, ex);
-                throw;
             }
-            BridgeEventSource.Log.LocalForwardListenerStop(listenerActivity, tcpListener);
+            BridgeEventSource.Log.LocalForwardListenerStop(listenerActivity, localEndpoint);
         }
 
         public void Dispose()
@@ -72,13 +72,15 @@ namespace Microsoft.Azure.Relay.Bridge
             this.Close();
         }
 
-        public IPEndPoint GetIpEndPoint()
+        public string GetIpEndPointInfo()
         {
-            return this.tcpListener?.LocalEndpoint as IPEndPoint;
+            return localEndpoint;
         }
 
         public void Run(IPEndPoint listenEndpoint)
         {
+            this.localEndpoint = listenEndpoint.ToString();
+
             if (this.IsOpen)
             {
                 throw BridgeEventSource.Log.ThrowingException(new InvalidOperationException(), this);
@@ -106,11 +108,22 @@ namespace Microsoft.Azure.Relay.Bridge
 
         async Task AcceptSocketLoopAsync()
         {
+
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
                 var socketActivity = BridgeEventSource.NewActivity("LocalForwardSocket");
-                var socket = await this.tcpListener.AcceptTcpClientAsync();
-                var endpointInfo = socket.Client.LocalEndPoint.ToString();
+                TcpClient socket;
+
+                try
+                {
+                    socket = await this.tcpListener.AcceptTcpClientAsync();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // occurs on shutdown and signals that we need to exit
+                    return;
+                }
+
                 BridgeEventSource.Log.LocalForwardSocketAccepted(socketActivity, socket);
 
                 this.LastAttempt = DateTime.Now;
@@ -120,7 +133,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     {
                         if (t.Exception != null)
                         {
-                            BridgeEventSource.Log.LocalForwardSocketError(socketActivity, endpointInfo, t.Exception);
+                            BridgeEventSource.Log.LocalForwardSocketError(socketActivity, localEndpoint, t.Exception);
                         }
                         socket.Dispose();
                     }, TaskContinuationOptions.OnlyOnFaulted)
@@ -129,9 +142,9 @@ namespace Microsoft.Azure.Relay.Bridge
 
                         try
                         {
-                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, endpointInfo);
+                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, localEndpoint);
                             socket.Close();
-                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, endpointInfo);
+                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, localEndpoint);
                         }
                         catch (Exception e)
                         {
@@ -139,7 +152,7 @@ namespace Microsoft.Azure.Relay.Bridge
                             {
                                 throw;
                             }
-                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, endpointInfo, e);
+                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, localEndpoint, e);
                             socket.Dispose();
                         }
                     }, TaskContinuationOptions.OnlyOnRanToCompletion)
@@ -164,7 +177,6 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 tcpClient.SendBufferSize = tcpClient.ReceiveBufferSize = 65536;
                 tcpClient.SendTimeout = 60000;
-                var endpointInfo = tcpClient.Client.LocalEndPoint.ToString();
                 var tcpstream = tcpClient.GetStream();
                 var socket = tcpClient.Client;
                 
@@ -210,7 +222,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         throw;
                     }
                 }
-                BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, endpointInfo, HybridConnectionClient);
+                BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, localEndpoint, HybridConnectionClient);
             }
             catch (Exception e)
             {

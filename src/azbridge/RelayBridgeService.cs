@@ -5,7 +5,7 @@ namespace azbridge
     using System.Collections.Generic;
     using System.Diagnostics;
 #if USE_MDT_EVENTSOURCE
-using Microsoft.Diagnostics.Tracing;
+    using Microsoft.Diagnostics.Tracing;
 #else
     using System.Diagnostics.Tracing;
 #endif
@@ -46,13 +46,49 @@ using Microsoft.Diagnostics.Tracing;
                 settings.ConfigFile = svcConfigFileName;
             }
             Config config = Config.LoadConfig(settings);
-            var loggerFactory = new LoggerFactory();
+
+            LogLevel logLevel = LogLevel.Error;
             if (!settings.Quiet.HasValue || !settings.Quiet.Value)
             {
-                // add file logging support here
-                // loggerFactory.AddFile();
+                if (config.LogLevel != null)
+                {
+                    switch (config.LogLevel.ToUpper())
+                    {
+                        case "QUIET":
+                            logLevel = LogLevel.None;
+                            break;
+                        case "FATAL":
+                            logLevel = LogLevel.Critical;
+                            break;
+                        case "ERROR":
+                            logLevel = LogLevel.Error;
+                            break;
+                        case "INFO":
+                            logLevel = LogLevel.Information;
+                            break;
+                        case "VERBOSE":
+                            logLevel = LogLevel.Trace;
+                            break;
+                        case "DEBUG":
+                        case "DEBUG1":
+                        case "DEBUG2":
+                        case "DEBUG3":
+                            logLevel = LogLevel.Debug;
+                            break;
+                    }
+                }                                                                     
             }
-            logger = loggerFactory.CreateLogger("azbridgesvc");
+            else
+            {
+                logLevel = LogLevel.None;
+            }
+            var loggerFactory = new LoggerFactory();          
+            if ( !string.IsNullOrEmpty(config.LogFileName) )
+            {
+                loggerFactory.AddFile(config.LogFileName, logLevel);
+            }                                      
+            logger = loggerFactory.CreateLogger("azbridge");
+            
             DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
                 
             host = new Host(config);

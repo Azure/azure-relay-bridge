@@ -44,7 +44,7 @@
       <PropertyGroup>
         <DefineConstants>$(DefineConstants);USE_MDT_EVENTSOURCE</DefineConstants>
       </PropertyGroup>
-    </When>
+    </When>    
   </Choose>
 
   <Target Name="IncludeEtwManifest" Condition="'$(TargetFramework)' == 'net462'">

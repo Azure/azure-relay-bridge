@@ -421,6 +421,18 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         }
 
         /// <summary>
+        ///  Log file name
+        /// </summary>
+        public string LogFileName
+        {
+            get => logFileName;
+            set
+            {
+                logFileName = value;
+            }
+        }
+
+        /// <summary>
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
@@ -466,7 +478,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 config.fileSystemWatchers.Add(fsw);
             }
 
-            if (commandLineSettings.ConfigFile == null)
+            if (string.IsNullOrEmpty(commandLineSettings.ConfigFile))
             {
                 string userConfigFileName =
                     (Environment.OSVersion.Platform == PlatformID.Unix) ?
@@ -520,6 +532,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 }
             }
 
+            if (!string.IsNullOrEmpty(commandLineSettings.LogFile))
+            {
+                config.LogFileName = commandLineSettings.LogFile;
+            }
             if (commandLineSettings.Verbose.HasValue && commandLineSettings.Verbose.Value)
             {
                 config.LogLevel = "VERBOSE";
@@ -915,6 +931,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         private string logLevel;
         private int? connectionAttempts;
         private int? connectTimeout;
+        private string logFileName;
 
         protected virtual void Dispose(bool disposing)
         {

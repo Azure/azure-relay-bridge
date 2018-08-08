@@ -28,6 +28,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public Uri EndpointUri { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "f", Description = "Configuration file")]
         public string ConfigFile { get; set; }
+        [Option(CommandOptionType.SingleValue, ShortName = "l", Description = "Log file")]
+        public string LogFile { get; set; }
         [Option(CommandOptionType.NoValue, ShortName = "g", Description = "Allows remote hosts to connect to local forwarded ports")]
         public bool? GatewayPorts { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "K", Description = "Azure Relay shared access policy name")]

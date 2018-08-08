@@ -3,7 +3,7 @@
   <PropertyGroup>
     <WindowsOnly>false</WindowsOnly>
     <WindowsFrameworks Condition="'$(OS)'=='Windows_NT'">net462;</WindowsFrameworks>
-    <CoreFrameworks Condition="'$(WindowsOnly)'!='true'" >netcoreapp2.1</CoreFrameworks>
+    <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp2.1</CoreFrameworks>
     <TargetFrameworks>$(WindowsFrameworks)$(CoreFrameworks)</TargetFrameworks>
     <WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win7-x64;win7-x86;win10-x64;win10-x86;</WindowsRuntimeIdentifiers>
     <UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;debian.8-x64;ubuntu.16.10-x64;ubuntu.16.04-x64;opensuse-x64;ol-x64;rhel-x64;fedora-x64;centos-x64</UnixRuntimeIdentifiers>
@@ -34,10 +34,10 @@
     <Content Include="azbridge_config.machine.yml" CopyToOutputDirectory="PreserveNewest">
       <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
     </Content>
-    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
-    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
-    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))"/>
-    <Content Include="../tools/bash/hostnames.sh" CopyToOutputDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="../tools/bash/hostnames.sh" CopyToOutputDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
   </ItemGroup>
 
   <Choose>
@@ -103,35 +103,35 @@
 
   <!-- Fedora, CentOS, and RHEL dependencies -->
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora'))">
-    <RpmDependency Include="libstdc++" Version=""/>
-    <RpmDependency Include="libunwind" Version=""/>
-    <RpmDependency Include="libicu" Version=""/>
-    <RpmDependency Include="compat-openssl10" Version=""/>
+    <RpmDependency Include="libstdc++" Version="" />
+    <RpmDependency Include="libunwind" Version="" />
+    <RpmDependency Include="libicu" Version="" />
+    <RpmDependency Include="compat-openssl10" Version="" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('centos'))">
     <!-- <RpmDependency Include="lttng-ust" Version=""/> -->
-    <RpmDependency Include="libcurl" Version=""/>
-    <RpmDependency Include="openssl-libs" Version=""/>
-    <RpmDependency Include="krb5-libs" Version=""/>
-    <RpmDependency Include="libicu" Version=""/>
-    <RpmDependency Include="zlib" Version=""/>
-    <RpmDependency Include="libunwind" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'"/>
-    <RpmDependency Include="libuuid" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'"/>    
+    <RpmDependency Include="libcurl" Version="" />
+    <RpmDependency Include="openssl-libs" Version="" />
+    <RpmDependency Include="krb5-libs" Version="" />
+    <RpmDependency Include="libicu" Version="" />
+    <RpmDependency Include="zlib" Version="" />
+    <RpmDependency Include="libunwind" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
+    <RpmDependency Include="libuuid" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />    
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
     <!-- <DebDependency Include="lttng-ust" Version=""/> -->
-    <DebDependency Include="libcurl3" Version=""/>
-    <DebDependency Include="libssl1.0.0" Version=""/>
-    <DebDependency Include="libkrb5-3" Version=""/>
-    <DebDependency Include="zlib1g" Version=""/>
+    <DebDependency Include="libcurl3" Version="" />
+    <DebDependency Include="libssl1.0.0" Version="" />
+    <DebDependency Include="libkrb5-3" Version="" />
+    <DebDependency Include="zlib1g" Version="" />
     <DebDependency Include="libicu52" Version="" Condition="'$(RuntimeIdentifier)'=='debian.8' OR '$(RuntimeIdentifier)'=='ubuntu.14'" />
     <DebDependency Include="libicu55" Version="" Condition="'$(RuntimeIdentifier)'=='ubuntu.16'" />
     <DebDependency Include="libicu57" Version="" Condition="'$(RuntimeIdentifier)'=='debian.9' OR '$(RuntimeIdentifier)'=='ubuntu.17' OR '$(RuntimeIdentifier)'=='linuxmint.17'" />
     <DebDependency Include="libicu60" Version="" Condition="'$(RuntimeIdentifier)'=='debian.10' OR '$(RuntimeIdentifier)'=='ubuntu.18' OR '$(RuntimeIdentifier)'=='linuxmint.18'" />
-    <DebDependency Include="libunwind8" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'"/>
-    <DebDependency Include="libuuid1" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'"/>    
+    <DebDependency Include="libunwind8" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
+    <DebDependency Include="libuuid1" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />    
   </ItemGroup>
 
   <PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
@@ -142,9 +142,9 @@
       the addhost and removehost bash extensions.
       -->
       <PostInstallScript>
-        sudo /bin/echo #!/bin/bash > /etc/profile.d/azbridge.sh;
-        sudo /bin/echo export PATH="\$PATH:/usr/share/azbridge" >> /etc/profile.d/azbridge.sh;
-        sudo /bin/echo . /usr/share/azbridge/hostnames.sh >> /etc/profile.d/azbridge.sh;
+        sudo /bin/echo #!/bin/bash &gt; /etc/profile.d/azbridge.sh;
+        sudo /bin/echo export PATH="\$PATH:/usr/share/azbridge" &gt;&gt; /etc/profile.d/azbridge.sh;
+        sudo /bin/echo . /usr/share/azbridge/hostnames.sh &gt;&gt; /etc/profile.d/azbridge.sh;
         sudo chmod a+x /etc/profile.d/azbridge.sh;
         if [ ! -d "/etc/azbridge" ]; then sudo mkdir /etc/azbridge; fi
         if [ ! -f "/etc/azbridge/azbridge_config.machine.yml" ]; then 
@@ -188,16 +188,16 @@
   </Target>
 
   <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
-    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
+    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
-    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
+    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
-    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
+    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
-     <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
+     <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
      <PropertyGroup>
@@ -206,15 +206,15 @@
      </PropertyGroup>
      <Exec WorkingDirectory="../azbridge-installer" Command="restore.cmd" />
      <!-- MUST USE 32-bit for WiX -->
-     <Error Condition="'$(MSBuildToolsPath32)'==''" Text="MSBuildToolsPath32 is not set. MSI installers MUST be built with msbuild.exe and not with dotnet msbuild"/>
+     <Error Condition="'$(MSBuildToolsPath32)'==''" Text="MSBuildToolsPath32 is not set. MSI installers MUST be built with msbuild.exe and not with dotnet msbuild" />
      <Exec Command="&quot;$(MSBuildToolsPath32)\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
-     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)"/>
+     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
     
   </Target>
   <Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">
-    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high"/>
+    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high" />
   </Target>
 
   <Target Name="PublishProjectIfFrameworkAndRIDSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != ''  and '$(RuntimeIdentifier)' != ''" />

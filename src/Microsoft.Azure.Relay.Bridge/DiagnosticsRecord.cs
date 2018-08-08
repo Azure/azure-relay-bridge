@@ -5,10 +5,11 @@ namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
 #if USE_MDT_EVENTSOURCE
-using Microsoft.Diagnostics.Tracing;
+    using Microsoft.Diagnostics.Tracing;                  
 #else
     using System.Diagnostics.Tracing;
 #endif
+
     public class DiagnosticsRecord
     {
         public EventLevel Level { get; set; }

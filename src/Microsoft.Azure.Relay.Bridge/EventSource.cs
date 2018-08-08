@@ -7,7 +7,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using System.Linq;
     using System.Globalization;
 #if USE_MDT_EVENTSOURCE
-using Microsoft.Diagnostics.Tracing;
+    using Microsoft.Diagnostics.Tracing;
 #else
     using System.Diagnostics.Tracing;
 #endif
@@ -64,7 +64,7 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(ArgumentException)))
             {
-                diags.Write(nameof(ArgumentException), new DiagnosticsRecord { Level  = EventLevel.Error, Info = new { paramName, message, source } });
+                diags.Write(nameof(ArgumentException), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { paramName, message, source } });
             }
             return this.ThrowingException(new ArgumentException(message, paramName), source, level);
         }
@@ -100,7 +100,7 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(HandledExceptionAsError)))
             {
-                diags.Write(nameof(HandledExceptionAsError), new DiagnosticsRecord { Level  = EventLevel.Error, Info = new { source, exception } });
+                diags.Write(nameof(HandledExceptionAsError), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { source, exception } });
             }
             if (this.IsEnabled())
             {
@@ -128,7 +128,7 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(HandledExceptionAsWarning)))
             {
-                diags.Write(nameof(HandledExceptionAsWarning), new DiagnosticsRecord { Level  = EventLevel.Warning, Info = new { source, exception } });
+                diags.Write(nameof(HandledExceptionAsWarning), new DiagnosticsRecord { Level = EventLevel.Warning, Info = new { source, exception } });
             }
             if (this.IsEnabled())
             {
@@ -240,17 +240,17 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardHostStart)))
             {
-                diags.Write(nameof(RemoteForwardHostStart), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(RemoteForwardHostStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity });
             }
-            RemoteForwardHostStart(eventTraceActivity.Activity);
+            RemoteForwardHostStart();
         }
 
         [Event(100, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward, Message = "Remote forward host started")]
-        void RemoteForwardHostStart(Guid relatedActivityId)
+        void RemoteForwardHostStart()
         {
             if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(100, relatedActivityId);
+                this.WriteEvent(100);
             }
         }
 
@@ -259,17 +259,17 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardHostStop)))
             {
-                diags.Write(nameof(RemoteForwardHostStop), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(RemoteForwardHostStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity });
             }
-            RemoteForwardHostStop(eventTraceActivity.Activity);
+            RemoteForwardHostStop();
         }
 
         [Event(101, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward, Message = "Remote forward host stopped")]
-        void RemoteForwardHostStop(Guid relatedActivityId)
+        void RemoteForwardHostStop()
         {
             if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(101, relatedActivityId);
+                this.WriteEvent(101);
             }
         }
 
@@ -278,17 +278,18 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardHostStarting)))
             {
-                diags.Write(nameof(RemoteForwardHostStarting), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(RemoteForwardHostStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
             }
-            RemoteForwardHostStarting(eventTraceActivity.Activity);
+            RemoteForwardHostStarting();
         }
 
-        [Event(102, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward, Message = "Remote forward host is starting")]
-        void RemoteForwardHostStarting(Guid relatedActivityId)
+        [Event(102, Channel = EventChannel.Debug, Level = EventLevel.Verbose,
+               Keywords = Keywords.RemoteForward, Message = "Remote forward host is starting")]
+        void RemoteForwardHostStarting()
         {
             if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(102, relatedActivityId);
+                this.WriteEvent(102);
             }
         }
 
@@ -297,17 +298,18 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardHostStopping)))
             {
-                diags.Write(nameof(RemoteForwardHostStopping), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(RemoteForwardHostStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
             }
-            RemoteForwardHostStopping(eventTraceActivity.Activity);
+            RemoteForwardHostStopping();
         }
 
-        [Event(103, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward, Message = "Remote forward host is stopping")]
-        public void RemoteForwardHostStopping(Guid relatedActivityId)
+        [Event(103, Channel = EventChannel.Debug, Level = EventLevel.Verbose,
+               Keywords = Keywords.RemoteForward, Message = "Remote forward host is stopping")]
+        public void RemoteForwardHostStopping()
         {
             if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(103, relatedActivityId);
+                this.WriteEvent(103);
             }
         }
 
@@ -316,17 +318,21 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardHostStartFailure)))
             {
-                diags.Write(nameof(RemoteForwardHostStartFailure), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { exception } });
+                diags.Write(nameof(RemoteForwardHostStartFailure), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { exception } });
             }
-            RemoteForwardHostStartFailure(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            RemoteForwardHostStartFailure(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(104, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward, Message = "Remote forward host failed to start with exception {0}, message \"{1}\"")]
-        void RemoteForwardHostStartFailure(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(104,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward host failed to start with exception {0}, message \"{1}\"")]
+        void RemoteForwardHostStartFailure(string exceptionName, string exceptionMessage, string stackTrace)
         {
             if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(104, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
+                this.WriteEvent(104, exceptionName, exceptionMessage, stackTrace);
             }
         }
 
@@ -335,17 +341,21 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardConfigUpdating)))
             {
-                diags.Write(nameof(RemoteForwardConfigUpdating), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { configOld, configNew } });
+                diags.Write(nameof(RemoteForwardConfigUpdating), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { configOld, configNew } });
             }
-            RemoteForwardConfigUpdating(eventTraceActivity.Activity);
+            RemoteForwardConfigUpdating();
         }
 
-        [Event(105, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward, Message = "Remote forward host configuration is being updated")]
-        void RemoteForwardConfigUpdating(Guid relatedActivityId)
+        [Event(105,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward host configuration is being updated")]
+        void RemoteForwardConfigUpdating()
         {
             if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(105, relatedActivityId);
+                this.WriteEvent(105);
             }
         }
 
@@ -354,18 +364,22 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardConfigUpdated)))
             {
-                diags.Write(nameof(RemoteForwardConfigUpdated), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(RemoteForwardConfigUpdated), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
             }
-            RemoteForwardConfigUpdated(eventTraceActivity.Activity);
+            RemoteForwardConfigUpdated();
         }
 
 
-        [Event(106, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward, Message = "Remote forward host configuration has been updated")]
-        void RemoteForwardConfigUpdated(Guid relatedActivityId)
+        [Event(106,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward host configuration has been updated")]
+        void RemoteForwardConfigUpdated()
         {
             if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
             {
-                this.WriteEventWithRelatedActivityId(106, relatedActivityId);
+                this.WriteEvent(106);
             }
         }
 
@@ -374,19 +388,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardHostStart)))
             {
-                diags.Write(nameof(LocalForwardHostStart), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(LocalForwardHostStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity });
             }
 
-            LocalForwardHostStart(eventTraceActivity.Activity);
+            LocalForwardHostStart();
         }
 
-        [Event(110, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward host has been started")]
-        void LocalForwardHostStart(Guid relatedActivityId)
+        [Event(110,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward host has been started")]
+        void LocalForwardHostStart()
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(110, relatedActivityId);
-            }
+            this.WriteEvent(110);
         }
 
         [NonEvent]
@@ -394,18 +409,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardHostStop)))
             {
-                diags.Write(nameof(LocalForwardHostStop), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(LocalForwardHostStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity });
             }
-            LocalForwardHostStop(eventTraceActivity.Activity);
+            LocalForwardHostStop();
         }
 
-        [Event(111, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward host has been stopped")]
-        void LocalForwardHostStop(Guid relatedActivityId)
+        [Event(111,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward host has been stopped")]
+        void LocalForwardHostStop()
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(111, relatedActivityId);
-            }
+            this.WriteEvent(111);
         }
 
 
@@ -414,18 +430,18 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardHostStarting)))
             {
-                diags.Write(nameof(LocalForwardHostStarting), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(LocalForwardHostStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
             }
-            LocalForwardHostStarting(eventTraceActivity.Activity);
+            LocalForwardHostStarting();
         }
 
-        [Event(112, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        void LocalForwardHostStarting(Guid relatedActivityId)
+        [Event(112,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward host starting")]
+        void LocalForwardHostStarting()
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(112, relatedActivityId);
-            }
+            this.WriteEvent(112);
         }
 
 
@@ -434,18 +450,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardHostStopping)))
             {
-                diags.Write(nameof(LocalForwardHostStopping), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(LocalForwardHostStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
             }
-            LocalForwardHostStopping(eventTraceActivity.Activity);
+            LocalForwardHostStopping();
         }
 
-        [Event(113, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        void LocalForwardHostStopping(Guid relatedActivityId)
+        [Event(113,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward host stopping")]
+        void LocalForwardHostStopping()
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(113, relatedActivityId);
-            }
+            this.WriteEvent(113);
         }
 
         [NonEvent]
@@ -453,18 +470,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardConfigUpdated)))
             {
-                diags.Write(nameof(LocalForwardConfigUpdated), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity });
+                diags.Write(nameof(LocalForwardConfigUpdated), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity });
             }
-            LocalForwardConfigUpdated(eventTraceActivity.Activity);
+            LocalForwardConfigUpdated();
         }
 
-        [Event(114, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardConfigUpdated(Guid relatedActivityId)
+        [Event(114,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward configuration updated")]
+        void LocalForwardConfigUpdated()
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(114, relatedActivityId);
-            }
+            this.WriteEvent(114);
         }
 
 
@@ -477,18 +495,18 @@ using Microsoft.Diagnostics.Tracing;
             }
 
             LocalForwardBridgeConnectionStart(
-                bridgeActivity.Activity,
                 tcpClient.Client.LocalEndPoint.ToString(),
                 hybridConnectionClient.Address.ToString());
         }
 
-        [Event(120, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardBridgeConnectionStart(Guid relatedActivityId, string localEndpoint, string relayUri)
+        [Event(120,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge connection started {0} via {1}")]
+        void LocalForwardBridgeConnectionStart(string localEndpoint, string relayUri)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(120, relatedActivityId, localEndpoint, relayUri);
-            }
+            this.WriteEvent(120, localEndpoint, relayUri);
         }
 
         [NonEvent]
@@ -500,18 +518,18 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardBridgeConnectionStop), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, tcpClient = endpointInfo, hybridConnectionClient } });
             }
             LocalForwardBridgeConnectionStop(
-                bridgeActivity.Activity,
                 endpointInfo,
                 hybridConnectionClient.Address.ToString());
         }
 
-        [Event(121, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardBridgeConnectionStop(Guid relatedActivityId, string localEndpoint, string relayUri)
+        [Event(121,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge connection stopped {0} via {1}")]
+        void LocalForwardBridgeConnectionStop(string localEndpoint, string relayUri)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(40331, relatedActivityId, localEndpoint, relayUri);
-            }
+            this.WriteEvent(40331, localEndpoint, relayUri);
         }
 
         [NonEvent]
@@ -522,16 +540,17 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardBridgeConnectionFailed), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, exception } });
             }
 
-            LocalForwardBridgeConnectionFailed(bridgeActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardBridgeConnectionFailed(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(122, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward bridge connection failed with exception {0}, message {1}")]
-        void LocalForwardBridgeConnectionFailed(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(122,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge connection failed with exception {0}, message {1}")]
+        void LocalForwardBridgeConnectionFailed(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(122, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(122, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -542,16 +561,17 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardBridgeConnectionStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Info = new { bridgeActivity, tcpClient, hybridConnectionClient } });
             }
 
-            LocalForwardBridgeConnectionStarting(bridgeActivity.Activity, tcpClient.Client.LocalEndPoint.ToString(), hybridConnectionClient.Address.ToString());
+            LocalForwardBridgeConnectionStarting(tcpClient.Client.LocalEndPoint.ToString(), hybridConnectionClient.Address.ToString());
         }
 
-        [Event(123, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardBridgeConnectionStarting(Guid relatedActivityId, string localAddress, string relayUri)
+        [Event(123,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge connection starting {0} via {1}")]
+        internal void LocalForwardBridgeConnectionStarting(string localAddress, string relayUri)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(123, relatedActivityId, localAddress, relayUri);
-            }
+            this.WriteEvent(123, localAddress, relayUri);
         }
 
         [NonEvent]
@@ -559,18 +579,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStart)))
             {
-                diags.Write(nameof(LocalForwardBridgeStart), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { bindToAddress, localForward } });
+                diags.Write(nameof(LocalForwardBridgeStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { bindToAddress, localForward } });
             }
-            LocalForwardBridgeStart(eventTraceActivity.Activity, bindToAddress.ToString(), localForward.RelayName);
+            LocalForwardBridgeStart(bindToAddress.ToString(), localForward.RelayName);
         }
 
-        [Event(130, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward bridge started binding {0} to {1}")]
-        void LocalForwardBridgeStart(Guid relatedActivityId, string bindToAddress, string relayName)
+        [Event(130,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge started binding {0} to {1}")]
+        void LocalForwardBridgeStart(string bindToAddress, string relayName)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(130, relatedActivityId, bindToAddress, relayName);
-            }
+            this.WriteEvent(130, bindToAddress, relayName);
         }
 
         [NonEvent]
@@ -578,18 +599,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStop)))
             {
-                diags.Write(nameof(LocalForwardBridgeStop), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
+                diags.Write(nameof(LocalForwardBridgeStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
             }
-            LocalForwardBridgeStop(eventTraceActivity.Activity, tcpLocalForwardBridge.GetIpEndPoint()?.ToString(), tcpLocalForwardBridge.HybridConnectionClient?.Address.ToString());
+            LocalForwardBridgeStop(tcpLocalForwardBridge.GetIpEndPointInfo(), tcpLocalForwardBridge.HybridConnectionClient?.Address.ToString());
         }
 
-        [Event(131, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.LocalForward, Message = "Local forward bridge stopped; bound {0} to {1}")]
-        void LocalForwardBridgeStop(Guid relatedActivityId, string bindToAddress, string relayUri)
+        [Event(131,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge stopped; bound {0} to {1}")]
+        void LocalForwardBridgeStop(string bindToAddress, string relayUri)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(131, relatedActivityId, bindToAddress, relayUri);
-            }
+            this.WriteEvent(131, bindToAddress, relayUri);
         }
 
         [NonEvent]
@@ -599,16 +621,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(LocalForwardBridgeStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { localForward } });
             }
-            LocalForwardBridgeStarting(eventTraceActivity.Activity, localForward.RelayName);
+            LocalForwardBridgeStarting(localForward.RelayName);
         }
 
-        [Event(132, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        void LocalForwardBridgeStarting(Guid relatedActivityId, string relayName)
+        [Event(132,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge starting for '{0}'")]
+        void LocalForwardBridgeStarting(string relayName)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(132, relatedActivityId, relayName);
-            }
+            this.WriteEvent(132, relayName);
         }
 
         [NonEvent]
@@ -616,18 +639,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStopping)))
             {
-                diags.Write(nameof(LocalForwardBridgeStopping), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
+                diags.Write(nameof(LocalForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
             }
-            LocalForwardBridgeStopping(eventTraceActivity.Activity, tcpLocalForwardBridge.GetIpEndPoint()?.ToString());
+            LocalForwardBridgeStopping(tcpLocalForwardBridge.GetIpEndPointInfo());
         }
 
-        [Event(133, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardBridgeStopping(Guid relatedActivityId, string endpoint)
+        [Event(133,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge stopping for '{0}'")]
+        internal void LocalForwardBridgeStopping(string endpoint)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(133, relatedActivityId, endpoint);
-            }
+            this.WriteEvent(133, endpoint);
         }
 
         [NonEvent]
@@ -635,18 +659,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStartFailure)))
             {
-                diags.Write(nameof(LocalForwardBridgeStartFailure), new DiagnosticsRecord { Level  = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForward, exception } });
+                diags.Write(nameof(LocalForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForward, exception } });
             }
-            LocalForwardBridgeStartFailure(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardBridgeStartFailure(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(134, Channel = EventChannel.Admin, Level = EventLevel.Error, Keywords = Keywords.LocalForward, Message = "Local forward bridge failed to start with exception {0}, message {1}")]
-        void LocalForwardBridgeStartFailure(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(134,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Error,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge failed to start with exception {0}, message {1}")]
+        void LocalForwardBridgeStartFailure(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(134, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(134, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -656,16 +681,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(LocalForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge, exception } });
             }
-            LocalForwardBridgeStopFailure(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardBridgeStopFailure(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(135, Channel = EventChannel.Debug, Level = EventLevel.Error, Keywords = Keywords.LocalForward, Message = "Local forward bridge failed to stop with exception {0}, message {1}")]
-        internal void LocalForwardBridgeStopFailure(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(135,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Error,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward bridge failed to stop with exception {0}, message {1}")]
+        internal void LocalForwardBridgeStopFailure(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(135, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(135, exceptionName, exceptionMessage, stackTrace);
         }
 
 
@@ -674,18 +700,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeStart)))
             {
-                diags.Write(nameof(RemoteForwardBridgeStart), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { uri } });
+                diags.Write(nameof(RemoteForwardBridgeStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { uri } });
             }
-            RemoteForwardBridgeStart(eventTraceActivity.Activity, uri);
+            RemoteForwardBridgeStart(uri);
         }
 
-        [Event(140, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward, Message = "Remote forward bridge started for {0}")]
-        void RemoteForwardBridgeStart(Guid relatedActivityId, string uri)
+        [Event(140,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge started for {0}")]
+        void RemoteForwardBridgeStart(string uri)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(140, relatedActivityId, uri);
-            }
+            this.WriteEvent(140, uri);
         }
 
         [NonEvent]
@@ -695,16 +722,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(RemoteForwardBridgeStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpClientBridge } });
             }
-            RemoteForwardBridgeStop(eventTraceActivity.Activity, tcpClientBridge.ToString());
+            RemoteForwardBridgeStop(tcpClientBridge.ToString());
         }
 
-        [Event(141, Channel = EventChannel.Admin, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward, Message = "Remote forward bridge stopped for {0}")]
-        internal void RemoteForwardBridgeStop(Guid relatedActivityId, string remoteForward)
+        [Event(141,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge stopped for {0}")]
+        internal void RemoteForwardBridgeStop(string remoteForward)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(141, relatedActivityId, remoteForward);
-            }
+            this.WriteEvent(141, remoteForward);
         }
 
         [NonEvent]
@@ -712,19 +740,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeStopping)))
             {
-                diags.Write(nameof(RemoteForwardBridgeStopping), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpClientBridge } });
+                diags.Write(nameof(RemoteForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpClientBridge } });
             }
 
-            RemoteForwardBridgeStopping(eventTraceActivity.Activity, tcpClientBridge.ToString());
+            RemoteForwardBridgeStopping(tcpClientBridge.ToString());
         }
 
-        [Event(142, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward)]
-        void RemoteForwardBridgeStopping(Guid relatedActivityId, string remoteForward)
+        [Event(142,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge stopping for '{0}'")]
+        void RemoteForwardBridgeStopping(string remoteForward)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(142, relatedActivityId, remoteForward);
-            }
+            this.WriteEvent(142, remoteForward);
         }
 
         [NonEvent]
@@ -732,18 +761,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeStopFailure)))
             {
-                diags.Write(nameof(RemoteForwardBridgeStopFailure), new DiagnosticsRecord { Level  = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
+                diags.Write(nameof(RemoteForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
             }
-            RemoteForwardBridgeStopFailure(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            RemoteForwardBridgeStopFailure(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(143, Channel = EventChannel.Debug, Level = EventLevel.Error, Keywords = Keywords.RemoteForward, Message = "Remote forward bridge failed to stop with exception {0}, message {1}")]
-        void RemoteForwardBridgeStopFailure(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(143,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Error,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge failed to stop with exception {0}, message {1}")]
+        void RemoteForwardBridgeStopFailure(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(143, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(143, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -753,16 +783,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(RemoteForwardBridgeStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { remoteForward } });
             }
-            RemoteForwardBridgeStarting(eventTraceActivity.Activity, remoteForwardHost.ToString(), remoteForward.ToString());
+            RemoteForwardBridgeStarting(remoteForwardHost.ToString(), remoteForward.ToString());
         }
 
-        [Event(144, Level = EventLevel.Verbose, Keywords = Keywords.RemoteForward)]
-        void RemoteForwardBridgeStarting(Guid relatedActivityId, string remoteForwardHost, string remoteForward)
+        [Event(144,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge starting for '{0}' on '{1}'")]
+        void RemoteForwardBridgeStarting(string remoteForwardHost, string remoteForward)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(143, relatedActivityId, remoteForwardHost, remoteForward);
-            }
+            this.WriteEvent(143, remoteForwardHost, remoteForward);
         }
 
         [NonEvent]
@@ -772,16 +803,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(RemoteForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, exception } });
             }
-            RemoteForwardBridgeStartFailure(eventTraceActivity.Activity, hybridConnectionUri.ToString(), exception.GetType().FullName, exception.Message, exception.StackTrace);
+            RemoteForwardBridgeStartFailure(hybridConnectionUri.ToString(), exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(145, Channel = EventChannel.Admin, Level = EventLevel.Error, Keywords = Keywords.RemoteForward, Message = "Remote forward bridge failed to start with exception {0}, message {1}")]
-        void RemoteForwardBridgeStartFailure(Guid relatedActivityId, string hybridConnectionUri, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(145,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Error,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge failed to start with exception {0}, message {1}")]
+        void RemoteForwardBridgeStartFailure(string hybridConnectionUri, string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(143, relatedActivityId, hybridConnectionUri, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(143, hybridConnectionUri, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -791,16 +823,17 @@ using Microsoft.Diagnostics.Tracing;
             {
                 diags.Write(nameof(RemoteForwardBridgeOnline), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, tcpRemoteForwardBridge } });
             }
-            RemoteForwardBridgeOnline(eventTraceActivity.Activity, hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
+            RemoteForwardBridgeOnline(hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
         }
 
-        [Event(146, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward)]
-        internal void RemoteForwardBridgeOnline(Guid relatedActivityId, string hybridConnectionUri, string remoteForward)
+        [Event(146,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge online {0} {1}")]
+        internal void RemoteForwardBridgeOnline(string hybridConnectionUri, string remoteForward)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(146, relatedActivityId, hybridConnectionUri, remoteForward);
-            }
+            this.WriteEvent(146, hybridConnectionUri, remoteForward);
         }
 
         [NonEvent]
@@ -808,18 +841,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeOffline)))
             {
-                diags.Write(nameof(RemoteForwardBridgeOffline), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, tcpRemoteForwardBridge } });
+                diags.Write(nameof(RemoteForwardBridgeOffline), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, tcpRemoteForwardBridge } });
             }
-            RemoteForwardBridgeOffline(eventTraceActivity.Activity, hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
+            RemoteForwardBridgeOffline(hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
         }
 
-        [Event(147, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward)]
-        internal void RemoteForwardBridgeOffline(Guid relatedActivityId, string hybridConnectionUri, string remoteForward)
+        [Event(147,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Warning,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge offline {0} {1}")]
+        internal void RemoteForwardBridgeOffline(string hybridConnectionUri, string remoteForward)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(147, relatedActivityId, hybridConnectionUri, remoteForward);
-            }
+            this.WriteEvent(147, hybridConnectionUri, remoteForward);
         }
 
         [NonEvent]
@@ -827,19 +861,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeConnecting)))
             {
-                diags.Write(nameof(RemoteForwardBridgeConnecting), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, tcpRemoteForwardBridge } });
+                diags.Write(nameof(RemoteForwardBridgeConnecting), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri, tcpRemoteForwardBridge } });
             }
 
-            RemoteForwardBridgeConnecting(eventTraceActivity.Activity, hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
+            RemoteForwardBridgeConnecting(hybridConnectionUri.ToString(), tcpRemoteForwardBridge.ToString());
         }
 
-        [Event(148, Level = EventLevel.Informational, Keywords = Keywords.RemoteForward)]
-        internal void RemoteForwardBridgeConnecting(Guid relatedActivityId, string hybridConnectionUri, string remoteForward)
+        [Event(148,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward bridge connecting {0} {1}")]
+        internal void RemoteForwardBridgeConnecting(string hybridConnectionUri, string remoteForward)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(148, relatedActivityId, hybridConnectionUri, remoteForward);
-            }
+            this.WriteEvent(148, hybridConnectionUri, remoteForward);
         }
 
         [NonEvent]
@@ -850,36 +885,38 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardListenerStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpListener } });
             }
 
-            LocalForwardListenerStart(eventTraceActivity.Activity, tcpListener.LocalEndpoint.ToString());
+            LocalForwardListenerStart(tcpListener.LocalEndpoint.ToString());
         }
 
-        [Event(150, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardListenerStart(Guid relatedActivityId, string localEndpoint)
+        [Event(150,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener started {0}")]
+        void LocalForwardListenerStart(string localEndpoint)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(150, relatedActivityId, localEndpoint);
-            }
+            this.WriteEvent(150, localEndpoint);
         }
 
         [NonEvent]
-        internal void LocalForwardListenerStop(EventTraceActivity eventTraceActivity, TcpListener tcpListener)
+        internal void LocalForwardListenerStop(EventTraceActivity eventTraceActivity, string localEndpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStop)))
             {
-                diags.Write(nameof(LocalForwardListenerStop), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpListener } });
+                diags.Write(nameof(LocalForwardListenerStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { localEndpoint } });
             }
 
-            LocalForwardListenerStop(eventTraceActivity.Activity, tcpListener.LocalEndpoint.ToString());
+            LocalForwardListenerStop(localEndpoint);
         }
 
-        [Event(151, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardListenerStop(Guid relatedActivityId, string localEndpoint)
+        [Event(151,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener stopped {0}")]
+        void LocalForwardListenerStop(string localEndpoint)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(151, relatedActivityId, localEndpoint);
-            }
+            this.WriteEvent(151, localEndpoint);
         }
 
 
@@ -891,37 +928,39 @@ using Microsoft.Diagnostics.Tracing;
                 diags.Write(nameof(LocalForwardListenerStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { listenEndpoint } });
             }
 
-            LocalForwardListenerStarting(eventTraceActivity.Activity, listenEndpoint.ToString());
+            LocalForwardListenerStarting(listenEndpoint.ToString());
         }
 
 
-        [Event(152, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardListenerStarting(Guid relatedActivityId, string listenEndpoint)
+        [Event(152,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener starting {0}")]
+        internal void LocalForwardListenerStarting(string listenEndpoint)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(152, relatedActivityId, listenEndpoint);
-            }
+            this.WriteEvent(152, listenEndpoint);
         }
 
         [NonEvent]
-        internal void LocalForwardListenerStopping(EventTraceActivity eventTraceActivity, TcpListener listenEndpoint)
+        internal void LocalForwardListenerStopping(EventTraceActivity eventTraceActivity, string localEndpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStopping)))
             {
-                diags.Write(nameof(LocalForwardListenerStopping), new DiagnosticsRecord { Level  = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { listenEndpoint } });
+                diags.Write(nameof(LocalForwardListenerStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { localEndpoint } });
             }
-            LocalForwardListenerStopping(eventTraceActivity.Activity, listenEndpoint.LocalEndpoint.ToString());
+            LocalForwardListenerStopping(localEndpoint);
         }
 
 
-        [Event(153, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardListenerStopping(Guid relatedActivityId, string listenEndpoint)
+        [Event(153,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener stopping {0}")]
+        internal void LocalForwardListenerStopping(string listenEndpoint)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(153, relatedActivityId, listenEndpoint);
-            }
+            this.WriteEvent(153, listenEndpoint);
         }
 
         [NonEvent]
@@ -929,18 +968,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStoppingFailed)))
             {
-                diags.Write(nameof(LocalForwardListenerStoppingFailed), new DiagnosticsRecord { Level  = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
+                diags.Write(nameof(LocalForwardListenerStoppingFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
             }
-            LocalForwardListenerStoppingFailed(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardListenerStoppingFailed(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(154, Channel = EventChannel.Debug, Level = EventLevel.Error, Keywords = Keywords.LocalForward, Message = "Local forward listener failed to stop with exception {0}, message {1}")]
-        internal void LocalForwardListenerStoppingFailed(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(154,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Error,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener failed to stop with exception {0}, message {1}")]
+        internal void LocalForwardListenerStoppingFailed(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(154, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(154, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -948,19 +988,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStartFailed)))
             {
-                diags.Write(nameof(LocalForwardListenerStartFailed), new DiagnosticsRecord { Level  = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
+                diags.Write(nameof(LocalForwardListenerStartFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
             }
 
-            LocalForwardListenerStartFailed(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardListenerStartFailed(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(155, Channel = EventChannel.Admin, Level = EventLevel.Error, Keywords = Keywords.LocalForward, Message = "Local forward listener failed to start with exception {0}, message {1}")]
-        internal void LocalForwardListenerStartFailed(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(155,
+            Channel = EventChannel.Admin,
+            Level = EventLevel.Error,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward listener failed to start with exception {0}, message {1}")]
+        internal void LocalForwardListenerStartFailed(string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Error, Keywords.RemoteForward))
-            {
-                this.WriteEventWithRelatedActivityId(155, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(155, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -968,19 +1009,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketAccepted)))
             {
-                diags.Write(nameof(LocalForwardSocketAccepted), new DiagnosticsRecord { Level  = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { socket } });
+                diags.Write(nameof(LocalForwardSocketAccepted), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { socket } });
             }
 
-            LocalForwardSocketAccepted(eventTraceActivity.Activity, socket.Client.LocalEndPoint.ToString());
+            LocalForwardSocketAccepted(socket.Client.LocalEndPoint.ToString());
         }
 
-        [Event(160, Level = EventLevel.Verbose, Keywords = Keywords.LocalForward)]
-        void LocalForwardSocketAccepted(Guid relatedActivityId, string socket)
+        [Event(160,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket accepted {0}")]
+        void LocalForwardSocketAccepted(string socket)
         {
-            if (IsEnabled(EventLevel.Verbose, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(160, relatedActivityId, socket);
-            }
+            this.WriteEvent(160, socket);
         }
 
         [NonEvent]
@@ -988,18 +1030,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketError)))
             {
-                diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { endpoint, exception } });
+                diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { endpoint, exception } });
             }
-            LocalForwardSocketError(eventTraceActivity.Activity, endpoint, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardSocketError(endpoint, exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(161, Channel = EventChannel.Debug, Level = EventLevel.Warning, Keywords = Keywords.LocalForward)]
-        void LocalForwardSocketError(Guid relatedActivityId, string socket, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(161,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Warning,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket error {0} {1} {2} {3}")]
+        void LocalForwardSocketError(string socket, string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Warning, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(161, relatedActivityId, socket, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(161, socket, exceptionName, exceptionMessage, stackTrace);
         }
 
 
@@ -1008,19 +1051,20 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketClosed)))
             {
-                diags.Write(nameof(LocalForwardSocketClosed), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { socket } });
+                diags.Write(nameof(LocalForwardSocketClosed), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { socket } });
             }
 
-            LocalForwardSocketClosed(eventTraceActivity.Activity, "");
+            LocalForwardSocketClosed("");
         }
 
-        [Event(162, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardSocketClosed(Guid relatedActivityId, string socket)
+        [Event(162,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket closed {0}")]
+        internal void LocalForwardSocketClosed(string socket)
         {
-            if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(162, relatedActivityId, socket);
-            }
+            this.WriteEvent(162, socket);
         }
 
         [NonEvent]
@@ -1028,18 +1072,19 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketCloseFailed)))
             {
-                diags.Write(nameof(LocalForwardSocketCloseFailed), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket, exception } });
+                diags.Write(nameof(LocalForwardSocketCloseFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket, exception } });
             }
-            LocalForwardSocketCloseFailed(eventTraceActivity.Activity, socket, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardSocketCloseFailed(socket, exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(163, Level = EventLevel.Warning, Keywords = Keywords.LocalForward)]
-        void LocalForwardSocketCloseFailed(Guid relatedActivityId, string socket, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(163,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Warning,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket close failed {0} {1} {2} {3}")]
+        void LocalForwardSocketCloseFailed(string socket, string exceptionName, string exceptionMessage, string stackTrace)
         {
-            if (IsEnabled(EventLevel.Warning, Keywords.LocalForward))
-            {
-                this.WriteEventWithRelatedActivityId(163, relatedActivityId, socket, exceptionName, exceptionMessage, stackTrace);
-            }
+            this.WriteEvent(163, socket, exceptionName, exceptionMessage, stackTrace);
         }
 
         [NonEvent]
@@ -1047,17 +1092,21 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketComplete)))
             {
-                diags.Write(nameof(LocalForwardSocketComplete), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { endpoint } });
+                diags.Write(nameof(LocalForwardSocketComplete), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { endpoint } });
             }
-            LocalForwardSocketComplete(eventTraceActivity.Activity, endpoint);
+            LocalForwardSocketComplete(endpoint);
         }
 
-        [Event(164, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        void LocalForwardSocketComplete(Guid relatedActivityId, string socket)
+        [Event(164,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket complete {0}")]
+        void LocalForwardSocketComplete(string socket)
         {
             if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
             {
-                this.WriteEventWithRelatedActivityId(164, relatedActivityId, socket);
+                this.WriteEvent(164, socket);
             }
         }
 
@@ -1067,17 +1116,21 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketAcceptLoopFailed)))
             {
-                diags.Write(nameof(LocalForwardSocketAcceptLoopFailed), new DiagnosticsRecord { Level  = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { exception } });
+                diags.Write(nameof(LocalForwardSocketAcceptLoopFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { exception } });
             }
-            LocalForwardSocketAcceptLoopFailed(eventTraceActivity.Activity, exception.GetType().FullName, exception.Message, exception.StackTrace);
+            LocalForwardSocketAcceptLoopFailed(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
 
-        [Event(165, Channel = EventChannel.Debug, Level = EventLevel.Error, Keywords = Keywords.LocalForward)]
-        void LocalForwardSocketAcceptLoopFailed(Guid relatedActivityId, string exceptionName, string exceptionMessage, string stackTrace)
+        [Event(165,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Error,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward socket accept loop failed {0} {1} {2}")]
+        void LocalForwardSocketAcceptLoopFailed(string exceptionName, string exceptionMessage, string stackTrace)
         {
             if (IsEnabled(EventLevel.Error, Keywords.LocalForward))
             {
-                this.WriteEventWithRelatedActivityId(160, relatedActivityId, exceptionName, exceptionMessage, stackTrace);
+                this.WriteEvent(160, exceptionName, exceptionMessage, stackTrace);
             }
         }
 
@@ -1086,20 +1139,24 @@ using Microsoft.Diagnostics.Tracing;
         {
             if (diags.IsEnabled(nameof(LocalForwardConfigUpdating)))
             {
-                diags.Write(nameof(LocalForwardConfigUpdating), new DiagnosticsRecord { Level  = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { configOld, configNew } });
+                diags.Write(nameof(LocalForwardConfigUpdating), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { configOld, configNew } });
             }
-            LocalForwardConfigUpdating(eventTraceActivity.Activity);
+            LocalForwardConfigUpdating();
         }
 
-        [Event(166, Level = EventLevel.Informational, Keywords = Keywords.LocalForward)]
-        internal void LocalForwardConfigUpdating(Guid relatedActivityId)
+        [Event(166,
+            Channel = EventChannel.Debug,
+            Level = EventLevel.Informational,
+            Keywords = Keywords.LocalForward,
+            Message = "Local forward config updating")]
+        internal void LocalForwardConfigUpdating()
         {
             if (IsEnabled(EventLevel.Informational, Keywords.LocalForward))
             {
-                this.WriteEventWithRelatedActivityId(166, relatedActivityId);
+                this.WriteEvent(166);
             }
         }
-                                                                                                                                                                                                            
+
         public class Keywords // This is a bitvector
         {
             public const EventKeywords RemoteForward = (EventKeywords)0x0001;

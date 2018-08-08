@@ -20,6 +20,7 @@ namespace azbridge
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay;
     using Microsoft.Extensions.Logging;
+    using System.Threading.Tasks;
 
     partial class Program
     {
@@ -68,6 +69,13 @@ namespace azbridge
                     return 0;
                 }
 #endif
+
+                if ( !string.IsNullOrEmpty(settings.ConfigFile) && !File.Exists(settings.ConfigFile))
+                {
+                    Console.WriteLine($"The config file was not found: {settings.ConfigFile}");
+                    return 3;
+                }
+
                 Config config = Config.LoadConfig(settings);
                 if (config.LocalForward.Count == 0 &&
                      config.RemoteForward.Count == 0)
@@ -87,9 +95,9 @@ namespace azbridge
                 }
 
                 var loggerFactory = new LoggerFactory();
+                LogLevel logLevel = LogLevel.Error;
                 if (!settings.Quiet.HasValue || !settings.Quiet.Value)
                 {
-                    LogLevel logLevel = LogLevel.Error;
                     if (config.LogLevel != null)
                     {
                         switch (config.LogLevel.ToUpper())
@@ -117,19 +125,38 @@ namespace azbridge
                                 break;
                         }
                     }
+                }
+                else
+                {
+                    logLevel = LogLevel.None;
+                }
+
+                if (!string.IsNullOrEmpty(config.LogFileName))
+                {
+                    loggerFactory.AddFile(config.LogFileName, logLevel);
+                }
+                else
+                {
                     loggerFactory.AddConsole(logLevel);
                 }
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
 
-                SemaphoreSlim semaphore = new SemaphoreSlim(1);
-                semaphore.Wait();
+                CancellationTokenSource cancellation = new CancellationTokenSource();
 
                 Host host = new Host(config);
                 host.Start();
-                Console.CancelKeyPress += (e, a) => semaphore.Release();
-                semaphore.Wait();
+
+                Console.TreatControlCAsInput = true;
+                ConsoleKeyInfo key;
+                do
+                {
+                    key = Console.ReadKey();
+                }
+                while (!(key.Key == ConsoleKey.C && key.Modifiers == ConsoleModifiers.Control));
+
                 host.Stop();
+
             }
             catch (FileNotFoundException e)
             {
