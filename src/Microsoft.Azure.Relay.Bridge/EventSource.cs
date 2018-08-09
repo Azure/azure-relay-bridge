@@ -487,15 +487,15 @@ namespace Microsoft.Azure.Relay.Bridge
 
 
         [NonEvent]
-        internal void LocalForwardBridgeConnectionStart(EventTraceActivity bridgeActivity, TcpClient tcpClient, HybridConnectionClient hybridConnectionClient)
+        internal void LocalForwardBridgeConnectionStart(EventTraceActivity bridgeActivity, string localEndpoint, HybridConnectionClient hybridConnectionClient)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeConnectionStart)))
             {
-                diags.Write(nameof(LocalForwardBridgeConnectionStart), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, tcpClient, hybridConnectionClient } });
+                diags.Write(nameof(LocalForwardBridgeConnectionStart), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity, localEndpoint, hybridConnectionClient } });
             }
 
             LocalForwardBridgeConnectionStart(
-                tcpClient.Client.LocalEndPoint.ToString(),
+                localEndpoint,
                 hybridConnectionClient.Address.ToString());
         }
 
@@ -554,14 +554,14 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeConnectionStarting(EventTraceActivity bridgeActivity, TcpClient tcpClient, HybridConnectionClient hybridConnectionClient)
+        internal void LocalForwardBridgeConnectionStarting(EventTraceActivity bridgeActivity, string localEndpoint, HybridConnectionClient hybridConnectionClient)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeConnectionStarting)))
             {
-                diags.Write(nameof(LocalForwardBridgeConnectionStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Info = new { bridgeActivity, tcpClient, hybridConnectionClient } });
+                diags.Write(nameof(LocalForwardBridgeConnectionStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Info = new { bridgeActivity, localEndpoint, hybridConnectionClient } });
             }
 
-            LocalForwardBridgeConnectionStarting(tcpClient.Client.LocalEndPoint.ToString(), hybridConnectionClient.Address.ToString());
+            LocalForwardBridgeConnectionStarting(localEndpoint, hybridConnectionClient.Address.ToString());
         }
 
         [Event(123,
@@ -595,13 +595,13 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeStop(EventTraceActivity eventTraceActivity, TcpLocalForwardBridge tcpLocalForwardBridge)
+        internal void LocalForwardBridgeStop(EventTraceActivity eventTraceActivity, string tcpLocalForwardBridge, string relayUri)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStop)))
             {
                 diags.Write(nameof(LocalForwardBridgeStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
             }
-            LocalForwardBridgeStop(tcpLocalForwardBridge.GetIpEndPointInfo(), tcpLocalForwardBridge.HybridConnectionClient?.Address.ToString());
+            LocalForwardBridgeStop(tcpLocalForwardBridge, relayUri);
         }
 
         [Event(131,
@@ -635,13 +635,13 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeStopping(EventTraceActivity eventTraceActivity, TcpLocalForwardBridge tcpLocalForwardBridge)
+        internal void LocalForwardBridgeStopping(EventTraceActivity eventTraceActivity, string tcpLocalForwardBridge)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStopping)))
             {
                 diags.Write(nameof(LocalForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
             }
-            LocalForwardBridgeStopping(tcpLocalForwardBridge.GetIpEndPointInfo());
+            LocalForwardBridgeStopping(tcpLocalForwardBridge);
         }
 
         [Event(133,
@@ -675,7 +675,7 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, TcpLocalForwardBridge tcpLocalForwardBridge, Exception exception)
+        internal void LocalForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, string tcpLocalForwardBridge, Exception exception)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStopFailure)))
             {
@@ -716,13 +716,13 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void RemoteForwardBridgeStop(EventTraceActivity eventTraceActivity, TcpRemoteForwardBridge tcpClientBridge)
+        internal void RemoteForwardBridgeStop(EventTraceActivity eventTraceActivity, string clientBridge)
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeStop)))
             {
-                diags.Write(nameof(RemoteForwardBridgeStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpClientBridge } });
+                diags.Write(nameof(RemoteForwardBridgeStop), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { clientBridge } });
             }
-            RemoteForwardBridgeStop(tcpClientBridge.ToString());
+            RemoteForwardBridgeStop(clientBridge);
         }
 
         [Event(141,
@@ -736,14 +736,14 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void RemoteForwardBridgeStopping(EventTraceActivity eventTraceActivity, TcpRemoteForwardBridge tcpClientBridge)
+        internal void RemoteForwardBridgeStopping(EventTraceActivity eventTraceActivity, string clientBridge)
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeStopping)))
             {
-                diags.Write(nameof(RemoteForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpClientBridge } });
+                diags.Write(nameof(RemoteForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { clientBridge } });
             }
 
-            RemoteForwardBridgeStopping(tcpClientBridge.ToString());
+            RemoteForwardBridgeStopping(clientBridge);
         }
 
         [Event(142,
@@ -817,7 +817,7 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void RemoteForwardBridgeOnline(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, TcpRemoteForwardBridge tcpRemoteForwardBridge)
+        internal void RemoteForwardBridgeOnline(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, object tcpRemoteForwardBridge)
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeOnline)))
             {
@@ -837,7 +837,7 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void RemoteForwardBridgeOffline(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, TcpRemoteForwardBridge tcpRemoteForwardBridge)
+        internal void RemoteForwardBridgeOffline(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, object tcpRemoteForwardBridge)
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeOffline)))
             {
@@ -857,7 +857,7 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void RemoteForwardBridgeConnecting(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, TcpRemoteForwardBridge tcpRemoteForwardBridge)
+        internal void RemoteForwardBridgeConnecting(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, object tcpRemoteForwardBridge)
         {
             if (diags.IsEnabled(nameof(RemoteForwardBridgeConnecting)))
             {
@@ -878,14 +878,14 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardListenerStart(EventTraceActivity eventTraceActivity, TcpListener tcpListener)
+        internal void LocalForwardListenerStart(EventTraceActivity eventTraceActivity, string localEndpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStart)))
             {
-                diags.Write(nameof(LocalForwardListenerStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { tcpListener } });
+                diags.Write(nameof(LocalForwardListenerStart), new DiagnosticsRecord { Level = EventLevel.Informational, Activity = eventTraceActivity.Activity, Info = new { localEndpoint } });
             }
 
-            LocalForwardListenerStart(tcpListener.LocalEndpoint.ToString());
+            LocalForwardListenerStart(localEndpoint);
         }
 
         [Event(150,
@@ -921,14 +921,14 @@ namespace Microsoft.Azure.Relay.Bridge
 
 
         [NonEvent]
-        internal void LocalForwardListenerStarting(EventTraceActivity eventTraceActivity, IPEndPoint listenEndpoint)
+        internal void LocalForwardListenerStarting(EventTraceActivity eventTraceActivity, string listenEndpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardListenerStarting)))
             {
                 diags.Write(nameof(LocalForwardListenerStarting), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { listenEndpoint } });
             }
 
-            LocalForwardListenerStarting(listenEndpoint.ToString());
+            LocalForwardListenerStarting(listenEndpoint);
         }
 
 
@@ -1005,14 +1005,14 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardSocketAccepted(EventTraceActivity eventTraceActivity, TcpClient socket)
+        internal void LocalForwardSocketAccepted(EventTraceActivity eventTraceActivity, string localEndpoint)
         {
             if (diags.IsEnabled(nameof(LocalForwardSocketAccepted)))
             {
-                diags.Write(nameof(LocalForwardSocketAccepted), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { socket } });
+                diags.Write(nameof(LocalForwardSocketAccepted), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { localEndpoint } });
             }
 
-            LocalForwardSocketAccepted(socket.Client.LocalEndPoint.ToString());
+            LocalForwardSocketAccepted(localEndpoint);
         }
 
         [Event(160,

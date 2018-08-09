@@ -43,40 +43,123 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Host host = new Host(cfg);
             host.Start();
 
-            // now try to use it
-            var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
-            l.Start();
-            l.AcceptTcpClientAsync().ContinueWith((t) =>
+            try
             {
-                var c = t.Result;
-                using (var b = new StreamReader(c.GetStream()))
+                // now try to use it
+                var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+                l.Start();
+                l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
-                    var text = b.ReadLine();
-                    using (var w = new StreamWriter(c.GetStream()))
+                    var c = t.Result;
+                    var stream = c.GetStream();
+                    using (var b = new StreamReader(stream))
                     {
-                        w.WriteLine(text);
-                        w.Flush();
+                        var text = b.ReadLine();
+                        using (var w = new StreamWriter(stream))
+                        {
+                            w.WriteLine(text);
+                            w.Flush();
+                        }
+                    }
+                });
+
+
+                var s = new TcpClient();
+                s.Connect("127.0.97.1", 29876);
+                var sstream = s.GetStream();
+                using (var w = new StreamWriter(sstream))
+                {
+                    w.WriteLine("Hello!");
+                    w.Flush();
+                    using (var b = new StreamReader(sstream))
+                    {
+                        Assert.Equal("Hello!", b.ReadLine());
                     }
                 }
-            });
 
-
-            var s = new TcpClient();
-            s.Connect("127.0.97.1", 29876);
-            using (var w = new StreamWriter(s.GetStream()))
-            {
-                w.WriteLine("Hello!");
-                w.Flush();
-                using (var b = new StreamReader(s.GetStream()))
-                {
-                    Assert.Equal("Hello!", b.ReadLine());
-                }
+                s.Dispose();
+                l.Stop();
             }
-
-            s.Dispose();
-            l.Stop();
-            host.Stop();
+            finally
+            {
+                host.Stop();
+            }
         }
+
+#if !NETFRAMEWORK
+        [Fact]
+        public void SocketBridge()
+        {
+            // not yet supported on Windows.
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                return;
+
+            // set up the bridge first
+            Config cfg = new Config
+            {
+                AzureRelayConnectionString = Utilities.GetConnectionString(),
+                ExitOnForwardFailure = true
+            };
+            var lf = new LocalForward
+            {
+                BindLocalSocket = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName()),
+                RelayName = "a2"
+            };
+            var rf = new RemoteForward
+            {
+                LocalSocket = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()),
+                RelayName = "a2"
+            };
+            cfg.LocalForward.Add(lf);
+            cfg.RemoteForward.Add(rf);
+            Host host = new Host(cfg);
+            host.Start();
+
+
+            try
+            {
+                // now try to use it
+                var l = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+                l.Bind(new UnixDomainSocketEndPoint(rf.LocalSocket));
+                l.Listen(5);
+
+                l.AcceptAsync().ContinueWith((t) =>
+                {
+                    var c = t.Result;
+                    using (var b = new StreamReader(new NetworkStream(c)))
+                    {
+                        var text = b.ReadLine();
+                        using (var w = new StreamWriter(new NetworkStream(c)))
+                        {
+                            w.WriteLine(text);
+                            w.Flush();
+                        }
+                    }
+                });
+
+
+                var s = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+                s.Connect(new UnixDomainSocketEndPoint(lf.BindLocalSocket));
+                var ns = new NetworkStream(s);
+                using (var w = new StreamWriter(ns))
+                {
+                    w.WriteLine("Hello!");
+                    w.Flush();
+                    using (var b = new StreamReader(ns))
+                    {
+                        string line = b.ReadLine();
+                        Assert.Equal("Hello!", line);
+                    }
+                }
+                s.Close(0);
+                l.Close(0);
+            }
+            finally
+            {
+                host.Stop();
+            }
+        }
+#endif
 
         [Fact(Skip = "true")]
         public void TcpBridgeBadListener()
@@ -101,33 +184,40 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Host host = new Host(cfg);
             host.Start();
 
-            // now try to use it
-            var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
-            l.Start();
-            l.AcceptTcpClientAsync().ContinueWith((t) =>
+            try
             {
-                t.Result.Client.Close(0);
-                l.Stop();
-            });
-
-
-            var s = new TcpClient();
-            s.Connect("127.0.97.1", 29876);
-            s.NoDelay = true;
-            s.Client.Blocking = true;
-            using (var w = s.GetStream())
-            {
-                byte[] bytes = new byte[1024 * 1024];
-                Assert.Throws<IOException>(() =>
+                // now try to use it
+                var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+                l.Start();
+                l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
-                    for (int i = 0; i < 5; i++)
-                    {
-                        w.Write(bytes, 0, bytes.Length);
-                    }
+                    t.Result.Client.Close(0);
+                    l.Stop();
                 });
+
+
+                var s = new TcpClient();
+                s.Connect("127.0.97.1", 29876);
+                s.NoDelay = true;
+                s.Client.Blocking = true;
+                using (var w = s.GetStream())
+                {
+                    byte[] bytes = new byte[1024 * 1024];
+                    Assert.Throws<IOException>(() =>
+                    {
+                        for (int i = 0; i < 5; i++)
+                        {
+                            w.Write(bytes, 0, bytes.Length);
+                        }
+                    });
+                }
+                s.Dispose();
+
             }
-            s.Dispose();
-            host.Stop();
+            finally
+            {
+                host.Stop();
+            }
         }
                                     
     }

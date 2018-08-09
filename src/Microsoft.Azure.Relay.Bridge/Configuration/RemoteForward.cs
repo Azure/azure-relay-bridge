@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         private string relayName;
         private string host;
         private int hostPort;
-        private string localSocket;
+        private string localSocket = null;
 
         public RemoteForward()
         {
@@ -109,9 +109,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             get => localSocket;
             set
             {
+#if NETFRAMEWORK
+                throw BridgeEventSource.Log.ThrowingException(
+                    new PlatformNotSupportedException($"Unix sockets are only supported in the .NET Core version"));
+#else
                 var val = value != null ? value.Trim('\'', '\"') : value;
-                if (val != null &&
-                    !new Regex("^[A-Za-z_-]+$").Match(val).Success)
+                Uri path;
+                if (val != null && 
+                    !Uri.TryCreate(val, UriKind.Absolute, out path) &&
+                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
                 {
                     throw BridgeEventSource.Log.ArgumentOutOfRange(
                         nameof(LocalSocket),
@@ -119,6 +125,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         this);
                 }
                 localSocket = val;
+#endif
             }
         }
     }

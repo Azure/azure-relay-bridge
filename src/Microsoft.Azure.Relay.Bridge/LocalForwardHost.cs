@@ -13,6 +13,9 @@ namespace Microsoft.Azure.Relay.Bridge
     sealed class LocalForwardHost
     {
         readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
+#if !NETFRAMEWORK
+        readonly Dictionary<string, SocketLocalForwardBridge> socketListenerBridges = new Dictionary<string, SocketLocalForwardBridge>();
+#endif
         private Config config;
         private EventTraceActivity activity = BridgeEventSource.NewActivity("LocalForwardHost");
 
@@ -47,14 +50,48 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             var startActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStart", activity);
             Uri hybridConnectionUri = null;
-            TcpLocalForwardBridge tcpListenerBridge = null;
-
+            
             BridgeEventSource.Log.LocalForwardBridgeStarting(startActivity, localForward);
 
             var rcbs = localForward.RelayConnectionStringBuilder ?? new RelayConnectionStringBuilder(config.AzureRelayConnectionString);
             rcbs.EntityPath = localForward.RelayName;
             hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
 
+#if !NETFRAMEWORK
+            if (!string.IsNullOrEmpty(localForward.BindLocalSocket))
+            {
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    BridgeEventSource.Log.ThrowingException(
+                        new NotSupportedException("Unix sockets are not supported on Windows"));
+                }
+
+                SocketLocalForwardBridge socketListenerBridge = null;
+
+                try
+                {
+                    {
+                        socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs);
+                        socketListenerBridge.Run(localForward.BindLocalSocket);
+
+                        this.socketListenerBridges.Add(hybridConnectionUri.AbsoluteUri, socketListenerBridge);
+                    }
+                    BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, IPAddress.Any, localForward);
+                }
+                catch (Exception e)
+                {
+                    BridgeEventSource.Log.LocalForwardBridgeStartFailure(startActivity, localForward, e);
+                    if (!config.ExitOnForwardFailure.HasValue ||
+                         config.ExitOnForwardFailure.Value)
+                    {
+                        throw;
+                    }
+                }
+                return;
+            }
+#endif
+
+            TcpLocalForwardBridge tcpListenerBridge = null;
             try
             {
                 IPHostEntry localHostEntry = Dns.GetHostEntry(Dns.GetHostName());
@@ -110,9 +147,9 @@ namespace Microsoft.Azure.Relay.Bridge
 
         void StartEndpoints(IEnumerable<LocalForward> localForwardSettings)
         {
-            foreach (var tcpListenerSetting in localForwardSettings)
+            foreach (var localForwardSetting in localForwardSettings)
             {
-                this.StartEndpoint(tcpListenerSetting);
+                this.StartEndpoint(localForwardSetting);
             }
         }
 
@@ -121,19 +158,40 @@ namespace Microsoft.Azure.Relay.Bridge
             EventTraceActivity stopActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStop", activity);
             try
             {
-                BridgeEventSource.Log.LocalForwardBridgeStopping(stopActivity, tcpLocalForwardBridge);
+                BridgeEventSource.Log.LocalForwardBridgeStopping(stopActivity, tcpLocalForwardBridge.GetIpEndPointInfo());
                 tcpLocalForwardBridge.Close();
-                BridgeEventSource.Log.LocalForwardBridgeStop(stopActivity, tcpLocalForwardBridge);
+                BridgeEventSource.Log.LocalForwardBridgeStop(stopActivity, tcpLocalForwardBridge.GetIpEndPointInfo(), tcpLocalForwardBridge.HybridConnectionClient.Address.ToString());
             }
             catch (Exception e)
             {
-                BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, tcpLocalForwardBridge, e);
+                BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, tcpLocalForwardBridge.GetIpEndPointInfo(), e);
                 if ( Fx.IsFatal(e))
                 {
                     throw;
                 }
             }
         }
+
+#if !NETFRAMEWORK
+        void StopEndpoint(SocketLocalForwardBridge socketLocalForwardBridge)
+        {
+            EventTraceActivity stopActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStop", activity);
+            try
+            {
+                BridgeEventSource.Log.LocalForwardBridgeStopping(stopActivity, socketLocalForwardBridge.GetSocketInfo());
+                socketLocalForwardBridge.Close();
+                BridgeEventSource.Log.LocalForwardBridgeStop(stopActivity, socketLocalForwardBridge.GetSocketInfo(), socketLocalForwardBridge.HybridConnectionClient.Address.ToString());
+            }
+            catch (Exception e)
+            {
+                BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, socketLocalForwardBridge.GetSocketInfo(), e);
+                if (Fx.IsFatal(e))
+                {
+                    throw;
+                }
+            }
+        }
+#endif
 
         void StopEndpoints()
         {

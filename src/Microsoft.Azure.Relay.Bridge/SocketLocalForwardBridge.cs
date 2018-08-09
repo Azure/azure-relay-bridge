@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+#if !NETFRAMEWORK
 namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
@@ -11,7 +12,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using Configuration;
     using Microsoft.Azure.Relay;
 
-    sealed class TcpLocalForwardBridge : IDisposable
+    sealed class SocketLocalForwardBridge : IDisposable
     {
         private readonly Config config;
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
@@ -20,10 +21,10 @@ namespace Microsoft.Azure.Relay.Bridge
         private EventTraceActivity listenerActivity;
         Task<Task> acceptSocketLoop;
 
-        TcpListener tcpListener;
+        Socket socketListener;
         string localEndpoint;
 
-        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString)
+        public SocketLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString)
         {
             this.config = config;
             this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
@@ -39,10 +40,10 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
-        public static TcpLocalForwardBridge FromConnectionString(Config config,
+        public static SocketLocalForwardBridge FromConnectionString(Config config,
             RelayConnectionStringBuilder connectionString)
         {
-            return new TcpLocalForwardBridge(config, connectionString);
+            return new SocketLocalForwardBridge(config, connectionString);
         }
 
         public void Close()
@@ -57,8 +58,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 }
                 this.IsOpen = false;
                 this.cancellationTokenSource.Cancel();
-                this.tcpListener?.Stop();
-                this.tcpListener = null;
+                this.socketListener?.Close();
+                this.socketListener = null;
             }
             catch (Exception ex)
             {
@@ -72,14 +73,14 @@ namespace Microsoft.Azure.Relay.Bridge
             this.Close();
         }
 
-        public string GetIpEndPointInfo()
+        public string GetSocketInfo()
         {
             return localEndpoint;
         }
 
-        public void Run(IPEndPoint listenEndpoint)
+        public void Run(string socketEndpoint)
         {
-            this.localEndpoint = listenEndpoint.ToString();
+            this.localEndpoint = socketEndpoint;
 
             if (this.IsOpen)
             {
@@ -92,8 +93,9 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 this.IsOpen = true;
                 BridgeEventSource.Log.LocalForwardListenerStarting(listenerActivity, localEndpoint);
-                this.tcpListener = new TcpListener(listenEndpoint);
-                this.tcpListener.Start();
+                this.socketListener = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
+                this.socketListener.Bind(new UnixDomainSocketEndPoint(socketEndpoint));
+                this.socketListener.Listen(5);
                 this.acceptSocketLoop = Task.Factory.StartNew(AcceptSocketLoopAsync);
                 this.acceptSocketLoop.ContinueWith(AcceptSocketLoopFaulted, TaskContinuationOptions.OnlyOnFaulted);
                 BridgeEventSource.Log.LocalForwardListenerStart(listenerActivity, localEndpoint);
@@ -112,11 +114,11 @@ namespace Microsoft.Azure.Relay.Bridge
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
                 var socketActivity = BridgeEventSource.NewActivity("LocalForwardSocket");
-                TcpClient socket;
+                Socket socket;
 
                 try
                 {
-                    socket = await this.tcpListener.AcceptTcpClientAsync();
+                    socket = await this.socketListener.AcceptAsync();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -168,18 +170,17 @@ namespace Microsoft.Azure.Relay.Bridge
             this.Close();
         }
 
-        async Task BridgeSocketConnectionAsync(TcpClient tcpClient)
+        async Task BridgeSocketConnectionAsync(Socket socket)
         {
             EventTraceActivity bridgeActivity = BridgeEventSource.NewActivity("LocalForwardBridgeConnection");
             try
             {
                 BridgeEventSource.Log.LocalForwardBridgeConnectionStarting(bridgeActivity, localEndpoint, HybridConnectionClient);
 
-                tcpClient.SendBufferSize = tcpClient.ReceiveBufferSize = 65536;
-                tcpClient.SendTimeout = 60000;
-                var tcpstream = tcpClient.GetStream();
-                var socket = tcpClient.Client;
-                
+                socket.SendBufferSize = socket.ReceiveBufferSize = 65536;
+                socket.SendTimeout = 60000;
+                var tcpstream = new NetworkStream(socket);
+                                
                 using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
                 {
                     // read and write 4-byte header
@@ -231,3 +232,4 @@ namespace Microsoft.Azure.Relay.Bridge
         }
     }
 }
+#endif
