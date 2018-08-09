@@ -34,12 +34,16 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                    " -k abcdefgh" +
                    " -L 127.0.100.1:8008:foo" +
                    " -L 127.0.100.2:8008:bar" +
+#if !NETFRAMEWORK                                           
                    " -L name:baz" +
+#endif                   
                    " -o ConnectTimeout:44" +
                    " -q" +
                    " -R foo:123" +
                    " -R bar:10.1.1.1:123" +
+#if !NETFRAMEWORK                                           
                    " -R baz:abc" +
+#endif                   
                    " -v";
         }
 
@@ -67,16 +71,21 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         "    BindPort : 8008" + textWriter.NewLine +
                         "    RelayName : bar" + textWriter.NewLine +
                         "    HostName : bar.example.com" + textWriter.NewLine +
+#if !NETFRAMEWORK                        
                         "  - BindLocalSocket : test" + textWriter.NewLine +
                         "    RelayName : baz" + textWriter.NewLine +
+#endif                        
                         "RemoteForward : " + textWriter.NewLine +
                         "  - RelayName : foo" + textWriter.NewLine +
                         "    HostPort : 123" + textWriter.NewLine +
                         "  - RelayName : bar" + textWriter.NewLine +
                         "    HostPort : 8008" + textWriter.NewLine +
-                        "    Host : 10.1.1.1" + textWriter.NewLine +
-                        "  - RelayName : baz" + textWriter.NewLine +
-                        "    LocalSocket : foo" + textWriter.NewLine);
+                        "    Host : 10.1.1.1" + textWriter.NewLine 
+#if !NETFRAMEWORK                                                
+                        + "  - RelayName : baz" + textWriter.NewLine +
+                        "    LocalSocket : foo" + textWriter.NewLine 
+#endif                        
+                        );
                 }
             }
             return myFile;
@@ -569,8 +578,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
+#if !NETFRAMEWORK                                    
             Assert.Equal("name", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
+#endif            
 
             Assert.Equal(3, config.RemoteForward.Count);
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
@@ -578,8 +589,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("bar", config.RemoteForward[1].RelayName);
             Assert.Equal(123, config.RemoteForward[1].HostPort);
             Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
+#if !NETFRAMEWORK                                    
             Assert.Equal("baz", config.RemoteForward[2].RelayName);
             Assert.Equal("abc", config.RemoteForward[2].LocalSocket);
+#endif            
 
         }
 
@@ -606,8 +619,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
             Assert.Equal("bar.example.com", config.LocalForward[1].HostName);
+#if !NETFRAMEWORK                                    
             Assert.Equal("test", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
+#endif            
 
             Assert.Equal(3, config.RemoteForward.Count);
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
@@ -615,8 +630,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("bar", config.RemoteForward[1].RelayName);
             Assert.Equal(8008, config.RemoteForward[1].HostPort);
             Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
+#if !NETFRAMEWORK                                    
             Assert.Equal("baz", config.RemoteForward[2].RelayName);
             Assert.Equal("foo", config.RemoteForward[2].LocalSocket);
+#endif            
         }
 
         [Fact]
