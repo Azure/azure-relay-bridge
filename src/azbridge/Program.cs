@@ -142,21 +142,17 @@ namespace azbridge
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
 
-                CancellationTokenSource cancellation = new CancellationTokenSource();
-
                 Host host = new Host(config);
                 host.Start();
 
-                Console.TreatControlCAsInput = true;
-                ConsoleKeyInfo key;
-                do
+                EventWaitHandle _closing = new EventWaitHandle(false, EventResetMode.AutoReset);
+                Console.CancelKeyPress += (sender, eventArgs) =>
                 {
-                    key = Console.ReadKey();
-                }
-                while (!(key.Key == ConsoleKey.C && key.Modifiers == ConsoleModifiers.Control));
-
-                host.Stop();
-
+                    host.Stop();
+                    loggerFactory.Dispose();
+                    _closing.Set();
+                };
+                _closing.WaitOne();
             }
             catch (FileNotFoundException e)
             {
