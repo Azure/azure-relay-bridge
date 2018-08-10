@@ -109,10 +109,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             get => localSocket;
             set
             {
-#if NETFRAMEWORK
-                throw BridgeEventSource.Log.ThrowingException(
-                    new PlatformNotSupportedException($"Unix sockets are only supported in the .NET Core version"));
-#else
                 var val = value != null ? value.Trim('\'', '\"') : value;
                 Uri path;
                 if (val != null && 
@@ -125,7 +121,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         this);
                 }
                 localSocket = val;
-#endif
             }
         }
     }
