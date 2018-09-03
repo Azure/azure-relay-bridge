@@ -13,6 +13,7 @@ namespace Microsoft.Azure.Relay.Bridge
     sealed class LocalForwardHost
     {
         readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
+        readonly Dictionary<string, UdpLocalForwardBridge> udpBridges = new Dictionary<string, UdpLocalForwardBridge>();
 #if !NETFRAMEWORK
         readonly Dictionary<string, SocketLocalForwardBridge> socketListenerBridges = new Dictionary<string, SocketLocalForwardBridge>();
 #endif
@@ -46,7 +47,7 @@ namespace Microsoft.Azure.Relay.Bridge
             }
         }
 
-        void StartEndpoint(LocalForward localForward)
+        void StartEndpoint(LocalForward localForward, LocalForwardBinding binding)
         {
             var startActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStart", activity);
             Uri hybridConnectionUri = null;
@@ -58,7 +59,7 @@ namespace Microsoft.Azure.Relay.Bridge
             hybridConnectionUri = new Uri(rcbs.Endpoint, rcbs.EntityPath);
 
 #if !NETFRAMEWORK
-            if (!string.IsNullOrEmpty(localForward.BindLocalSocket))
+            if (!string.IsNullOrEmpty(binding.BindLocalSocket))
             {
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -71,8 +72,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 try
                 {
                     {
-                        socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs);
-                        socketListenerBridge.Run(localForward.BindLocalSocket);
+                        socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                        socketListenerBridge.Run(binding.BindLocalSocket);
 
                         this.socketListenerBridges.Add(hybridConnectionUri.AbsoluteUri, socketListenerBridge);
                     }
@@ -91,40 +92,86 @@ namespace Microsoft.Azure.Relay.Bridge
             }
 #endif
 
-            TcpLocalForwardBridge tcpListenerBridge = null;
-            try
+            if (binding.BindPort > 0)
             {
-                IPHostEntry localHostEntry = Dns.GetHostEntry(Dns.GetHostName());
-
-                // Resolve the host name. Whether this is in the hosts file or in some 
-                // form of DNS server shouldn't matter for us here (means we do not touch 
-                // the hosts file in this process), but the address MUST resolve to a local 
-                // endpoint or to a loopback endpoint
-
-                IPAddress bindToAddress;
-                Random rnd = new Random();
-                if (!IPAddress.TryParse(localForward.BindAddress, out bindToAddress))
+                TcpLocalForwardBridge tcpListenerBridge = null;
+                try
                 {
-                    IPHostEntry hostEntry = Dns.GetHostEntry(localForward.BindAddress);
-                    bindToAddress = hostEntry.AddressList[rnd.Next(hostEntry.AddressList.Length)];
-                }
+                    IPHostEntry localHostEntry = Dns.GetHostEntry(Dns.GetHostName());
 
-                if (bindToAddress != null)
-                {
-                    tcpListenerBridge = TcpLocalForwardBridge.FromConnectionString(this.config, rcbs);
-                    tcpListenerBridge.Run(new IPEndPoint(bindToAddress, localForward.BindPort));
-                    
-                    this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
+                    // Resolve the host name. Whether this is in the hosts file or in some 
+                    // form of DNS server shouldn't matter for us here (means we do not touch 
+                    // the hosts file in this process), but the address MUST resolve to a local 
+                    // endpoint or to a loopback endpoint
+
+                    IPAddress bindToAddress;
+                    Random rnd = new Random();
+                    if (!IPAddress.TryParse(binding.BindAddress, out bindToAddress))
+                    {
+                        IPHostEntry hostEntry = Dns.GetHostEntry(binding.BindAddress);
+                        bindToAddress = hostEntry.AddressList[rnd.Next(hostEntry.AddressList.Length)];
+                    }
+
+                    if (bindToAddress != null)
+                    {
+                        tcpListenerBridge =
+                            TcpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                        tcpListenerBridge.Run(new IPEndPoint(bindToAddress, binding.BindPort));
+
+                        this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
+                    }
+
+                    BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
                 }
-                BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
+                catch (Exception e)
+                {
+                    BridgeEventSource.Log.LocalForwardBridgeStartFailure(startActivity, localForward, e);
+                    if (!config.ExitOnForwardFailure.HasValue ||
+                        config.ExitOnForwardFailure.Value)
+                    {
+                        throw;
+                    }
+                }
             }
-            catch (Exception e)
+            else  if ( binding.BindPort < 0 )
             {
-                BridgeEventSource.Log.LocalForwardBridgeStartFailure(startActivity, localForward, e);
-                if ( !config.ExitOnForwardFailure.HasValue ||
-                     config.ExitOnForwardFailure.Value)
+                UdpLocalForwardBridge udpListenerBridge = null;
+                try
                 {
-                    throw;
+                    IPHostEntry localHostEntry = Dns.GetHostEntry(Dns.GetHostName());
+
+                    // Resolve the host name. Whether this is in the hosts file or in some 
+                    // form of DNS server shouldn't matter for us here (means we do not touch 
+                    // the hosts file in this process), but the address MUST resolve to a local 
+                    // endpoint or to a loopback endpoint
+
+                    IPAddress bindToAddress;
+                    Random rnd = new Random();
+                    if (!IPAddress.TryParse(binding.BindAddress, out bindToAddress))
+                    {
+                        IPHostEntry hostEntry = Dns.GetHostEntry(binding.BindAddress);
+                        bindToAddress = hostEntry.AddressList[rnd.Next(hostEntry.AddressList.Length)];
+                    }
+
+                    if (bindToAddress != null)
+                    {
+                        udpListenerBridge =
+                            UdpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                        udpListenerBridge.Run(new IPEndPoint(bindToAddress, -binding.BindPort));
+
+                        this.udpBridges.Add(hybridConnectionUri.AbsoluteUri, udpListenerBridge);
+                    }
+
+                    BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
+                }
+                catch (Exception e)
+                {
+                    BridgeEventSource.Log.LocalForwardBridgeStartFailure(startActivity, localForward, e);
+                    if (!config.ExitOnForwardFailure.HasValue ||
+                        config.ExitOnForwardFailure.Value)
+                    {
+                        throw;
+                    }
                 }
             }
 
@@ -149,7 +196,10 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             foreach (var localForwardSetting in localForwardSettings)
             {
-                this.StartEndpoint(localForwardSetting);
+                foreach (var binding in localForwardSetting.Bindings)
+                {
+                    this.StartEndpoint(localForwardSetting, binding);
+                }
             }
         }
 
@@ -166,6 +216,25 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, tcpLocalForwardBridge.GetIpEndPointInfo(), e);
                 if ( Fx.IsFatal(e))
+                {
+                    throw;
+                }
+            }
+        }
+
+        void StopEndpoint(UdpLocalForwardBridge udpLocalForwardBridge)
+        {
+            EventTraceActivity stopActivity = BridgeEventSource.NewActivity("LocalForwardBridgeStop", activity);
+            try
+            {
+                BridgeEventSource.Log.LocalForwardBridgeStopping(stopActivity, udpLocalForwardBridge.GetIpEndPointInfo());
+                udpLocalForwardBridge.Close();
+                BridgeEventSource.Log.LocalForwardBridgeStop(stopActivity, udpLocalForwardBridge.GetIpEndPointInfo(), udpLocalForwardBridge.HybridConnectionClient.Address.ToString());
+            }
+            catch (Exception e)
+            {
+                BridgeEventSource.Log.LocalForwardBridgeStopFailure(stopActivity, udpLocalForwardBridge.GetIpEndPointInfo(), e);
+                if (Fx.IsFatal(e))
                 {
                     throw;
                 }
@@ -199,6 +268,16 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 this.StopEndpoint(bridge);
             }
+            foreach (var bridge in this.udpBridges.Values)
+            {
+                this.StopEndpoint(bridge);
+            }
+#if !NETFRAMEWORK
+            foreach (var bridge in this.socketListenerBridges.Values)
+            {
+                this.StopEndpoint(bridge);
+            }
+#endif
         }
 
     }

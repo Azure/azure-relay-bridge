@@ -635,13 +635,13 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeStopping(EventTraceActivity eventTraceActivity, string tcpLocalForwardBridge)
+        internal void LocalForwardBridgeStopping(EventTraceActivity eventTraceActivity, string localForwardBridge)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStopping)))
             {
-                diags.Write(nameof(LocalForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge } });
+                diags.Write(nameof(LocalForwardBridgeStopping), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { localForwardBridge = localForwardBridge } });
             }
-            LocalForwardBridgeStopping(tcpLocalForwardBridge);
+            LocalForwardBridgeStopping(localForwardBridge);
         }
 
         [Event(133,
@@ -675,11 +675,11 @@ namespace Microsoft.Azure.Relay.Bridge
         }
 
         [NonEvent]
-        internal void LocalForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, string tcpLocalForwardBridge, Exception exception)
+        internal void LocalForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, string localForwardBridge, Exception exception)
         {
             if (diags.IsEnabled(nameof(LocalForwardBridgeStopFailure)))
             {
-                diags.Write(nameof(LocalForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { tcpLocalForwardBridge, exception } });
+                diags.Write(nameof(LocalForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForwardBridge = localForwardBridge, exception } });
             }
             LocalForwardBridgeStopFailure(exception.GetType().FullName, exception.Message, exception.StackTrace);
         }
