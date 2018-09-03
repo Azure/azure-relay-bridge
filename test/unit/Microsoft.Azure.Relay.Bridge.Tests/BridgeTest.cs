@@ -1,19 +1,18 @@
-﻿
+﻿// // Copyright (c) Microsoft. All rights reserved.
+// // Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
 namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
     using System.IO;
     using System.Net;
     using System.Net.Sockets;
-    using System.Text;
-    using System.Threading.Tasks;
-    using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Xunit;
 
     public class BridgeTest : IClassFixture<LaunchSettingsFixture>
     {
-        private readonly LaunchSettingsFixture launchSettingsFixture;
+        readonly LaunchSettingsFixture launchSettingsFixture;
 
         public BridgeTest(LaunchSettingsFixture launchSettingsFixture)
         {
@@ -32,12 +31,14 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             {
                 BindAddress = "127.0.97.1",
                 BindPort = 29876,
+                PortName = "test",
                 RelayName = "a1"
             });
             cfg.RemoteForward.Add(new RemoteForward
             {
                 Host = "127.0.97.2",
                 HostPort = 29877,
+                PortName = "test",
                 RelayName = "a1"
             });
             Host host = new Host(cfg);
@@ -63,7 +64,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     }
                 });
 
-
                 var s = new TcpClient();
                 s.Connect("127.0.97.1", 29876);
                 var sstream = s.GetStream();
@@ -79,6 +79,76 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                 s.Dispose();
                 l.Stop();
+            }
+            finally
+            {
+                host.Stop();
+            }
+        }
+
+        [Fact]
+        public void UdpBridge()
+        {
+            // set up the bridge first
+            Config cfg = new Config
+            {
+                AzureRelayConnectionString = Utilities.GetConnectionString()
+            };
+            cfg.LocalForward.Add(new LocalForward
+            {
+                BindAddress = "127.0.97.1",
+                BindPort = -29876,
+                PortName = "testu",
+                RelayName = "a2"
+            });
+            cfg.RemoteForward.Add(new RemoteForward
+            {
+                Host = "127.0.97.2",
+                HostPort = -29877,
+                PortName = "testu",
+                RelayName = "a2"
+            });
+            Host host = new Host(cfg);
+            host.Start();
+
+            try
+            {
+                // now try to use it
+                var l = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.97.2"), 29877));
+                l.ReceiveAsync().ContinueWith(async (t) =>
+                {
+                    var c = t.Result;
+                    var stream = c.Buffer;
+                    using (var b = new StreamReader(new MemoryStream(stream)))
+                    {
+                        var text = b.ReadLine();
+                        var m1 = new MemoryStream();
+                        using (var w = new StreamWriter(m1))
+                        {
+                            w.WriteLine(text);
+                            w.Flush();
+                            await l.SendAsync(m1.GetBuffer(), (int)m1.Length, c.RemoteEndPoint);
+                        }
+                    }
+                });
+
+                var s = new UdpClient();
+                s.Connect("127.0.97.1", 29876);
+                MemoryStream m = new MemoryStream();
+                using (var w = new StreamWriter(m))
+                {
+                    w.WriteLine("Hello!");
+                    w.Flush();
+                    s.Send(m.GetBuffer(), (int)m.Length);
+                    IPEndPoint addr = null;
+                    var buf = s.Receive(ref addr);
+                    using (var b = new StreamReader(new MemoryStream(buf)))
+                    {
+                        Assert.Equal("Hello!", b.ReadLine());
+                    }
+                }
+
+                s.Dispose();
             }
             finally
             {
@@ -103,12 +173,14 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             var lf = new LocalForward
             {
                 BindLocalSocket = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName()),
-                RelayName = "a2"
+                RelayName = "a2",
+                PortName = "test"
             };
             var rf = new RemoteForward
             {
                 LocalSocket = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()),
-                RelayName = "a2"
+                RelayName = "a2",
+                PortName = "test"
             };
             cfg.LocalForward.Add(lf);
             cfg.RemoteForward.Add(rf);
@@ -195,7 +267,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     l.Stop();
                 });
 
-
                 var s = new TcpClient();
                 s.Connect("127.0.97.1", 29876);
                 s.NoDelay = true;
@@ -211,14 +282,13 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         }
                     });
                 }
-                s.Dispose();
 
+                s.Dispose();
             }
             finally
             {
                 host.Stop();
             }
         }
-                                    
     }
 }
