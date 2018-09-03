@@ -8,9 +8,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Net.NetworkInformation;
     using System.Text.RegularExpressions;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
@@ -19,11 +16,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     public class LocalForward
     {
         private RelayConnectionStringBuilder relayConnectionStringBuilder;
-        private string bindAddress;
-        private string hostName;
-        private int bindPort;
         private string relayName;
-        private string bindLocalSocket = null;
+        List<LocalForwardBinding> bindings = new List<LocalForwardBinding>();
+
 
         public LocalForward()
         {
@@ -65,75 +60,25 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             get
             {
-                return bindAddress;
-            }
-
-            set
-            {
-                var val = value != null ? value.Trim('\'', '\"') : value;
-                if (val == null)
+                if (bindings.Count == 1)
                 {
-                    bindAddress = null;
+                    return bindings[0].BindAddress;
                 }
                 else
                 {
-                    // invalid characters in expression?
-                    if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
-                    {
-                        throw BridgeEventSource.Log.ArgumentOutOfRange(
-                            nameof(BindAddress),
-                            $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression bindable on the local host",
-                            this);
-                    }
-
-                    // "any" address?
-                    if (!val.Equals("0.0.0.0") &&
-                        !val.Equals("::") &&
-                        !val.Equals("any", StringComparison.InvariantCultureIgnoreCase) &&
-                        !val.Equals("anyv6", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        try
-                        {
-                            var computerProperties = IPGlobalProperties.GetIPGlobalProperties();
-                            var unicastAddresses = computerProperties.GetUnicastAddresses();
-                            IList<IPAddress> ipAddresses = null;
-
-                            ipAddresses = IPAddress.TryParse(val, out var ipAddress)
-                               ? new[] { ipAddress }
-                               : Dns.GetHostEntry(val).AddressList;
-
-                            // check whether at least one of the resolved addresses is indeed
-                            // locally bindable or a loopback address
-                            if ((from hostAddress in ipAddresses
-                                 where IPAddress.IsLoopback(hostAddress)
-                                 select hostAddress).FirstOrDefault() != null ||
-                                (from unicastAddress in unicastAddresses
-                                 join hostAddress in ipAddresses on unicastAddress.Address equals hostAddress
-                                 select hostAddress).FirstOrDefault() != null)
-                            {
-                                // we're only picking up the string. We do this resolution again
-                                // when we bind the listener for real because we may have to 
-                                // pick by family and we may run into used ports.
-                                bindAddress = val;
-                                return;
-                            }
-                        }
-                        catch
-                        {
-                            // if the resolution fails we'll want to throw
-                            // the same (below) as if the query fails
-                        }
-                        throw BridgeEventSource.Log.ArgumentOutOfRange(
-                            nameof(BindAddress),
-                            $"Invalid -b/BindAddress value: {val}. Must be a valid IPv4, IPv6, or DNS host name expression bindable on the local host",
-                            this);
-                    }
-
-                    // if the address is "any", we just set it to null
-                    bindAddress = null;
+                    return null;
                 }
-
-                bindAddress = value;
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new LocalForwardBinding { BindAddress = value });
+                }
+                else
+                {
+                    bindings[0].BindAddress = value;
+                }
             }
         }
 
@@ -141,36 +86,77 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             get
             {
-                return hostName;
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].HostName;
+                }
+                else
+                {
+                    return null;
+                }
             }
-
             set
             {
-                var val = value != null ? value.Trim('\'', '\"') : value;
-                if (Uri.CheckHostName(val) != UriHostNameType.Dns)
+                if (bindings.Count == 0)
                 {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(BindAddress),
-                        $"Invalid HostName value: {val}. Must be a valid DNS host name",
-                        this);
+                    bindings.Add(new LocalForwardBinding { HostName = value });
                 }
-                hostName = val;
+                else
+                {
+                    bindings[0].HostName = value;
+                }
             }
         }
 
         public int BindPort
         {
-            get => bindPort;
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].BindPort;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
             set
             {
-                if (value < 0 || value > 65535)
+                if (bindings.Count == 0)
                 {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(BindPort),
-                        $"Invalid BindPort value: {value}. Must be in the IP port range 0..65535.",
-                        this);
-                }              
-                bindPort = value;
+                    bindings.Add(new LocalForwardBinding { BindPort = value });
+                }
+                else
+                {
+                    bindings[0].BindPort = value;
+                }
+            }
+        }
+
+        public string PortName
+        {
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].PortName;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new LocalForwardBinding { PortName = value });
+                }
+                else
+                {
+                    bindings[0].PortName = value;
+                }
             }
         }
 
@@ -194,21 +180,43 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         public string BindLocalSocket
         {
-            get => bindLocalSocket;
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].BindLocalSocket;
+                }
+                else
+                {
+                    return null;
+                }
+            }
             set
             {
-                var val = value != null ? value.Trim('\'', '\"') : value;
-                Uri path;
-                if (val != null && 
-                    !Uri.TryCreate(val, UriKind.Absolute, out path) &&
-                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
+                if (bindings.Count == 0)
                 {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(BindLocalSocket),
-                        $"Invalid BindLocalSocket value: {val}. Must be a valid local socket expression",
-                        this);
+                    bindings.Add(new LocalForwardBinding { BindLocalSocket = value });
                 }
-                bindLocalSocket = val;
+                else
+                {
+                    bindings[0].BindLocalSocket = value;
+                }
+            }
+        }
+
+        public List<LocalForwardBinding> Bindings
+        {
+            get
+            {
+                return bindings;
+            }
+            set
+            {
+                bindings.Clear();
+                if (value != null)
+                {
+                    bindings.AddRange(value);
+                }
             }
         }
     }

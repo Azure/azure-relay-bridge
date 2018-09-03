@@ -4,6 +4,7 @@
 namespace Microsoft.Azure.Relay.Bridge.Configuration
 {
     using System;
+    using System.Collections.Generic;
     using System.Text.RegularExpressions;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
@@ -13,19 +14,15 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     {
         private RelayConnectionStringBuilder relayConnectionStringBuilder;
         private string relayName;
-        private string host;
-        private int hostPort;
-        private string localSocket = null;
+        List<RemoteForwardBinding> bindings = new List<RemoteForwardBinding>();
 
         public RemoteForward()
         {
         }
 
-        public RemoteForward(string connectionString, string Host, int targetPort)
+        public RemoteForward(string connectionString)
         {
             this.relayConnectionStringBuilder = new RelayConnectionStringBuilder(connectionString);
-            this.Host = Host;
-            this.HostPort = targetPort;
         }
 
         public string ConnectionString
@@ -53,39 +50,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             get { return relayConnectionStringBuilder; }
         }
 
-        public string Host
-        {
-            get => host;
-            set
-            {
-                var val = value != null ? value.Trim('\'', '\"') : value;
-                if (Uri.CheckHostName(val) == UriHostNameType.Unknown)
-                {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(Host),
-                        $"Invalid Host value: {val}. Must be a valid host name",
-                        this);
-                }
-                host = val;
-            }
-        }
-
-        public int HostPort
-        {
-            get => hostPort;
-            set
-            {
-                if (value < 0 || value > 65535)
-                {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(HostPort),
-                        $"Invalid HostPort value: {value}. Must be in the IP port range 0..65535.",
-                        this);
-                }
-                hostPort = value;
-            }
-        }
-
         public string RelayName
         {
             get => relayName;
@@ -104,23 +68,125 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             }
         }
 
-        public string LocalSocket
+        public string Host
         {
-            get => localSocket;
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].Host;
+                }
+                else
+                {
+                    return null;
+                }
+            }
             set
             {
-                var val = value != null ? value.Trim('\'', '\"') : value;
-                Uri path;
-                if (val != null && 
-                    !Uri.TryCreate(val, UriKind.Absolute, out path) &&
-                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
+                if (bindings.Count == 0)
                 {
-                    throw BridgeEventSource.Log.ArgumentOutOfRange(
-                        nameof(LocalSocket),
-                        $"Invalid LocalSocket value: {val}. Must be a valid local socket expression",
-                        this);
+                    bindings.Add(new RemoteForwardBinding { Host = value });
                 }
-                localSocket = val;
+                else 
+                {
+                    bindings[0].Host = value;
+                }
+            }
+        }
+
+        public string PortName
+        {
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].PortName;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new RemoteForwardBinding { PortName = value });
+                }
+                else
+                {
+                    bindings[0].PortName = value;
+                }
+            }
+        }
+
+        public int HostPort
+        {
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].HostPort;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new RemoteForwardBinding { HostPort = value });
+                }
+                else 
+                {
+                    bindings[0].HostPort = value;
+                }
+            }
+        }                               
+
+
+        public string LocalSocket
+        {
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].LocalSocket;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new RemoteForwardBinding { LocalSocket = value });
+                }
+                else 
+                {
+                    bindings[0].LocalSocket = value;
+                }
+            }
+        }
+    
+
+        public List<RemoteForwardBinding> Bindings
+        {
+            get
+            {
+                return bindings;
+            }
+            set
+            {
+                bindings.Clear();
+                if (value != null)
+                {
+                    bindings.AddRange(value);
+                }
             }
         }
     }

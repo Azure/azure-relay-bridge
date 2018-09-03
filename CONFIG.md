@@ -78,14 +78,47 @@ Azure Relay shared access policy name to use (see -x).
 
 Azure Relay shared access policy key to use (see -x).
 
-**-L [bind_address:]port:relay_name**<br/>
-**-L local_socket:relay_name**<br/>
+**-L [bind_address:]port[/port_name]{;...}:relay_name**<br/>
+**-L local_socket[/port_name]{;...}:relay_name**<br/>
 
-Specifies that connections to the given TCP port or Unix socket
+Specifies that connections to the given TCP/UDP port(s) or Unix socket(s)
 on the local (client) host are to be bound (forwarded) to the given 
-Azure Relay name. This works by allocating a socket to listen 
-to either a TCP port on the local side, optionally bound to the 
-specified bind_address, or to a Unix socket*. Whenever a connection
+Azure Relay name. 
+
+- `bind_address`: Optional local IP address to bind the 
+   listener to. This may be a DNS name or a numerical IPv4 or
+   IPv6 address expression and must resolve to a network endpoint
+   on the local machine. When omitted, the listener is bound to
+   all addresses ("any").
+- `port`: TCP or UDP port number. TCP ports are the default. 
+   UDP port numbers must be suffixed with `U`, 
+   e.g. `-L 3434U:relay`.
+- `local_socket`: Unix socket name. The expression will be 
+   interpreted as a Unix socket name if it's not a valid `port`
+   expression (i.e. not a number, with optional protocol suffix).
+- `port_name`: Optional logical name for the port. If a "local"
+   TCP port ought to be mapped to a different "remote" TCP port,
+   a logical name allows this clearly, e.g. `-L 13389/rdp:relay`
+   matches to `-R relay:rdp/3389` on the logical port name `rdp`, 
+   which is bound to TCP port 13389 on the local side and TCP
+   port 3389 on the remote side. For TCP/UDP, the default value 
+   for `port_name` is the `port` value itself, meaning 
+   `-L 13389:relay` can also be matched with `-R relay:13389/3389`. 
+   For Unix sockets, this logical mapping can also be used, and 
+   the default value is the name of `local_socket`. It is 
+   permitted for multiple local TCP ports and Unix sockets or 
+   for multiple UDP ports to use the same logical port name. UDP
+   ports must always be matched to remote UDP forwarders.  
+- `relay_name`: Name of the relay to bind the port(s) to.
+
+There can be multiple local binding expressions given for a 
+`relay_name`, separated by semicolons. The expressions can 
+also mix protocols, e.g. `-L 7777;7777U:relay` binds the 
+TCP and UDP ports 7777 to one relay name.
+
+The bridge opens a listener on a TCP or UDP port or a Unix socket 
+"here". The TCP or UDP listener is optionally bound to the 
+specified `bind_address`. Whenever a connection
 is made to the local port or socket, the connection is forwarded
 to a connected remote bridge via the chosen Relay entity.
 
@@ -100,7 +133,8 @@ bind_address of ``localhost'' indicates that the listening port
 be bound for local use only, while an empty address or '*' indi-
 cates that the port should be available from all interfaces.
 
-The -L option can be used multiple times on a single command line.
+The -L option can be used multiple times on a single command line,
+but only once per `relay_name`. 
 
 **-o option**
 
@@ -113,24 +147,43 @@ is no separate command-line flag.
 Quiet mode.  Causes most warning and diagnostic messages to be
 suppressed.
 
-**-R relay_name:port**<br/>
-**-R relay_name:host:hostport**<br/>
-**-R relay_name:local_socket**
+**-R relay_name:[port_name/]hostport{;...}**<br/>
+**-R relay_name:host:[port_name/]hostport{;...}**<br/>
+**-R relay_name:[port_name/]local_socket{;...}**
 
 Specifies that connections to the given Azure Relay name
-are to be forwarded to the given host and port, or Unix socket*, 
-on the local side. Whenever a connection is made to the Relay, 
+and optional logical port name are to be forwarded to the 
+given host and port, or Unix socket*. 
+Whenever a connection is made to the Relay and logical port, 
 the connection is forwarded to this listener (or a concurrently 
 connected listener in a random load distribution fashion), and a 
 then a forwarding connection is made to either port, host:hostport,
 or local_socket, from the local machine.
 
+- `relay_name`: Name of the relay to bind the forwarder to.
+- `port_name`: Optional logical name for the port as defined by
+   the local forwarder bound to this relay (see -L).   
+- `host`: Host name or IP address to forward to.
+- `port`: TCP or UDP port number. TCP ports are the default. 
+   UDP port numbers must be suffixed with `U`, 
+   e.g. `-R relay:3434U`. UDP forwarders can only be bound to 
+   logcial UDP ports.
+- `local_socket`: Unix socket name. The expression will be 
+   interpreted as a Unix socket name if it's not a valid `port`
+   expression (i.e. not a number, with optional protocol suffix).
+
+There can be multiple local binding expressions given for a 
+`relay_name`, separated by semicolons. The expressions can 
+also mix protocols, e.g. `-R relay:7777;7777U` binds to 
+TCP and UDP port forwarders for 7777 on one relay name.
+
 Port forwardings can also be specified in the configuration file.
-Privileged ports can be forwarded only when logging in as root.  
+Privileged ports can be forwarded only when runing with elevated privileges.  
 IPv6 addresses can be specified by enclosing the address in square
 brackets.
 
-The -R option can be used multiple times on a single command line.
+The -R option can be used multiple times on a single command line,
+but only once for each `relay_name`.
 
 **-S signature**
 
@@ -245,12 +298,38 @@ the -L and -R command line options above.
 The following properties are defined for LocalForward. LocalForward is a list
 and multiple entries are permitted.
 
+* **RelayName** - name of the Azure Relay name to bind to
+* **ConnectionString** - optional Azure Relay connection string to use just for this forwarder, overriding the global **AzureRelayConnectionString** property.
+
+For a single port binding on the Relay name, the following properties can be 
+used on the same entry. For multiple bindings they can be used to form a list.
+
 * **BindAddress** - network address to bind the socket to
-* **HostName** - remote host name represented by this entry
+* **PortName** - Logical port name
 * **BindPort** - TCP port to bind the socket to
 * **BindLocalSocket** - named UNIX socket to bind to
-* **RelayName** - name of the Azure Relay name to bind to
-* **ConnectionString** - Azure Relay connection string to use for this forwarder
+* **RemoteHostName** - optionally, remote host name represented by this entry (purely informational)
+
+Examples:
+
+- Single listener binding:
+  ``` YAML
+     - RelayName: myrelay
+       BindAddress: 127.0.8.1
+       BindPort: 8888    
+  ```
+- Multiple listener binding:
+  ``` YAML
+     - RelayName: myrelay
+       Bindings:          
+        - BindAddress: 127.0.8.1
+          BindPort: 5671
+          PortName: amqps 
+        - BindAddress: 127.0.8.1
+          BindPort: 5672    
+          PortName: amqp
+  ```
+
 
 Using `BindAddress` and `BindPort` is mutually exclusive with use of the 
 `BindLocalSocket` option. The bind_address argument is optional and when
@@ -258,7 +337,7 @@ omitted, the default is for the listener to bind to all interfaces.
 
 The `RelayName` option is always required.
 
-The `HostName` is property optional and used for documentation. Host
+The `RemoteHostName` is property optional and used for documentation. Host
 names that shall resolve to the -L local forwarder address need to
 be added to the local hosts file.
 
@@ -271,10 +350,35 @@ The following properties are defined for RemoteForward. RemoteForward is a list
 and multiple entries are permitted.
 
 * **RelayName** - name of the Azure Relay name to bind to
+* **ConnectionString** - Azure Relay connection string to use for this forwarder
+
+For a single port binding on the Relay name, the following properties can be 
+used on the same entry. For multiple bindings they can be used to form a list.
+
 * **Host** - network address to forward to
 * **HostPort** - TCP port on the host to forward to
+* **PortName** - Logical port name
 * **LocalSocket** - named UNIX socket forward to
-* **ConnectionString** - Azure Relay connection string to use for this forwarder
+
+Examples:
+
+- Single listener binding:
+  ``` YAML
+     - RelayName: myrelay
+       Host: localhost
+       HostPort: 8888    
+  ```
+- Multiple listener binding:
+  ``` YAML
+     - RelayName: myrelay
+       Bindings:
+        - Host: broker.corp.example.com
+          HostPort: 5671
+          PortName: amqps 
+        - Host: broker.corp.example.com
+          HostPort: 5672    
+          PortName: amqp
+  ```
 
 Using `Host` and `HostPort` is mutually exclusive with use of the 
 `LocalSocket` option. The host argument is optional and when
