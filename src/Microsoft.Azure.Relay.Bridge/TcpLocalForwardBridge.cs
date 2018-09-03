@@ -6,6 +6,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using System;
     using System.Net;
     using System.Net.Sockets;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration;
@@ -13,6 +14,8 @@ namespace Microsoft.Azure.Relay.Bridge
 
     sealed class TcpLocalForwardBridge : IDisposable
     {
+        public string PortName { get; }
+
         private readonly Config config;
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -23,8 +26,9 @@ namespace Microsoft.Azure.Relay.Bridge
         TcpListener tcpListener;
         string localEndpoint;
 
-        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString)
+        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
         {
+            PortName = portName;
             this.config = config;
             this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
         }
@@ -40,9 +44,9 @@ namespace Microsoft.Azure.Relay.Bridge
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
         public static TcpLocalForwardBridge FromConnectionString(Config config,
-            RelayConnectionStringBuilder connectionString)
+            RelayConnectionStringBuilder connectionString, string portName)
         {
-            return new TcpLocalForwardBridge(config, connectionString);
+            return new TcpLocalForwardBridge(config, connectionString, portName);
         }
 
         public void Close()
@@ -182,17 +186,42 @@ namespace Microsoft.Azure.Relay.Bridge
                 
                 using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
                 {
-                    // read and write 4-byte header
+                    // read and write version preamble
                     hybridConnectionStream.WriteTimeout = 60000;
+
+                    // write the 1.0 header with the portname for this connection
+                    byte[] portNameBytes = Encoding.UTF8.GetBytes(PortName);
                     byte[] preamble =
                     {
                         /*major*/ 1, 
                         /*minor*/ 0, 
-                        /*features*/ 0,
-                        /*reserved*/ 0
+                        /*stream mode*/ 0,
+                        (byte)portNameBytes.Length
                     };
                     await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length);
-                    for (int read = 0; read < preamble.Length; read += await hybridConnectionStream.ReadAsync(preamble, read, preamble.Length - read));
+                    await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length);
+                    
+                    byte[] replyPreamble = new byte[3];
+                    for (int read = 0; read < replyPreamble.Length;)
+                    {
+                        var r = await hybridConnectionStream.ReadAsync(replyPreamble, read,
+                            replyPreamble.Length - read);
+                        if (r == 0)
+                        {
+                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
+                            await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                            return;
+                        }
+                        read += r;
+                    }
+
+                    if (!(replyPreamble[0] == 1 && replyPreamble[1] == 0 && replyPreamble[2] == 0)) 
+                    {
+                        // version not supported
+                        await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
+                        await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                        return;
+                    }
 
 
                     BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, localEndpoint, HybridConnectionClient);
