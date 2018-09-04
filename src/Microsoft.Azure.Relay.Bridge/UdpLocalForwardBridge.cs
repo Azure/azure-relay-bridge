@@ -4,6 +4,9 @@
 namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
+    using System.Collections.Concurrent;
+    using System.Collections.Generic;
+    using System.IO;
     using System.Net;
     using System.Net.Sockets;
     using System.Text;
@@ -12,21 +15,22 @@ namespace Microsoft.Azure.Relay.Bridge
     using Configuration;
     using Microsoft.Azure.Relay;
 
-    sealed class TcpLocalForwardBridge : IDisposable
+    sealed class UdpLocalForwardBridge : IDisposable
     {
         public string PortName { get; }
 
         private readonly Config config;
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        Dictionary<IPEndPoint, UdpRoute> routes = new Dictionary<IPEndPoint, UdpRoute>();
 
         readonly HybridConnectionClient hybridConnectionClient;
         private EventTraceActivity listenerActivity;
-        Task<Task> acceptSocketLoop;
+        Task<Task> receiveDatagramLoop;
 
-        TcpListener tcpListener;
+        UdpClient udpClient;
         string localEndpoint;
 
-        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
+        public UdpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
         {
             PortName = portName;
             this.config = config;
@@ -43,10 +47,10 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
-        public static TcpLocalForwardBridge FromConnectionString(Config config,
+        public static UdpLocalForwardBridge FromConnectionString(Config config,
             RelayConnectionStringBuilder connectionString, string portName)
         {
-            return new TcpLocalForwardBridge(config, connectionString, portName);
+            return new UdpLocalForwardBridge(config, connectionString, portName);
         }
 
         public void Close()
@@ -61,8 +65,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 }
                 this.IsOpen = false;
                 this.cancellationTokenSource.Cancel();
-                this.tcpListener?.Stop();
-                this.tcpListener = null;
+                this.udpClient?.Close();
+                this.udpClient = null;
             }
             catch (Exception ex)
             {
@@ -96,10 +100,9 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 this.IsOpen = true;
                 BridgeEventSource.Log.LocalForwardListenerStarting(listenerActivity, localEndpoint);
-                this.tcpListener = new TcpListener(listenEndpoint);
-                this.tcpListener.Start();
-                this.acceptSocketLoop = Task.Factory.StartNew(AcceptSocketLoopAsync);
-                this.acceptSocketLoop.ContinueWith(AcceptSocketLoopFaulted, TaskContinuationOptions.OnlyOnFaulted);
+                this.udpClient = new UdpClient(listenEndpoint);
+                this.receiveDatagramLoop = Task.Factory.StartNew(ReceiveDatagramAsync);
+                this.receiveDatagramLoop.ContinueWith(ReceiveLoopFaulted, TaskContinuationOptions.OnlyOnFaulted);
                 BridgeEventSource.Log.LocalForwardListenerStart(listenerActivity, localEndpoint);
             }
             catch (Exception exception)
@@ -110,17 +113,24 @@ namespace Microsoft.Azure.Relay.Bridge
             }
         }
 
-        async Task AcceptSocketLoopAsync()
+        void ReceiveLoopFaulted(Task<Task> t)
         {
+            BridgeEventSource.Log.LocalForwardSocketAcceptLoopFailed(listenerActivity, t.Exception);
+            this.LastError = t.Exception;
+            this.NotifyException?.Invoke(this, EventArgs.Empty);
+            this.Close();
+        }
 
+        async Task ReceiveDatagramAsync()
+        {
             while (!cancellationTokenSource.Token.IsCancellationRequested)
             {
                 var socketActivity = BridgeEventSource.NewActivity("LocalForwardSocket");
-                TcpClient socket;
+                UdpReceiveResult datagram;
 
                 try
                 {
-                    socket = await this.tcpListener.AcceptTcpClientAsync();
+                    datagram = await this.udpClient.ReceiveAsync();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -132,60 +142,16 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 this.LastAttempt = DateTime.Now;
 
-                BridgeSocketConnectionAsync(socket)
-                    .ContinueWith((t, s) =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            BridgeEventSource.Log.LocalForwardSocketError(socketActivity, localEndpoint, t.Exception);
-                        }
-                        socket.Dispose();
-                    }, TaskContinuationOptions.OnlyOnFaulted)
-                    .ContinueWith((t, s) =>
-                    {
-
-                        try
-                        {
-                            BridgeEventSource.Log.LocalForwardSocketComplete(socketActivity, localEndpoint);
-                            socket.Close();
-                            BridgeEventSource.Log.LocalForwardSocketClosed(socketActivity, localEndpoint);
-                        }
-                        catch (Exception e)
-                        {
-                            if (Fx.IsFatal(e))
-                            {
-                                throw;
-                            }
-                            BridgeEventSource.Log.LocalForwardSocketCloseFailed(socketActivity, localEndpoint, e);
-                            socket.Dispose();
-                        }
-                    }, TaskContinuationOptions.OnlyOnRanToCompletion)
-                    .Fork();
-            }
-        }
-
-        void AcceptSocketLoopFaulted(Task<Task> t)
-        {
-            BridgeEventSource.Log.LocalForwardSocketAcceptLoopFailed(listenerActivity, t.Exception);
-            this.LastError = t.Exception;
-            this.NotifyException?.Invoke(this, EventArgs.Empty);
-            this.Close();
-        }
-
-        async Task BridgeSocketConnectionAsync(TcpClient tcpClient)
-        {
-            EventTraceActivity bridgeActivity = BridgeEventSource.NewActivity("LocalForwardBridgeConnection");
-            try
-            {
-                BridgeEventSource.Log.LocalForwardBridgeConnectionStarting(bridgeActivity, localEndpoint, HybridConnectionClient);
-
-                tcpClient.SendBufferSize = tcpClient.ReceiveBufferSize = 65536;
-                tcpClient.SendTimeout = 60000;
-                var tcpstream = tcpClient.GetStream();
-                var socket = tcpClient.Client;
-                
-                using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
+                if (routes.TryGetValue(datagram.RemoteEndPoint, out var route))
                 {
+                    using (var ct = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
+                    {
+                        await route.SendAsync(datagram, ct.Token);
+                    }
+                }
+                else
+                {
+                    var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync();
                     // read and write version preamble
                     hybridConnectionStream.WriteTimeout = 60000;
 
@@ -194,13 +160,13 @@ namespace Microsoft.Azure.Relay.Bridge
                     byte[] preamble =
                     {
                         /*major*/ 1, 
-                        /*minor*/ 0, 
-                        /*stream mode*/ 0,
+                        /*minor*/ 0,
+                        /*dgram*/ 1,
                         (byte)portNameBytes.Length
                     };
                     await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length);
                     await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length);
-                    
+
                     byte[] replyPreamble = new byte[3];
                     for (int read = 0; read < replyPreamble.Length;)
                     {
@@ -215,7 +181,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         read += r;
                     }
 
-                    if (!(replyPreamble[0] == 1 && replyPreamble[1] == 0 && replyPreamble[2] == 0)) 
+                    if (!(replyPreamble[0] == 1 && replyPreamble[1] == 0 && replyPreamble[2] == 1))
                     {
                         // version not supported
                         await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
@@ -223,40 +189,101 @@ namespace Microsoft.Azure.Relay.Bridge
                         return;
                     }
 
-
-                    BridgeEventSource.Log.LocalForwardBridgeConnectionStart(bridgeActivity, localEndpoint, HybridConnectionClient);
-
-                    try
+                    var newRoute = new UdpRoute(udpClient, datagram.RemoteEndPoint, hybridConnectionStream,
+                        () => { routes.Remove(datagram.RemoteEndPoint); });
+                    routes.Add(datagram.RemoteEndPoint, newRoute);
+                    newRoute.StartReceiving();
+                    using (var ct = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
                     {
-                        CancellationTokenSource socketAbort = new CancellationTokenSource();
-                        await Task.WhenAll(
-                            StreamPump.RunAsync(hybridConnectionStream, tcpstream,
-                                () => socket.Shutdown(SocketShutdown.Send), socketAbort.Token)
-                                .ContinueWith((t)=>socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
-                            StreamPump.RunAsync(tcpstream, hybridConnectionStream,
-                                () => hybridConnectionStream?.Shutdown(), socketAbort.Token))
-                                .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
-
-                        using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
-                        {
-                            await hybridConnectionStream.CloseAsync(cts.Token);
-                        }
-                    }
-                    catch
-                    {
-                        if (socket.Connected)
-                        {
-                            socket.Close(0);
-                        }
-                        throw;
+                        await newRoute.SendAsync(datagram, ct.Token);
                     }
                 }
-                BridgeEventSource.Log.LocalForwardBridgeConnectionStop(bridgeActivity, localEndpoint, HybridConnectionClient);
             }
-            catch (Exception e)
+        }
+    }
+
+    class UdpRoute
+    {
+        readonly UdpClient client;
+
+        readonly Stream target;
+
+        public IPEndPoint IPEndPoint { get; set; }
+        CancellationTokenSource routeCancel;
+        TimeSpan maxIdleTime = TimeSpan.FromMinutes(4);
+
+        public UdpRoute(UdpClient client, IPEndPoint ipEndPoint, Stream target, Action routeExpired = null)
+        {
+            this.client = client;
+            this.target = target;
+            IPEndPoint = ipEndPoint;
+            this.routeCancel = new CancellationTokenSource(maxIdleTime);
+            if (routeExpired != null)
             {
-                BridgeEventSource.Log.LocalForwardBridgeConnectionFailed(bridgeActivity, e);
+                this.routeCancel.Token.Register(routeExpired);
             }
+        }
+
+        public async Task SendAsync(UdpReceiveResult datagram, CancellationToken ct)
+        {
+            // update the route expiry
+            this.routeCancel.CancelAfter(maxIdleTime);
+
+            // the send operation timeout is intentionally short and we'll start
+            // dropping packets on timeout. The copy operation via MemoryStream
+            // is required since we need to force the whole frame out in one write
+            // and need a preamble in the stream to delineate the datagrams
+            var buffer = new byte[datagram.Buffer.Length + 2];
+            using (var ms = new MemoryStream(buffer))
+            {
+                ms.Write(new[] { (byte)(datagram.Buffer.Length / 256), (byte)(datagram.Buffer.Length % 256) }, 0, 2);
+                ms.Write(datagram.Buffer, 0, datagram.Buffer.Length);
+                if (!ct.IsCancellationRequested)
+                {
+                    await target.WriteAsync(buffer, 0, (int)ms.Length, ct);
+                    await target.FlushAsync(ct);
+                }
+            }
+        }
+
+        public void StartReceiving()
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                byte[] length = new byte[2];
+                byte[] buffer = new byte[65536];
+
+                do
+                {
+                    int read = 0;
+                    while (read < 2)
+                    {
+                        var r = await target.ReadAsync(length, 0, 2, this.routeCancel.Token);
+                        if (r == 0)
+                        {
+                            return;
+                        }
+                        read += r;
+                    }
+
+                    // update the route expiry
+                    this.routeCancel.CancelAfter(maxIdleTime);
+
+                    read = 0;
+                    int toRead = length[0] * 256 + length[1];
+                    while (read < toRead)
+                    {
+                        var r = await target.ReadAsync(buffer, 0, toRead, this.routeCancel.Token);
+                        if (r == 0)
+                        {
+                            return;
+                        }         
+                        read += r;
+                    }                                                                               
+                    await client.SendAsync(buffer, toRead, this.IPEndPoint);
+                }
+                while (!this.routeCancel.IsCancellationRequested);
+            });
         }
     }
 }
