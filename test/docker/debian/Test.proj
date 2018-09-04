@@ -9,11 +9,11 @@
       <Exec Command="bash ./build.sh $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Unix'"/>
   </Target>
   <Target Name="VSTest">
-      <Exec Command="test.cmd"  Condition="'$(OS)'=='Windows_NT'"/>
-      <Exec Command="bash ./test.sh" Condition="'$(OS)'=='Unix'"/>
+      <Exec Command="test.cmd $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)"  Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Unix'"/>
   </Target>
   <Target Name="Clean">
-      <Exec Command="clean.cmd" Condition="'$(OS)'=='Windows_NT'"/>
-      <Exec Command="bash ./clean.sh" Condition="'$(OS)'=='Unix'"/>
+      <Exec Command="clean.cmd $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./clean.sh $(BuildNumber) $(VersionPrefix) $(VersionSuffix) $(TargetFramework)" Condition="'$(OS)'=='Unix'"/>
   </Target>
 </Project>
