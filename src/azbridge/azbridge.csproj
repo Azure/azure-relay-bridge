@@ -20,6 +20,11 @@
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
     <WindowsOnly>false</WindowsOnly>
+    <PackageMaintainer>Clemens Vasters &lt;clemensv@microsoft.com&gt;</PackageMaintainer>
+    <PackageDescription>$(Description)</PackageDescription>
+    <DebHomepage>https://azure.com</DebHomepage>
+    <DebPriority>optional</DebPriority>
+    <DebSection>contrib/net</DebSection>
   </PropertyGroup>
 
   <!-- <ItemGroup>
