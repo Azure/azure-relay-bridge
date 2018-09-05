@@ -2,3 +2,4 @@ RemoteForward:
   - RelayName: a1
     HostPort: 9999
     Host: localhost
+    PortName: test
