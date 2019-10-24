@@ -207,7 +207,7 @@ connection string (enclosed in quotes) on the build platform.
 
 An [Azure Resource Manager template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli) 
 to deploy a namespace with the definitions required for testing resides in
-`./src/tools/test-resource-template.json`. The template expects the name of a new namespace
+`./src/tools/azure/test-resource-template.json`. The template expects the name of a new namespace
 and a region location as inputs.
 
 Once the template has been deployed using either Powershell or the Azure CLI, you can find
