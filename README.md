@@ -3,7 +3,7 @@
 ![img](https://ci.appveyor.com/api/projects/status/github/clemensv/azure-relay-bridge)
 
 The Azure Relay Bridge is a tool that allows creating TCP tunnels between any
-pair of hosts, as log as those hosts each have outbound Internet connectivity on
+pair of hosts, as long as those hosts each have outbound Internet connectivity on
 port 443 (HTTPS) to the Azure Relay service.
 
 The Relay Bridge is designed for reaching networked assets in any environment
