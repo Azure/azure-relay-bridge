@@ -26,6 +26,7 @@
     <DebPriority>optional</DebPriority>
     <DebSection>contrib/net</DebSection>
   </PropertyGroup>
+  
 
   <!-- <ItemGroup>
     <None Remove="azbridge_config.machine.yml" />
@@ -79,10 +80,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
+    <!--<DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
     <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
     <DotNetCliToolReference Include="dotnet-tarball" Version="$(DotnetTarballPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />
+    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />-->
   </ItemGroup>
 
   <Choose>

@@ -185,12 +185,12 @@ the full .NET Framework and the installer can only be built on Windows. You will
 need the "Build Tools for Visual Studio 2017", and ideally a local install of
 Visual Studio 2017 with desktop C# support.
 
-All other versions are built with the .NET Core 2.0 or .NET Core 2.1 SDK. The DEB and
+All other versions are built with the .NET Core 3.0 SDK. The DEB and
 RPM packages are only created when building on a Unix (i.e. Linux or macOS) host.
-
+dotb
 The ideal build environment is a Windows 10/Windows Server 2016 host with Docker for
 Windows installed. The `package-all.cmd` script will first build and package all Windows
-targets, and then launch a docker-based build with the official Microsoft .NET Core 2.1
+targets, and then launch a docker-based build with the official Microsoft .NET Core 3.0
 SDK image for the remaining targets. The `package.sh` script will only build and package
 the Unix targets, the `package.cmd` script only Windows targets.
 

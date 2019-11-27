@@ -25,7 +25,7 @@
     <PackageReference Include="xunit" Version="$(XunitPackageVersion)" />
     <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotnetSignedPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />
+    <!--<DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />-->
   </ItemGroup>
   
   <ItemGroup>

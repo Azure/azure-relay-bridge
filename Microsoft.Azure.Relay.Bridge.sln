@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29403.142
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Azure.Relay.Bridge", "src\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj", "{864AE8D8-F770-499B-A9E2-46E07C8FD3D2}"
 EndProject
@@ -28,6 +28,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		run.cmd = run.cmd
 		run.ps1 = run.ps1
 		run.sh = run.sh
+		verify-build.cmd = verify-build.cmd
+		verify-build.sh = verify-build.sh
 		version.props = version.props
 	EndProjectSection
 EndProject

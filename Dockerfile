@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1 as build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 as build
 
 WORKDIR /azure-relay-bridge/src
 
@@ -18,6 +18,6 @@ WORKDIR /azure-relay-bridge/src/azbridge
 RUN dotnet publish azbridge.csproj -c Release -f netcoreapp3.0 -o /app
 
 
-FROM mcr.microsoft.com/dotnet/core/runtime:2.1
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0
 WORKDIR /app
 COPY --from=publish /app .
