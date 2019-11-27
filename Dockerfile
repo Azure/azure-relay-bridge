@@ -15,7 +15,7 @@ RUN dotnet build azbridge.csproj
 
 FROM build AS publish
 WORKDIR /azure-relay-bridge/src/azbridge
-RUN dotnet publish azbridge.csproj -c Release -f netcoreapp2.1 -o /app
+RUN dotnet publish azbridge.csproj -c Release -f netcoreapp3.0 -o /app
 
 
 FROM mcr.microsoft.com/dotnet/core/runtime:2.1

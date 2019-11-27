@@ -3,7 +3,7 @@
   <PropertyGroup>
     <WindowsOnly>false</WindowsOnly>
     <WindowsFrameworks Condition="'$(OS)'=='Windows_NT'">net462;</WindowsFrameworks>
-    <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp2.1</CoreFrameworks>
+    <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp3.0</CoreFrameworks>
     <TargetFrameworks>$(WindowsFrameworks)$(CoreFrameworks)</TargetFrameworks>
     <!-- <TargetFrameworks>$(CoreFrameworks)</TargetFrameworks> -->
     <WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win7-x64;win7-x86;win10-x64;win10-x86;</WindowsRuntimeIdentifiers>
@@ -124,8 +124,6 @@
     <RpmDependency Include="krb5-libs" Version="" />
     <RpmDependency Include="libicu" Version="" />
     <RpmDependency Include="zlib" Version="" />
-    <RpmDependency Include="libunwind" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
-    <RpmDependency Include="libuuid" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
@@ -138,8 +136,6 @@
     <DebDependency Include="libicu55" Version="" Condition="'$(RuntimeIdentifier)'=='ubuntu.16'" />
     <DebDependency Include="libicu57" Version="" Condition="'$(RuntimeIdentifier)'=='debian.9' OR '$(RuntimeIdentifier)'=='ubuntu.17' OR '$(RuntimeIdentifier)'=='linuxmint.17'" />
     <DebDependency Include="libicu60" Version="" Condition="'$(RuntimeIdentifier)'=='debian.10' OR '$(RuntimeIdentifier)'=='ubuntu.18' OR '$(RuntimeIdentifier)'=='linuxmint.18'" />
-    <DebDependency Include="libunwind8" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
-    <DebDependency Include="libuuid1" Version="" Condition="'$(TargetFramework)'=='netcoreapp2.0'" />
   </ItemGroup>
 
   <PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
@@ -188,13 +184,13 @@
   <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
     <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
-  <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+  <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp3.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
     <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
-  <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+  <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp3.0') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
     <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
-  <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+  <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp3.0') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
     <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
@@ -208,7 +204,7 @@
     <Exec Command="&quot;$(MSBuildToolsPath32)\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
     <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
-  <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+  <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'netcoreapp3.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
 
   </Target>
   <Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">

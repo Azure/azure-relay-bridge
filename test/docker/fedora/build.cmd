@@ -8,7 +8,7 @@ if not "%4" == "" set TargetFramework=%4
 if "%BuildNumber%"=="" set BuildNumber=0000
 if "%VersionSuffix%"=="" set VersionSuffix=preview
 if "%VersionPrefix%"=="" set VersionPrefix=1.0.0
-if "%TargetFramework%"=="" set TargetFramework="netcoreapp2.1"
+if "%TargetFramework%"=="" set TargetFramework="netcoreapp3.0"
 
 pushd "%~dp0"
 if not exist "tmp" mkdir tmp

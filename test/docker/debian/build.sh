@@ -8,7 +8,7 @@ if [ ! -z $4 ]; then TargetFramework=$4; fi
 if [ -z ${BuildNumber+x} ]; then BuildNumber='0000'; fi
 if [ -z ${VersionSuffix+x} ]; then VersionSuffix='preview'; fi
 if [ -z ${VersionPrefix+x} ]; then VersionPrefix='1.0.0'; fi
-if [ -z ${TargetFramework+x} ]; then TargetFramework='netcoreapp2.1'; fi
+if [ -z ${TargetFramework+x} ]; then TargetFramework='netcoreapp3.0'; fi
 
 pushd "${0%/*}" > /dev/null 
 if [ ! -d "tmp" ]; then mkdir tmp; fi

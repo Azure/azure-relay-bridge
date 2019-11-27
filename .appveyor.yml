@@ -1,6 +1,10 @@
 version: '0.1.3-{build}'
 init:
 - git config --global core.autocrlf true
+matrix:
+  fast_finish: true
+  - image: Visual Studio 2017
+  - image: Ubuntu
 branches:
   only:
   - master
@@ -23,9 +27,6 @@ test_script:
   - cmd: .\verify-build.cmd
   - sh: docker login -u $DOCKER_USER -p $DOCKER_PASS
   - sh: ./verify-build.sh
-image: 
-  - Visual Studio 2017
-  - Ubuntu
 artifacts:
   - path: 'artifacts\build\**\*.tar.gz'
   - path: 'artifacts\build\**\*.zip'
