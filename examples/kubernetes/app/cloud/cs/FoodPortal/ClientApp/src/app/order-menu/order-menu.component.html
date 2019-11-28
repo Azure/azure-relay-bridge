@@ -1,0 +1,24 @@
+<h1 id="tableLabel">Menu</h1>
+
+<p>What do you want to eat?</p>
+
+<p *ngIf="!orderMenu"><em>Loading...</em></p>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="orderMenu">
+  <thead>
+    <tr>
+      <th>No.</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Price</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let forecast of forecasts">
+      <td>{{ menuItem.number }}</td>
+      <td>{{ menuItem.name }}</td>
+      <td>{{ menuItem.description }}</td>
+      <td>{{ menuItem.price }}</td>
+    </tr>
+  </tbody>
+</table>

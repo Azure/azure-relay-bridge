@@ -1,0 +1,14 @@
+﻿<Project>
+  <!--<Import
+    Project="$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))\AspNetCoreSettings.props"
+    Condition=" '$(CI)' != 'true' AND '$([MSBuild]::GetDirectoryNameOfFileAbove($(MSBuildThisFileDirectory), AspNetCoreSettings.props))' != '' " />
+  !-->
+  <Import Project="..\version.props" />
+  
+<PropertyGroup>
+      <WindowsOnly>false</WindowsOnly>
+      <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp3.0</CoreFrameworks>
+      <TargetFrameworks>$(CoreFrameworks)</TargetFrameworks>
+      <RuntimeIdentifiers></RuntimeIdentifiers>
+  </PropertyGroup>
+</Project>
