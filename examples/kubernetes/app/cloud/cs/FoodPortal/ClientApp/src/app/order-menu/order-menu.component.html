@@ -2,9 +2,13 @@
 
 <p>What do you want to eat?</p>
 
-<p *ngIf="!orderMenu"><em>Loading...</em></p>
+<p *ngIf="!menuItems"><em>Loading...</em></p>
 
-<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="orderMenu">
+<select (change)="restaurantSelected($event)" >
+  <option *ngFor="let restaurant of restaurants" selected="restaurant.id">{{restaurant.name}}</option>
+</select>
+
+<table class='table table-striped' aria-labelledby="tableLabel" *ngIf="menuItems" >
   <thead>
     <tr>
       <th>No.</th>
@@ -14,8 +18,8 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let forecast of forecasts">
-      <td>{{ menuItem.number }}</td>
+    <tr *ngFor="let menuItem of menuItems">
+      <td>{{ menuItem.num }}</td>
       <td>{{ menuItem.name }}</td>
       <td>{{ menuItem.description }}</td>
       <td>{{ menuItem.price }}</td>
