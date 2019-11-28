@@ -22,6 +22,7 @@
     <SystemConsolePackageVersion>4.3.1</SystemConsolePackageVersion>
     <SystemIOPackageVersion>4.3.0</SystemIOPackageVersion>
     <SystemConfigurationPackageVersion>4.3.0</SystemConfigurationPackageVersion>
+    <SystemMemoryPackageVersion>4.5.3</SystemMemoryPackageVersion>
     <SystemDiagnosticsTracingPackageVersion>4.3.0</SystemDiagnosticsTracingPackageVersion>
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemNetHttpPackageVersion>4.3.4</SystemNetHttpPackageVersion>
