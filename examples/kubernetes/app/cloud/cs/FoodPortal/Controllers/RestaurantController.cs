@@ -14,15 +14,15 @@ namespace FoodPortal.Controllers
         private static readonly Restaurant[] restaurants = new Restaurant[]
         {
             new Restaurant {
-                Id = "1",
+                Id = "ltv",
                 Name = "La Tavola"
             },
             new Restaurant {
-                Id = "2",
+                Id = "pbz",
                 Name = "Pizza Boyz"
             },
             new Restaurant {
-                Id = "3",
+                Id = "spz",
                 Name = "Side Pizzeria"
             }
         };
