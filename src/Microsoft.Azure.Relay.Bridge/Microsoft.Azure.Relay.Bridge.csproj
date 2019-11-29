@@ -24,6 +24,7 @@
     <PackageReference Include="Microsoft.Azure.Relay" Version="$(MicrosoftAzureRelayPackageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
+    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
     <PackageReference Include="System.Net.NetworkInformation" Version="$(SystemNetNetworkInformationPackageVersion)" />
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotNetSignedPackageVersion)" />
