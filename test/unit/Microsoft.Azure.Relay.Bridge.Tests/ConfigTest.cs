@@ -123,17 +123,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.True(callbackInvoked);
         }
 
-        //[Fact]
-        public void CommandLineBadArgumentTest()
-        {
-            var ex = Assert.Throws<UnrecognizedCommandParsingException>(() =>
-            {
-                CommandLineSettings.Run(new string[] { "-bad" },
-                    (settings) => { return 0; });
-            });
-            Assert.Contains("-bad", ex.Message);
-        }
-
         [Fact]
         public void CommandLineBadConnectionStringTest()
         {
