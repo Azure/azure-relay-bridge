@@ -28,7 +28,7 @@ matrix:
   fast_finish: true
 
 test_script:
-  # - cmd: docker login -u=%DOCKER_USER% -p=%DOCKER_PASS%
+  - cmd: docker login -u=%DOCKER_USER% -p=%DOCKER_PASS%
   - cmd: .\verify-build.cmd
   - sh: docker login -u $DOCKER_USER -p $DOCKER_PASS
   - sh: ./verify-build.sh
