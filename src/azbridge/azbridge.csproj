@@ -80,6 +80,11 @@
     <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
   <ItemGroup>
     <!--<DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
     <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />

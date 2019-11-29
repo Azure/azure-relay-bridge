@@ -28,6 +28,11 @@
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotnetSignedPackageVersion)" />
     <!--<DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />-->
   </ItemGroup>
+
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\azbridge\azbridge.csproj" />
