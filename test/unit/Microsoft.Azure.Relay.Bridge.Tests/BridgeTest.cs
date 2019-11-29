@@ -157,7 +157,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 
 #if !NETFRAMEWORK
-        [Fact]
+        [Fact(Skip = "true")]
         public void SocketBridge()
         {
             // not yet supported on Windows.
