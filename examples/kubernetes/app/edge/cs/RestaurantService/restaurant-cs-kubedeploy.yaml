@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant
+spec:
+  progressDeadlineSeconds: 480
+  selector:
+    matchLabels:
+      app: restaurant
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: restaurant
+    spec:
+      containers:
+        - image: clemensv.azurecr.io/restaurant
+          name: restaurant
+          ports:
+            - containerPort: 80
+        - image: clemensv.azurecr.io/azbridge
+          name: azbridge
+          env:
+          - name: RID
+            value: "ltv"
+          - name: RELAYCXN
+            valueFrom:
+              secretKeyRef:
+                name: relaycxn
+                key: cxn
+          args: ["-x","'$(RELAYCXN)'", "-R", "$(RID):localhost:http/80"] 
+      imagePullSecrets:
+        - name: clemensv.azurecr.io

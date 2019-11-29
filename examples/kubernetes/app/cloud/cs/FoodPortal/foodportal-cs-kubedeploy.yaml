@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foodportal
+spec:
+  selector:
+    matchLabels:
+      app: foodportal
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: foodportal
+    spec:
+       hostname: foodportal
+       containers:
+        - image: clemensv.azurecr.io/foodportal
+          name: foodportal
+          ports:
+            - containerPort: 80
+        - image: clemensv.azurecr.io/azbridge
+          name: azbridge
+          ports:
+            - containerPort: 8001
+            - containerPort: 8002
+            - containerPort: 8003
+          env:
+          - name: RELAYCXN
+            valueFrom:
+              secretKeyRef:
+                name: relaycxn
+                key: cxn
+          args: ["-L","0.0.0.0:8001/http:ltv", "-L","0.0.0.0:8002/http:pbz", "-L","0.0.0.0:8003/http:spz", "-x","'$(RELAYCXN)'"] 
+       imagePullSecrets:
+        - name: clemensv.azurecr.io
