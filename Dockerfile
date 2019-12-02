@@ -1,0 +1,15 @@
+FROM mcr.microsoft.com/dotnet/core/sdk:3.0 as build
+
+COPY . /azure-relay-bridge/
+WORKDIR /azure-relay-bridge/src/azbridge
+RUN dotnet build azbridge.csproj
+FROM build AS publish
+WORKDIR /azure-relay-bridge/src/azbridge
+RUN dotnet publish azbridge.csproj -c Release -f netcoreapp3.0 -o /app
+
+
+FROM mcr.microsoft.com/dotnet/core/runtime:3.0
+RUN apt-get update
+WORKDIR /app
+COPY --from=publish /app .
+ENTRYPOINT [ "/app/azbridge" ]

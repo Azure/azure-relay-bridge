@@ -1016,12 +1016,12 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 fileName, e.InnerException?.Message, e));
         }
 
-        static Deserializer yamlDeserializer =
+        static IDeserializer yamlDeserializer =
             new DeserializerBuilder()
             .WithNamingConvention(new PascalCaseNamingConvention())
             .Build();
 
-        static Serializer yamlSerializer =
+        static ISerializer yamlSerializer =
             new SerializerBuilder()
             .WithNamingConvention(new PascalCaseNamingConvention()).Build();
 

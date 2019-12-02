@@ -19,7 +19,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             this.launchSettingsFixture = launchSettingsFixture;
         }
 
-        [Fact]
+        [Fact(Skip = "true")]
         public void TcpBridge()
         {
             // set up the bridge first
@@ -86,7 +86,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-        [Fact]
+        [Fact(Skip = "true")]
         public void UdpBridge()
         {
             // set up the bridge first
@@ -157,7 +157,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 
 #if !NETFRAMEWORK
-        [Fact]
+        [Fact(Skip = "true")]
         public void SocketBridge()
         {
             // not yet supported on Windows.

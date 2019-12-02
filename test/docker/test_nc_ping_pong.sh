@@ -1,9 +1,9 @@
 #!/bin/bash
 
 rm -f ~/testoutput.log
-/usr/share/azbridge/azbridge -x $AZBRIDGE_TEST_CXNSTRING -L 127.0.8.1:8888/test:a1 >> ~/testoutput.log 2>&1 &
+/usr/share/azbridge/azbridge -l log.txt -x $AZBRIDGE_TEST_CXNSTRING -L 127.0.8.1:8888/test:a1 >> ~/testoutput.log 2>&1 &
 LOCAL_LISTENER_PID=$!
-/usr/share/azbridge/azbridge -x $AZBRIDGE_TEST_CXNSTRING -R a1:test/9999 >> ~/testoutput.log 2>&1 &
+/usr/share/azbridge/azbridge -l log.txt -x $AZBRIDGE_TEST_CXNSTRING -R a1:test/9999 >> ~/testoutput.log 2>&1 &
 REMOTE_LISTENER_PID=$!
 sleep 5 
 #expected request: ping

@@ -94,7 +94,6 @@ namespace azbridge
                     return 3;
                 }
 
-                var loggerFactory = new LoggerFactory();
                 LogLevel logLevel = LogLevel.Error;
                 if (!settings.Quiet.HasValue || !settings.Quiet.Value)
                 {
@@ -131,13 +130,16 @@ namespace azbridge
                     logLevel = LogLevel.None;
                 }
 
+                var loggerFactory = LoggerFactory.Create((builder) =>
+                {
+                    if (string.IsNullOrEmpty(config.LogFileName))
+                    {
+                        builder.AddConsole();
+                    }
+                });
                 if (!string.IsNullOrEmpty(config.LogFileName))
                 {
                     loggerFactory.AddFile(config.LogFileName, logLevel);
-                }
-                else
-                {
-                    loggerFactory.AddConsole(logLevel);
                 }
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));

@@ -124,17 +124,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 
         [Fact]
-        public void CommandLineBadArgumentTest()
-        {
-            var ex = Assert.Throws<CommandParsingException>(() =>
-            {
-                CommandLineSettings.Run(new string[] { "-bad" },
-                    (settings) => { return 0; });
-            });
-            Assert.Contains("-bad", ex.Message);
-        }
-
-        [Fact]
         public void CommandLineBadConnectionStringTest()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>

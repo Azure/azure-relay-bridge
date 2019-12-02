@@ -22,5 +22,5 @@ if %_DOCKER_BUILD% == "true" (
 if not errorlevel 0 exit /b 1
 if %_DOCKER_BUILD% == "true" (
   echo *** Building and packaging Unix/Linux Targets
-  docker run --rm -v %cd%:/build microsoft/dotnet:2.1-sdk /build/package.sh /p:TargetFramework=netcoreapp2.1 %*
+  docker run --rm -v %cd%:/build mcr.microsoft.com/dotnet/core/sdk:3.0-buster /build/package.sh /p:TargetFramework=netcoreapp3.0 %*
 )

@@ -1,6 +1,11 @@
 version: '0.1.3-{build}'
 init:
 - git config --global core.autocrlf true
+
+image: 
+  - Visual Studio 2019
+  - Ubuntu
+
 branches:
   only:
   - master
@@ -18,14 +23,15 @@ environment:
     secure: hNy9HBcjNhhWaM96cjKZYw==
   DOCKER_PASS:
     secure: gMshhMI/3eiFO2D7A59gpkzwpyuuyRG1lEga3a5p1xM=
+
+matrix:
+  fast_finish: true
+
 test_script:
-  # - cmd: docker login -u=%DOCKER_USER% -p=%DOCKER_PASS%
+  - cmd: docker login -u=%DOCKER_USER% -p=%DOCKER_PASS%
   - cmd: .\verify-build.cmd
   - sh: docker login -u $DOCKER_USER -p $DOCKER_PASS
   - sh: ./verify-build.sh
-image: 
-  - Visual Studio 2017
-  - Ubuntu
 artifacts:
   - path: 'artifacts\build\**\*.tar.gz'
   - path: 'artifacts\build\**\*.zip'
