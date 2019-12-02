@@ -22,7 +22,7 @@ spec:
           name: azbridge
           env:
           - name: RID
-            value: "ltv"
+            value: "latavola"
           - name: RELAYCXN
             valueFrom:
               secretKeyRef:
