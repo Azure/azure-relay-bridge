@@ -1,0 +1,54 @@
+# Azure Pipelines Build
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+variables:
+  BuildVersion.MajorMinor: 0.3
+  BuildVersion.Revision: $[counter(variables['Version.MajorMinor'], 0)]
+  BuildVersion: $(BuildVersion.MajorMinor).$(BuildVersion.Revision) 
+
+jobs:
+  - job: WindowsBuild
+    workspace:
+      clean: all 
+    pool:
+      vmImage: 'windows-latest'
+
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'restore'
+        feedsToUse: 'select'
+    - task: MSBuild@1
+      inputs:
+        solution: '**/*.sln'
+        msbuildArguments: '/t:clean,package /p:WindowsOnly=true /p:Configuration=Release /p:VersionPrefix=$(BuildVersion) /p:VersionSuffix=rel'
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        arguments: '/p:WindowsOnly=true'
+
+    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net462
+      artifact: WindowsBuild
+
+  - job: LinuxBuild
+    workspace:
+      clean: all 
+    pool:
+      vmImage: 'ubuntu-latest'
+    
+    steps:
+    - task: ShellScript@1
+      inputs:
+        scriptPath: './package.sh'
+        arguments: '/p:VersionSuffix=rel'
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug'
+
+    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp3.0
+      artifact: XBuild

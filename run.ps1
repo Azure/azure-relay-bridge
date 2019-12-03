@@ -1,1 +1,1 @@
-msbuild -t:Clean,Restore,Build $args 
+msbuild -t:Clean,Build $args 

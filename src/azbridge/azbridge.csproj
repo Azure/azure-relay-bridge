@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <WindowsOnly>false</WindowsOnly>
-    <WindowsFrameworks Condition="'$(OS)'=='Windows_NT'">net462;</WindowsFrameworks>
-    <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp3.0</CoreFrameworks>
-    <TargetFrameworks>$(WindowsFrameworks)$(CoreFrameworks)</TargetFrameworks>
-    <!-- <TargetFrameworks>$(CoreFrameworks)</TargetFrameworks> -->
-    <WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win7-x64;win7-x86;win10-x64;win10-x86;</WindowsRuntimeIdentifiers>
-    <UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;debian.8-x64;ubuntu.16.10-x64;ubuntu.16.04-x64;opensuse-x64;ol-x64;rhel-x64;fedora-x64;centos-x64</UnixRuntimeIdentifiers>
-    <RuntimeIdentifiers>$(WindowsRuntimeIdentifiers)$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
+    <DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishSingleFile>false</PublishSingleFile>
+    <SelfContained>true</SelfContained>
   </PropertyGroup>
+
+  <ItemGroup>
+    <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+  </ItemGroup> 
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -28,25 +28,24 @@
   </PropertyGroup>
   
 
-  <!-- <ItemGroup>
-    <None Remove="azbridge_config.machine.yml" />
-    <None Remove="azbridge_config.svc.yml" />
-  </ItemGroup> -->
-
   <ItemGroup>
-    <!-- <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" /> -->
-    <Content Include="azbridge_config.svc.yml" CopyToOutputDirectory="PreserveNewest">
-      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
+    <LinuxFolder Include="/var/log/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
+    <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+      <LinuxPath>/etc/azbridge/azbridge_config.svc.yml</LinuxPath>
     </Content>
-    <Content Include="azbridge_config.machine.yml" CopyToOutputDirectory="PreserveNewest">
-      <LinuxPath>/etc/azbridge/azbridge_config.yml</LinuxPath>
+    <Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+      <LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
     </Content>
-    <Content Include="debpostinst.sh" CopyToOutputDirectory="PreserveNewest"/>
-    <Content Include="debpostrm.sh" CopyToOutputDirectory="PreserveNewest"/>
-    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToOutputDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="../tools/bash/hostnames.sh" CopyToOutputDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
+    <LinuxFolder Include="/etc/profile.d" Group="azbridge" Owner="azbridge" RemoveOnUninstall="false" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
+    <Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
+      <LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
+      <LinuxFileMode>0555</LinuxFileMode>
+    </Content>
+    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+
   </ItemGroup>
 
   <Choose>
@@ -85,14 +84,7 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!--<DotNetCliToolReference Include="dotnet-rpm" Version="$(DotnetRpmPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-deb" Version="$(DotnetDebPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-tarball" Version="$(DotnetTarballPackageVersion)" />
-    <DotNetCliToolReference Include="dotnet-zip" Version="$(DotnetZipPackageVersion)" />-->
-  </ItemGroup>
-
-  <Choose>
+   <Choose>
     <When Condition="'$(TargetFramework)' == 'net462'">
       <ItemGroup>
         <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="$(MicrosoftDiagnosticsTracingTraceEventPackageVersion)" />
@@ -117,11 +109,18 @@
   </ItemGroup>
 
   <!-- Fedora, CentOS, and RHEL dependencies -->
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora'))">
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('ol'))">
     <RpmDependency Include="libstdc++" Version="" />
     <RpmDependency Include="libunwind" Version="" />
     <RpmDependency Include="libicu" Version="" />
-    <RpmDependency Include="compat-openssl10" Version="" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora'))">
+    <RpmDotNetDependency Include="compat-openssl10" Version="" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('ol'))">
+    <RpmDotNetDependency Include="openssl-libs" Version="" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('centos'))">
@@ -135,29 +134,22 @@
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
     <!-- <DebDependency Include="lttng-ust" Version=""/> -->
-    <DebDependency Include="libcurl3" Version="" />
+    <DebDependency Include="libcurl3" Version="" Condition="$(RuntimeIdentifier.StartsWith('debian.8')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.14')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.15')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.16'))"/>
+    <DebDependency Include="libcurl4" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.9')) OR  $(RuntimeIdentifier.StartsWith('debian.10')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.18'))"/>
     <DebDependency Include="libssl1.0.0" Version="" />
     <DebDependency Include="libkrb5-3" Version="" />
     <DebDependency Include="zlib1g" Version="" />
-    <DebDependency Include="libicu52" Version="" Condition="'$(RuntimeIdentifier)'=='debian.8' OR '$(RuntimeIdentifier)'=='ubuntu.14'" />
-    <DebDependency Include="libicu55" Version="" Condition="'$(RuntimeIdentifier)'=='ubuntu.16'" />
-    <DebDependency Include="libicu57" Version="" Condition="'$(RuntimeIdentifier)'=='debian.9' OR '$(RuntimeIdentifier)'=='ubuntu.17' OR '$(RuntimeIdentifier)'=='linuxmint.17'" />
-    <DebDependency Include="libicu60" Version="" Condition="'$(RuntimeIdentifier)'=='debian.10' OR '$(RuntimeIdentifier)'=='ubuntu.18' OR '$(RuntimeIdentifier)'=='linuxmint.18'" />
+    <DebDependency Include="libicu52" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.8')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.14'))" />
+    <DebDependency Include="libicu55" Version="" Condition= "$(RuntimeIdentifier.StartsWith('ubuntu.16'))" />
+    <DebDependency Include="libicu57" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.9')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.17')) OR  $(RuntimeIdentifier.StartsWith('linuxmint.17'))" />
+    <DebDependency Include="libicu60" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.10')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.18')) OR  $(RuntimeIdentifier.StartsWith('linuxmint.18'))" />
   </ItemGroup>
 
-  <PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
-    <!-- 
-      The .DEB Packager doesn't correctly place files into  directories other
-      than the target, so we create the profile startup file on the fly here.
-      The profile startup file buts the tool on the path and also registers 
-      the addhost and removehost bash extensions.
-
-      DO NOT CHANGE THE FORMATTING BELOW.
-      -->
-    <PostInstallScript>. /usr/share/azbridge/debpostinst.sh</PostInstallScript>
-    <PostRemoveScript>. /usr/share/azbridge/debpostrm.sh</PostRemoveScript>
-  </PropertyGroup>
-
+  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
+    <RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
+    <RpmDotNetDependency Include="libicu52_1" Version="" />
+    <RpmDotNetDependency Include="krb5" Version="" />
+  </ItemGroup>
 
   <!-- Linux Daemon install properties -->
   <PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">

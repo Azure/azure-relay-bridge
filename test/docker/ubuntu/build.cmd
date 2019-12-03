@@ -10,7 +10,7 @@ if "%TargetFramework%"=="" set TargetFramework="netcoreapp3.0"
 
 pushd "%~dp0"
 if not exist "tmp" mkdir tmp
-set DebFile=azbridge.%VersionPrefix%-%VersionSuffix%.ubuntu.16.04-x64.deb
+set DebFile=azbridge.%VersionPrefix%-%VersionSuffix%.ubuntu.18.10-x64.deb
 copy /y ..\..\..\artifacts\build\%TargetFramework%\%DebFile% tmp > NUL
 docker build -f Dockerfile . --tag azbridge_ubuntu1604_test --build-arg deb_package=%DebFile%
 rd /s /q tmp

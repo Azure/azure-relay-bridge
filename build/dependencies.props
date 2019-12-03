@@ -31,7 +31,8 @@
     <MicrosoftExtensionsLoggingPackageVersion>3.0.0</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftExtensionsLoggingConsolePackageVersion>3.0.0</MicrosoftExtensionsLoggingConsolePackageVersion>
     <XunitPackageVersion>2.4.1</XunitPackageVersion>
-    <DotnetXunitPackageVersion>2.3.1</DotnetXunitPackageVersion>
+    <NuGetVersioningVersion>5.3.1</NuGetVersioningVersion>
+    <DotnetXunitPackageVersion>2.4.1</DotnetXunitPackageVersion>
     <XunitRunnerVisualStudioPackageVersion>2.4.1</XunitRunnerVisualStudioPackageVersion>
     <XunitRunnerMsBuildPackageVersion>2.4.0</XunitRunnerMsBuildPackageVersion>
     <NewtonsoftJsonPackageVersion>12.0.3</NewtonsoftJsonPackageVersion>

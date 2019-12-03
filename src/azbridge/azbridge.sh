@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PATH="$PATH:/usr/share/azbridge"
+
 # remove specified host from /etc/hosts
 
 function removehost() {
