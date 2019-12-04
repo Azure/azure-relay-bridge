@@ -1,6 +1,6 @@
 # Azure Relay Bridge
 
-![img](https://ci.appveyor.com/api/projects/status/github/clemensv/azure-relay-bridge)
+[![Build Status](https://clemensv.visualstudio.com/azure-relay-bridge/_apis/build/status/clemensv.azure-relay-bridge?branchName=master)](https://clemensv.visualstudio.com/azure-relay-bridge/_build/latest?definitionId=1&branchName=master)
 
 The Azure Relay Bridge is a tool that allows creating TCP tunnels between any
 pair of hosts, as long as those hosts each have outbound Internet connectivity on
