@@ -1,4 +1,4 @@
-FROM ubuntu:xenial AS build
+FROM ubuntu:bionic AS build
 ARG deb_package
 WORKDIR /tmp
 COPY ./tmp/$deb_package .

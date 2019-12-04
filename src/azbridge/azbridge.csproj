@@ -37,16 +37,19 @@
     <Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
       <LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
     </Content>
-    <LinuxFolder Include="/etc/profile.d" Group="azbridge" Owner="azbridge" RemoveOnUninstall="false" Condition="! $(RuntimeIdentifier.StartsWith('win'))"/>
     <Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
       <LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
-      <LinuxFileMode>0555</LinuxFileMode>
+      <LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('ol')) OR $(RuntimeIdentifier.StartsWith('centos')))" >0555</LinuxFileMode>
     </Content>
     <Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
     <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
     <Content Include="../tools/Powershell/get-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-
   </ItemGroup>
+
+  <PropertyGroup>
+    <PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge</PostInstallScript>
+    <PostRemoveScript>rm /usr/local/bin/azbridge</PostRemoveScript>
+  </PropertyGroup>
 
   <Choose>
     <When Condition="'$(TargetFramework)' == 'net462'">
@@ -153,9 +156,10 @@
 
   <!-- Linux Daemon install properties -->
   <PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
-    <CreateUser>false</CreateUser>
+    <CreateUser>true</CreateUser>
     <UserName>azbridge</UserName>
     <InstallService>false</InstallService>
+    <SymlinkAppHostInBin>true</SymlinkAppHostInBin> 
   </PropertyGroup>
 
   <ItemGroup>

@@ -13,7 +13,7 @@
     <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
     <PackageReference Include="xunit" Version="$(XunitPackageVersion)" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
+    <PackageReference Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net462'" Include="xunit.runner.visualstudio" Version="$(XunitRunnerVisualStudioPackageVersion)" />
     <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotnetSignedPackageVersion)" />
     <!--<DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />-->
   </ItemGroup>

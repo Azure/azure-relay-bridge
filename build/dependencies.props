@@ -3,11 +3,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <PackagingTargetsPackageVersion>0.1.121</PackagingTargetsPackageVersion>
-    <DotnetDebPackageVersion>0.1.121</DotnetDebPackageVersion>
-    <DotnetRpmPackageVersion>0.1.121</DotnetRpmPackageVersion>
-    <DotnetZipPackageVersion>0.1.121</DotnetZipPackageVersion>
-    <DotnetTarballPackageVersion>0.1.121</DotnetTarballPackageVersion>
+    <PackagingTargetsPackageVersion>0.1.129</PackagingTargetsPackageVersion>
     <WixPackageVersion>3.11.2</WixPackageVersion>
     <MicrosoftExtensionsLoggingConsolePackageVersion>2.1.1</MicrosoftExtensionsLoggingConsolePackageVersion>
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
