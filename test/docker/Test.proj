@@ -1,18 +1,54 @@
 <Project>
+    <Import Project="Directory.Build.props" />
   <PropertyGroup>
     <OutputType>None</OutputType>
   </PropertyGroup>
 
- <ItemGroup>
-    <ProjectsToBuild Include="**\*proj" Exclude="$(MSBuildProjectFile)"/>
-  </ItemGroup>
- <Target Name="Build">
-    <MSBuild Projects ="@(ProjectsToBuild)" ContinueOnError ="false" Targets="Build" />
+  <PropertyGroup>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">deb</ImageSuffix>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse'))">rpm</ImageSuffix>
+    <ImageSuffix Condition="'$(ImageSuffix)' == ''">tar.gz</ImageSuffix>
+  </PropertyGroup>
+
+  <Target Name="BuildImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx'))">
+      <Exec Command="test.cmd build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
-  <Target Name="VSTest">
-      <MSBuild Projects ="@(ProjectsToBuild)" ContinueOnError ="false" Targets="VSTest"/>
+  <Target Name="VSTestImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx'))">
+      <Exec Command="test.cmd test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;"  Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
-  <Target Name="Clean">
-      <MSBuild Projects ="@(ProjectsToBuild)" ContinueOnError ="false" Targets="Clean"/>
+  <Target Name="CleanImage" Condition=" '$(RuntimeIdentifier)' != ''  AND !$(RuntimeIdentifier.StartsWith('osx'))">
+      <Exec Command="test.cmd clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
+
+  <Target Name="BuildProjectIfRIDSet" DependsOnTargets="BuildImage" Condition=" '$(RuntimeIdentifier)' != ''">
+      <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high" />
+  </Target>
+  <Target Name="BuildProjectForAllUnixRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_BuildRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="RuntimeIdentifier=%(_BuildRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="Build" DependsOnTargets="BuildProjectIfRIDSet;BuildProjectForAllUnixRIDs" />  
+
+  <Target Name="VSTestProjectIfRIDSet" DependsOnTargets="VSTestImage" Condition=" '$(RuntimeIdentifier)' != ''" />
+  <Target Name="VSTestProjectForAllUnixRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_VSTestRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="VSTest" Properties="RuntimeIdentifier=%(_VSTestRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="VSTest" DependsOnTargets="VSTestProjectIfRIDSet;VSTestProjectForAllUnixRIDs" />  
+
+  <Target Name="CleanProjectIfRIDSet" DependsOnTargets="CleanImage" Condition=" '$(RuntimeIdentifier)' != ''" />
+  <Target Name="CleanProjectForAllUnixRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_CleanRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Clean" Properties="RuntimeIdentifier=%(_CleanRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="Clean" DependsOnTargets="CleanProjectIfRIDSet;CleanProjectForAllUnixRIDs" />  
 </Project>

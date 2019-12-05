@@ -39,7 +39,7 @@
     </Content>
     <Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
       <LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
-      <LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('ol')) OR $(RuntimeIdentifier.StartsWith('centos')))" >0555</LinuxFileMode>
+      <LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos')))" >0555</LinuxFileMode>
     </Content>
     <Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
     <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
@@ -137,20 +137,16 @@
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
     <!-- <DebDependency Include="lttng-ust" Version=""/> -->
-    <DebDependency Include="libcurl3" Version="" Condition="$(RuntimeIdentifier.StartsWith('debian.8')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.14')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.15')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.16'))"/>
-    <DebDependency Include="libcurl4" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.9')) OR  $(RuntimeIdentifier.StartsWith('debian.10')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.18'))"/>
-    <DebDependency Include="libssl1.0.0" Version="" />
+    <DebDependency Include="libcurl3 | libcurl4" Version=""/>
+    <DebDependency Include="libssl1.0.0 | libssl1.0.2 | libssl1.1" Version="" />
     <DebDependency Include="libkrb5-3" Version="" />
     <DebDependency Include="zlib1g" Version="" />
-    <DebDependency Include="libicu52" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.8')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.14'))" />
-    <DebDependency Include="libicu55" Version="" Condition= "$(RuntimeIdentifier.StartsWith('ubuntu.16'))" />
-    <DebDependency Include="libicu57" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.9')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.17')) OR  $(RuntimeIdentifier.StartsWith('linuxmint.17'))" />
-    <DebDependency Include="libicu60" Version="" Condition= "$(RuntimeIdentifier.StartsWith('debian.10')) OR  $(RuntimeIdentifier.StartsWith('ubuntu.18')) OR  $(RuntimeIdentifier.StartsWith('linuxmint.18'))" />
+    <DebDependency Include="libicu52 | libicu55 | libicu57 | libicu60 | libicu62 | libicu63" Version="" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
     <RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
-    <RpmDotNetDependency Include="libicu52_1" Version="" />
+    <RpmDotNetDependency Include="libicu" Version="" />
     <RpmDotNetDependency Include="krb5" Version="" />
   </ItemGroup>
 
@@ -184,7 +180,7 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
+  <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget))) AND $(RuntimeIdentifier.StartsWith('win'))">
     <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
   </Target>
   <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'netcoreapp3.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">

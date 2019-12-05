@@ -1,29 +1,10 @@
-#! /bin/bash
+#!/bin/bash
 
-pushd "${0%/*}" > /dev/null 
-rm -f ~/testoutput.log
-_LOCALCONFIG=$(mktemp)
-cat test_nc_config_ping_pong.local.yml > $_LOCALCONFIG
-echo AzureRelayConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_LOCALCONFIG 
-/usr/share/azbridge/azbridge -l log.txt -f $_LOCALCONFIG >> ~/testoutput.log 2>&1 &
-LOCAL_LISTENER_PID=$!
-_REMOTECONFIG=$(mktemp)
-cat test_nc_config_ping_pong.remote.yml > $_REMOTECONFIG
-echo AzureRelayConnectionString : "$AZBRIDGE_TEST_CXNSTRING" >> $_REMOTECONFIG 
-/usr/share/azbridge/azbridge -l log.txt -f $_REMOTECONFIG  >> ~/testoutput.log 2>&1 &
-REMOTE_LISTENER_PID=$!
-sleep 5 
-#expected request: ping
-echo "pong" | nc -l 9999 | xargs echo request: > ~/testoutputres.log 2>&1 &
-sleep 1
-#expected reply: pong
-echo "ping" | nc 127.0.8.1 8888 | xargs echo reply: > ~/testoutputreq.log 2>&1
-sleep 5 
-kill -INT $LOCAL_LISTENER_PID
-kill -INT $REMOTE_LISTENER_PID
-rm $_LOCALCONFIG
-rm $_REMOTECONFIG
-cat ~/testoutput.log
-cat ~/testoutputres.log
-cat ~/testoutputreq.log
-popd > /dev/null
+/usr/share/azbridge/azbridge -v -l ~/applog.log -x $AZBRIDGE_TEST_CXNSTRING -f /tests/test_nc_config_ping_pong.yml &
+L1_PID=$!
+sleep 15 
+echo "the quick brown fox jumps over the lazy dog" | nc -l 9999 &
+sleep 5
+echo "etaoin shrdlu" | nc -w 5 127.0.8.1 8888
+sleep 5
+kill -9 $L1_PID
