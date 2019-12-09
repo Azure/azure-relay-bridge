@@ -1,0 +1,21 @@
+<Project>
+    <Import Project="Directory.Build.props" />
+  <PropertyGroup>
+    <OutputType>None</OutputType>
+    <RuntimeIdentifier>debian.9-x64</RuntimeIdentifier>
+    <ImageSuffix>deb</ImageSuffix>
+  </PropertyGroup>
+
+  <Target Name="Build">
+      <Exec Command="test.cmd build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
+  </Target>
+  <Target Name="VSTest">
+      <Exec Command="test.cmd test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;"  Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
+  </Target>
+  <Target Name="Clean">
+      <Exec Command="test.cmd clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
+  </Target>
+</Project>

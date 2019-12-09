@@ -2,6 +2,8 @@
 
 [![Build Status](https://clemensv.visualstudio.com/azure-relay-bridge/_apis/build/status/clemensv.azure-relay-bridge?branchName=master)](https://clemensv.visualstudio.com/azure-relay-bridge/_build/latest?definitionId=1&branchName=master)
 
+> _NOTE: This is an unsupported tool that is provided as-is. Azure product support is not available. Any issues must be filed here and there is no guaranteed reaction time for addressing any such issues._
+
 The Azure Relay Bridge is a tool that allows creating TCP tunnels between any
 pair of hosts, as long as those hosts each have outbound Internet connectivity on
 port 443 (HTTPS) to the Azure Relay service.

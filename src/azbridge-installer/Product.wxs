@@ -1,32 +1,38 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" 
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension"
-     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
+<?xml version="1.0" encoding="UTF-8" ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension" xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension">
   <Product Id="*" Name="Azure Relay Bridge" Language="1033" Version="1.0.0.0" Manufacturer="Microsoft" UpgradeCode="119729c9-25d5-447f-b9a8-5e2b1cdbc348">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
-
-    <Feature Id="ProductFeature" Title="azbridge_installer" Level="1">
-      <ComponentGroupRef Id="ProductComponents" />
-    </Feature>
     <PropertyRef Id="WIX_ACCOUNT_NETWORKSERVICE" />
     <PropertyRef Id="WIX_ACCOUNT_USERS" />
     <PropertyRef Id="WIX_ACCOUNT_ADMINISTRATORS" />
-    <PropertyRef Id="WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED"/>
+    <PropertyRef Id="WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED" />
     <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)license.rtf" />
-    <Condition Message="This application requires .NET Framework 4.5.2 or later. Please install the .NET Framework then run this installer again.">
-      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_452_OR_LATER_INSTALLED]]>
+    <WixVariable Id="WixUIBannerBmp" Value="..\assets\dlgbanner.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="..\assets\dlgbkgnd.bmp" />
+    <Condition Message="This application requires .NET Framework 4.6.2 or later. Please install the .NET Framework then run this installer again.">
+      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED]]>
     </Condition>
-  </Product>
 
+    <Property Id="INSTALL_SERVICE" Secure="yes" Value="0" />
+    <Property Id="INSTALL_PATH" Secure="yes" Value="1" />
+
+    <Feature Id="Service" Level="1" AllowAdvertise="yes" Title="Install as Service" Absent="allow">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentGroupRef Id="azbridge_Project" />
+    </Feature>
+    <Feature Id="PathInstall" Level="1" AllowAdvertise="yes" Title="Install Path" Absent="allow">
+        <ComponentGroupRef Id="PathInstall" />
+     </Feature>
+  </Product>
 
 
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <!-- Note using the preprocessor variable here -->
-      <?if $(sys.BUILDARCH)=x64?>
+      <?if $(sys.BUILDARCH)=x64 ?>
       <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="Azure Relay Bridge" />
       </Directory>
@@ -37,33 +43,113 @@
       <?endif ?>
       <Directory Id="CommonAppDataFolder">
         <Directory Id="MicrosoftAppDataFolder" Name="Microsoft">
-          <Directory Id="CONFIGFOLDER" Name="Azure Relay Bridge"/>
+          <Directory Id="CONFIGFOLDER" Name="Azure Relay Bridge" />
         </Directory>
       </Directory>
     </Directory>
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
-    <UIRef Id="WixUI_InstallDir" />
+    <UIRef Id="WixUI_AzBridge" />
   </Fragment>
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
       <Component Id="etwManifest.dll">
-        <File Id="etwManifest.dll" KeyPath="yes"
-              Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.dll" />
+        <File Id="etwManifest.dll" KeyPath="yes" Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.dll" />
       </Component>
       <Component Id="etwManifest.man">
-        <File Id="etwManifest.man" KeyPath="yes"
-              Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.man">
-          <util:EventManifest  MessageFile="[etwManifest.dll]"  ResourceFile="[etwManifest.dll]"></util:EventManifest>
+        <File Id="etwManifest.man" KeyPath="yes" Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.man">
+          <util:EventManifest MessageFile="[etwManifest.dll]" ResourceFile="[etwManifest.dll]"></util:EventManifest>
         </File>
       </Component>
-      <Component Id="Path" Guid="{bfc77cbe-3e65-4cb9-a1db-3d0b14bbe11f}" KeyPath="yes">
-        <Environment Id="PATH" Name="PATH" Value="[INSTALLFOLDER]" Permanent="no" Part="last" Action="set" System="yes" />
-        <CreateFolder/>
-      </Component>
-    </ComponentGroup>
-    <Feature Id="App" Title="Command line bridge" Level="1">
-      <ComponentGroupRef Id="azbridge_Project" />
-    </Feature>
+     </ComponentGroup>
+     <ComponentGroup Id="PathInstall" Directory="INSTALLFOLDER">
+        <Component Id="Path" Guid="{bfc77cbe-3e65-4cb9-a1db-3d0b14bbe11f}" KeyPath="yes">
+            <Environment Id="PATH" Name="PATH" Value="[INSTALLFOLDER]" Permanent="no" Part="last" Action="set" System="yes" />
+            <CreateFolder />
+          <Condition>INSTALL_PATH = 1</Condition>
+          </Component>
+     </ComponentGroup>
+  </Fragment>
+
+  <Fragment>
+    <UI>
+      <Dialog Id="InstallServiceDlg" Width="370" Height="270" Title="[ProductName] Setup">
+        <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="WixUI_Bmp_Banner" />
+        <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
+        <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Description" Type="Text" X="25" Y="23" Width="340" Height="15" Transparent="yes" NoPrefix="yes" Text="Choose which additional options you want to enable." />
+        <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}Installation Options" />
+        <Control Id="ChkBox1" Type="CheckBox" X="20" Y="80" Width="330" Height="20" Text="Add the installation directory to the system PATH." Property="INSTALL_PATH" CheckBoxValue="1" Default="yes" />
+        <Control Id="ChkBox2" Type="CheckBox" X="20" Y="120" Width="330" Height="20" Text="Install the Azure Relay Bridge as a Windows Service. This option enables the service to run in the background and independent of any logged on user." Property="INSTALL_SERVICE" CheckBoxValue="1" Default="no" />
+        
+        <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="!(loc.WixUINext)"/>
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
+                    <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+                </Control>
+      </Dialog>
+    </UI>
+  </Fragment>
+
+  <Fragment>
+    <UI Id="WixUI_AzBridge">
+      <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
+      <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
+      <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
+
+      <Property Id="DefaultUIFont" Value="WixUI_Font_Normal" />
+      <Property Id="WixUI_Mode" Value="InstallDir" />
+
+      <DialogRef Id="BrowseDlg" />
+      <DialogRef Id="DiskCostDlg" />
+      <DialogRef Id="ErrorDlg" />
+      <DialogRef Id="FatalError" />
+      <DialogRef Id="FilesInUse" />
+      <DialogRef Id="MsiRMFilesInUse" />
+      <DialogRef Id="PrepareDlg" />
+      <DialogRef Id="ProgressDlg" />
+      <DialogRef Id="ResumeDlg" />
+      <DialogRef Id="UserExit" />
+
+      <Publish Dialog="BrowseDlg" Control="OK" Event="DoAction" Value="WixUIValidatePath" Order="3">1</Publish>
+      <Publish Dialog="BrowseDlg" Control="OK" Event="SpawnDialog" Value="InvalidDirDlg" Order="4">
+        <![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]>
+      </Publish>
+
+      <Publish Dialog="ExitDialog" Control="Finish" Event="EndDialog" Value="Return" Order="999">1</Publish>
+
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="LicenseAgreementDlg">NOT Installed</Publish>
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">Installed AND PATCH</Publish>
+
+      <Publish Dialog="LicenseAgreementDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg">1</Publish>
+      <Publish Dialog="LicenseAgreementDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg">LicenseAccepted = "1"</Publish>
+
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="LicenseAgreementDlg">1</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="SetTargetPath" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="DoAction" Value="WixUIValidatePath" Order="2">NOT WIXUI_DONTVALIDATEPATH</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="SpawnDialog" Value="InvalidDirDlg" Order="3">
+        <![CDATA[NOT WIXUI_DONTVALIDATEPATH AND WIXUI_INSTALLDIR_VALID<>"1"]]>
+      </Publish>
+      <Publish Dialog="InstallDirDlg" Control="Next" Event="NewDialog" Value="InstallServiceDlg" Order="4">WIXUI_DONTVALIDATEPATH OR WIXUI_INSTALLDIR_VALID="1"</Publish>
+      <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Property="_BrowseProperty" Value="[WIXUI_INSTALLDIR]" Order="1">1</Publish>
+      <Publish Dialog="InstallDirDlg" Control="ChangeFolder" Event="SpawnDialog" Value="BrowseDlg" Order="2">1</Publish>
+
+      <Publish Dialog="InstallServiceDlg" Control="Back" Event="NewDialog" Value="InstallDirDlg">1</Publish>
+      <Publish Dialog="InstallServiceDlg" Control="Next" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="InstallServiceDlg" Order="1">NOT Installed</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="MaintenanceTypeDlg" Order="2">Installed AND NOT PATCH</Publish>
+      <Publish Dialog="VerifyReadyDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">Installed AND PATCH</Publish>
+
+      <Publish Dialog="MaintenanceWelcomeDlg" Control="Next" Event="NewDialog" Value="MaintenanceTypeDlg">1</Publish>
+
+      <Publish Dialog="MaintenanceTypeDlg" Control="RepairButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg">1</Publish>
+      <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg">1</Publish>
+
+      <Property Id="ARPNOMODIFY" Value="1" />
+    </UI>
+
+    <UIRef Id="WixUI_Common" />
   </Fragment>
 </Wix>
