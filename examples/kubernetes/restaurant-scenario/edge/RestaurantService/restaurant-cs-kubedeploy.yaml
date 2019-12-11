@@ -1,28 +1,99 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: restaurant
+  name: restaurant-latavola
 spec:
   progressDeadlineSeconds: 480
   selector:
     matchLabels:
-      app: restaurant
+      app: restaurant-latavola
   replicas: 1
   template:
     metadata:
       labels:
-        app: restaurant
+        app: restaurant-latavola
     spec:
       containers:
         - image: clemensv.azurecr.io/restaurant
           name: restaurant
-          ports:
-            - containerPort: 80
+          env:
+          - name: RID
+            value: "latavola"
         - image: clemensv.azurecr.io/azbridge
           name: azbridge
           env:
           - name: RID
             value: "latavola"
+          - name: RELAYCXN
+            valueFrom:
+              secretKeyRef:
+                name: relaycxn
+                key: cxn
+          args: ["-x","'$(RELAYCXN)'", "-R", "$(RID):localhost:http/80"] 
+      imagePullSecrets:
+        - name: clemensv.azurecr.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-pizzaboyz
+spec:
+  progressDeadlineSeconds: 480
+  selector:
+    matchLabels:
+      app: restaurant-pizzaboyz
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: restaurant-pizzaboyz
+    spec:
+      containers:
+        - image: clemensv.azurecr.io/restaurant
+          name: restaurant
+          env:
+          - name: RID
+            value: "pizzaboyz"
+        - image: clemensv.azurecr.io/azbridge
+          name: azbridge
+          env:
+          - name: RID
+            value: "pizzaboyz"
+          - name: RELAYCXN
+            valueFrom:
+              secretKeyRef:
+                name: relaycxn
+                key: cxn
+          args: ["-x","'$(RELAYCXN)'", "-R", "$(RID):localhost:http/80"] 
+      imagePullSecrets:
+        - name: clemensv.azurecr.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: restaurant-sidepizza
+spec:
+  progressDeadlineSeconds: 480
+  selector:
+    matchLabels:
+      app: restaurant-sidepizza
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: restaurant-sidepizza
+    spec:
+      containers:
+        - image: clemensv.azurecr.io/restaurant
+          name: restaurant
+          env:
+          - name: RID
+            value: "sidepizza"
+        - image: clemensv.azurecr.io/azbridge
+          name: azbridge
+          env:
+          - name: RID
+            value: "sidepizza"
           - name: RELAYCXN
             valueFrom:
               secretKeyRef:

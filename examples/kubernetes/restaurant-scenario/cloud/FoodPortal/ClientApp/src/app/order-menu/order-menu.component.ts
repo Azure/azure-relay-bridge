@@ -11,6 +11,7 @@ export class OrderMenuComponent {
   httpClient: HttpClient;
   baseUrl: string;
 
+
   constructor(http: HttpClient, @Inject('BASE_URL') baseUrl: string) {
 
     this.httpClient = http;
@@ -21,7 +22,7 @@ export class OrderMenuComponent {
   }
 
   restaurantSelected(event) {
-    this.httpClient.get<MenuItem[]>(this.baseUrl + 'menu').subscribe(result => {
+    this.httpClient.get<MenuItem[]>(this.baseUrl + 'menu?rid=' + event.target.value).subscribe(result => {
       console.log(result);
       this.menuItems = result;
     }, error => console.error(error));

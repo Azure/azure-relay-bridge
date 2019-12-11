@@ -3,15 +3,13 @@ RESOURCE_GROUP_NAME=$1
 RESOURCE_GROUP_LOCATION=$2
 RELAY_NAMESPACE=$3
 
-if [ ! -v RESOURCE_GROUP_NAME ]; then
-  read -p 'Azure Resource Group Name: ' RESOURCE_GROUP_NAME
-fi
-if [ ! -v RESOURCE_GROUP_LOCATION ]; then
-  read -p 'Azure Resource Group Location: ' RESOURCE_GROUP_LOCATION
-fi
-if [ ! -v RELAY_NAMESPACE ]; then
-  read -p 'Azure Relay Namespace: ' RELAY_NAMESPACE
-fi
+if [ -z ${RESOURCE_GROUP_LOCATION} ]; then RESOURCE_GROUP_LOCATION='westeurope'; fi
+if [ -z ${RESOURCE_GROUP_NAME} ]; then RESOURCE_GROUP_NAME='azbdemo1'$(date +%Y%m%d%H%M%S); fi
+if [ -z ${RELAY_NAMESPACE} ]; then RELAY_NAMESPACE=$RESOURCE_GROUP_NAME; fi
+
+echo $RESOURCE_GROUP_LOCATION
+echo $RESOURCE_GROUP_NAME
+echo $RELAY_NAMESPACE
 
 az group create --name $RESOURCE_GROUP_NAME --location $RESOURCE_GROUP_LOCATION
 if [ $? -eq 0 ]; then
@@ -22,4 +20,7 @@ if [ $? -eq 0 ]; then
     az relay hyco create --resource-group $RESOURCE_GROUP_NAME --namespace-name $RELAY_NAMESPACE --name latavola
     az relay hyco create --resource-group $RESOURCE_GROUP_NAME --namespace-name $RELAY_NAMESPACE --name pizzaboyz
     az relay hyco create --resource-group $RESOURCE_GROUP_NAME --namespace-name $RELAY_NAMESPACE --name sidepizza
+    export AZBRIDGE_DEMO_CXNSTRING=$(az relay namespace authorization-rule keys list --resource-group $RESOURCE_GROUP_NAME --namespace-name $RELAY_NAMESPACE --name SendListen --query 'primaryConnectionString' -o json)
+    export AZBRIDGE_DEMO_RESOURCEGROUP=$RESOURCE_GROUP_NAME
+    export AZBRIDGE_DEMO_NAMESPACE=$RELAY_NAMESPACE
 fi

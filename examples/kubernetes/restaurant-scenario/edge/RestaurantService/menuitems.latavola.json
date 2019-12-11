@@ -1,0 +1,32 @@
+[
+  {
+    "num": "1",
+    "name": "Pizza Tonno",
+    "description": "Tomatoes, Cheese, Tuna",
+    "price": 7.00
+  },
+  {
+    "num": "2",
+    "name": "Pizza Salami",
+    "description": "Tomatoes, Cheese, Salami",
+    "price": 7.00
+  },
+  {
+    "num": "3",
+    "name": "Pizza Bolognese",
+    "description": "Tomatoes, Cheese, Meat",
+    "price": 7.50
+  },
+  {
+    "num": "4",
+    "name": "Pizza Margherita",
+    "description": "Tomatoes, Cheese",
+    "price": 7.50
+  },
+  {
+    "num": "5",
+    "name": "Pizza Quattro Stagioni",
+    "description": "Tomatoes, Cheese, Tuna, Peppers, Ham, Mushrooms",
+    "price": 7.00
+  }
+]

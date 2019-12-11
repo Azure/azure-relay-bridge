@@ -1,0 +1,32 @@
+[
+  {
+    "num": "1",
+    "name": "Pizza Bolognese",
+    "description": "Tomatoes, Cheese, Meat",
+    "price": 7.50
+  },
+  {
+    "num": "2",
+    "name": "Pizza Tonno",
+    "description": "Tomatoes, Cheese, Tuna",
+    "price": 7.00
+  },
+  {
+    "num": "3",
+    "name": "Pizza Quattro Stagioni",
+    "description": "Tomatoes, Cheese, Tuna, Peppers, Ham, Mushrooms",
+    "price": 7.00
+  },
+  {
+    "num": "4",
+    "name": "Pizza Funghi",
+    "description": "Tomatoes, Cheese, Mushrooms",
+    "price": 7.00
+  },
+  {
+    "num": "5",
+    "name": "Pizza Calzone",
+    "description": "Everything. Wrapped.",
+    "price": 7.00
+  }
+]

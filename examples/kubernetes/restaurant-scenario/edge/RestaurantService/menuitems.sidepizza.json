@@ -1,0 +1,32 @@
+[
+  {
+    "num": "1",
+    "name": "Pizza Margherita",
+    "description": "Tomatoes, Cheese",
+    "price": 7.50
+  },
+  {
+    "num": "2",
+    "name": "Pizza Salami",
+    "description": "Tomatoes, Cheese, Salami",
+    "price": 7.00
+  },
+  {
+    "num": "3",
+    "name": "Pizza Napoli",
+    "description": "Tomatoes, Cheese, Anchovies, Olives",
+    "price": 7.00
+  },
+  {
+    "num": "4",
+    "name": "Pizza Cipolla",
+    "description": "Tomatoes, Cheese, Onions",
+    "price": 7.00
+  },
+  {
+    "num": "5",
+    "name": "Pizza Funghi",
+    "description": "Tomatoes, Cheese, Mushrooms",
+    "price": 7.00
+  }
+]

@@ -24,11 +24,25 @@ namespace FoodPortal.Controllers
         [HttpGet]
         public async Task<IEnumerable<MenuItem>> Get([FromQuery] string rid)
         {
+            string url;
+
+            switch (rid)
+            {
+                case "latavola" :
+                case "pizzaboyz" :
+                case "sidepizza" : 
+                    url = $"http://{rid}:8000/menu";
+                    break;
+                default:
+                  _logger.LogError($"Invalid Restaurant {rid}");
+                  return null;
+            }
+
             try
             {
                 using (var httpClient = new HttpClient())
                 {
-                    var rsp = await httpClient.GetAsync("http://localhost:8001/menu");
+                    var rsp = await httpClient.GetAsync(url);
                     var bytes = await rsp.Content.ReadAsStreamAsync();
                     return await JsonSerializer.DeserializeAsync<MenuItem[]>(bytes, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 }

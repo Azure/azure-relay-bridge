@@ -27,7 +27,7 @@ namespace FoodPortal.Controllers
         [HttpGet]
         public IEnumerable<MenuItem> Get()
         {
-            string fileName = _config.GetValue<string>("DataFile");
+            string fileName = $"menuitems." + Environment.GetEnvironmentVariable("RID") + ".json";
             var jsonData = System.IO.File.ReadAllBytes(fileName);
             var jsonReader = new Utf8JsonReader(jsonData, isFinalBlock: true, state: default);
             return JsonSerializer.Deserialize<MenuItem[]>(ref jsonReader, new JsonSerializerOptions{PropertyNameCaseInsensitive=true});

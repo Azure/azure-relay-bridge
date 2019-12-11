@@ -13,6 +13,16 @@ spec:
         app: foodportal
     spec:
        hostname: foodportal
+       hostAliases:
+       - ip: "127.0.9.1"
+         hostnames:
+          - "latavola"
+       - ip: "127.0.9.2"
+         hostnames:
+          - "pizzaboyz"
+       - ip: "127.0.9.3"
+         hostnames:
+          - "sidepizza"
        containers:
         - image: clemensv.azurecr.io/foodportal
           name: foodportal
@@ -20,16 +30,12 @@ spec:
             - containerPort: 80
         - image: clemensv.azurecr.io/azbridge
           name: azbridge
-          ports:
-            - containerPort: 8001
-            - containerPort: 8002
-            - containerPort: 8003
           env:
           - name: RELAYCXN
             valueFrom:
               secretKeyRef:
                 name: relaycxn
                 key: cxn
-          args: ["-L","0.0.0.0:8001/http:latavola", "-L","0.0.0.0:8002/http:pizzaboyz", "-L","0.0.0.0:8003/http:sidepizza", "-x","'$(RELAYCXN)'"] 
+          args: ["-L","latavola:8000/http:latavola", "-L","pizzaboyz:8000/http:pizzaboyz", "-L","sidepizza:8000/http:sidepizza", "-x","'$(RELAYCXN)'"] 
        imagePullSecrets:
         - name: clemensv.azurecr.io
