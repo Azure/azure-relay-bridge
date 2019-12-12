@@ -1,0 +1,31 @@
+
+replicaCount: 1
+
+image:
+  repository: clemensv.azurecr.io/foodportal
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+serviceAccount:
+  create: false
+
+ingress:
+  enabled: true
+  annotations: 
+    kubernetes.io/ingress.class: addon-http-application-routing
+
+targetHosts: [
+   "latavola",
+   "pizzaboyz",
+   "sidepizza"
+]
+
+env:
+- name: RELAYCXN
+  valueFrom:
+    secretKeyRef:
+      name: relaycxn
+      key: cxn

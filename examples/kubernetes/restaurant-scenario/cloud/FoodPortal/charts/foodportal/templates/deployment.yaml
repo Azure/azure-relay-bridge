@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "foodportal.fullname" . }}
+  labels:
+    {{- include "foodportal.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "foodportal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "foodportal.selectorLabels" . | nindent 8 }}
+    spec:
+      hostname: {{ include "foodportal.fullname" . }}  
+      {{- if .Values.targetHosts }}
+      hostAliases:
+        {{- range $index, $element := .Values.targetHosts }}
+          - ip: "127.0.9.{{ add1 $index}}"
+            hostnames: [ "{{ $element }}" ]
+        {{- end }}   
+      {{- end }}
+      imagePullSecrets:
+      - name: clemensv.azurecr.io
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
+        name: {{ .Chart.Name }}
+        {{- with .Values.env }}
+        env:
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        args: [
+          {{- range $index, $element := .Values.targetHosts -}}
+            "-L", "{{ $element }}:{{ add $index 8000 }}/http:{{ $element }}",
+          {{- end -}}   
+        ]
