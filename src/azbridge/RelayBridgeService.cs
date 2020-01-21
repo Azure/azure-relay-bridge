@@ -42,7 +42,7 @@ namespace azbridge
                 (Environment.OSVersion.Platform == PlatformID.Unix) ?
                     $"/etc/azbridge/azbridge_config.svc.yml" :
              Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
-                 $"Mirosoft\\Azure Relay Bridge\\azbridge_config.svc.yml");
+                 $"Microsoft\\Azure Relay Bridge\\azbridge_config.svc.yml");
 
             if (File.Exists(svcConfigFileName))
             {
