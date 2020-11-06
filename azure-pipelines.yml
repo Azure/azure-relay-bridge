@@ -40,9 +40,9 @@ jobs:
       vmImage: 'ubuntu-latest'
     
     steps:
-    - task: Bash@3
+    - task: ShellScript@2
       inputs:
-        script: '$(System.DefaultWorkingDirectory)/package.sh'
+        scriptPath: './package.sh'
         arguments: '/p:VersionSuffix=rel'
 
     - task: DotNetCoreCLI@2
