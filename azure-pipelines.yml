@@ -2,7 +2,9 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
-- master
+  - master
+pr:
+  - master
 
 variables:
   BuildVersion.MajorMinor: 0.3
