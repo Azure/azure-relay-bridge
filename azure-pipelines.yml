@@ -3,7 +3,6 @@
 
 trigger:
   - master
-
 pr:
   - master
 
