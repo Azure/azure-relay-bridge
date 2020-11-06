@@ -30,7 +30,7 @@ jobs:
         command: 'test'
         arguments: '/p:WindowsOnly=true'
 
-    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net462
+    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net48
       artifact: WindowsBuild
 
   - job: LinuxBuild
@@ -50,5 +50,5 @@ jobs:
         command: 'test'
         arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug'
 
-    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp3.0
+    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp3.1
       artifact: XBuild
