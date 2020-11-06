@@ -42,7 +42,8 @@ jobs:
     steps:
     - task: Bash@3
       inputs:
-        script: './package.sh /p:VersionSuffix=rel'
+        script: '$(System.DefaultWorkingDirectory)/package.sh'
+        arguments: '/p:VersionSuffix=rel'
 
     - task: DotNetCoreCLI@2
       inputs:
