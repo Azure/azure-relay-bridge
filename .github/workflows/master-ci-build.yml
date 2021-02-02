@@ -46,6 +46,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: artifacts/build/netcoreapp3.1/*
         file_glob: true
         tag: ${{ github.ref }}
