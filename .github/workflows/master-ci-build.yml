@@ -1,4 +1,4 @@
-name: Unix build
+name: Master CI Build
 
 on:
   push:
@@ -20,7 +20,7 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet msbuild /t:Package /p:Configuration=Release /p:TargetFramework=netcoreapp3.1 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:Configuration=Release /p:TargetFramework=netcoreapp3.1 /p:VersionSuffix=rel
     - name: Test
       run: dotnet test /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
     
