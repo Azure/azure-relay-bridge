@@ -7,18 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(MicrosoftNETTestSdkPackageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
     <PackageReference Include="xunit" Version="$(XunitPackageVersion)" />
     <PackageReference Condition="'$(OS)' == 'Windows_NT' AND '$(TargetFramework)' == 'net48'" Include="xunit.runner.visualstudio" Version="2.4.3">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotnetSignedPackageVersion)" />
+    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
     <!--<DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />-->
   </ItemGroup>
 

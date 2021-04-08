@@ -15,16 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="3.0.0" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
     <PackageReference Include="Microsoft.Azure.Relay" Version="$(MicrosoftAzureRelayPackageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
     <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
-    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
     <PackageReference Include="System.Net.NetworkInformation" Version="$(SystemNetNetworkInformationPackageVersion)" />
-    <PackageReference Include="YamlDotNet.Signed" Version="$(YamlDotNetSignedPackageVersion)" />
+    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
     <PackageReference Include="System.Diagnostics.Tracing" Version="$(SystemDiagnosticsTracingPackageVersion)" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="4.7.1" />
+    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />
   </ItemGroup>
 
   <Choose>
