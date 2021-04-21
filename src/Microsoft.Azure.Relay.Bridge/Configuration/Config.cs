@@ -1023,6 +1023,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         static ISerializer yamlSerializer =
             new SerializerBuilder()
+            .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
             .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.PascalCaseNamingConvention.Instance).Build();
 
         private bool disposedValue = false; // To detect redundant calls
