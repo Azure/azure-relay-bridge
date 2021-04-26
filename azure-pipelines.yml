@@ -3,11 +3,12 @@
 
 trigger:
   - master
+
 pr:
   - master
 
 variables:
-  BuildVersion.MajorMinor: 0.3
+  BuildVersion.MajorMinor: 0.4
   BuildVersion.Revision: $[counter(variables['Version.MajorMinor'], 0)]
   BuildVersion: $(BuildVersion.MajorMinor).$(BuildVersion.Revision) 
 
@@ -32,7 +33,7 @@ jobs:
         command: 'test'
         arguments: '/p:WindowsOnly=true'
 
-    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net462
+    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net48
       artifact: WindowsBuild
 
   - job: LinuxBuild
@@ -50,7 +51,7 @@ jobs:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'test'
-        arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug'
+        arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug /p:TargetFramework=netcoreapp5.0'
 
-    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp3.0
+    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp5.0
       artifact: XBuild

@@ -1018,12 +1018,13 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         static IDeserializer yamlDeserializer =
             new DeserializerBuilder()
-            .WithNamingConvention(new PascalCaseNamingConvention())
+            .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.PascalCaseNamingConvention.Instance)
             .Build();
 
         static ISerializer yamlSerializer =
             new SerializerBuilder()
-            .WithNamingConvention(new PascalCaseNamingConvention()).Build();
+            .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults)
+            .WithNamingConvention(YamlDotNet.Serialization.NamingConventions.PascalCaseNamingConvention.Instance).Build();
 
         private bool disposedValue = false; // To detect redundant calls
         private string bindAddress;
