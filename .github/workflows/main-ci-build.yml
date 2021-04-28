@@ -1,0 +1,61 @@
+name: Main and Release CI Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master, main ]
+  create:
+    tags:
+      - 'v*.*'
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build for Windows 10-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-x64 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for Windows 10-arm64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-arm /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for Windows 10-x86
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-x86 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for macOS-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for Ubuntu 18-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-x64 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for Ubuntu 18-arm64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-arm64 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    - name: Build for Debian 10-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=debian.10-x64 /p:Configuration=Release /p:TargetFramework=netcoreapp5.0 /p:VersionSuffix=rel
+    
+    - name: Test
+      run: dotnet test /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: XBuild
+        path: artifacts/build/netcoreapp5.0
+    
+    - name: Upload Binaries to the Release
+      uses: svenstaro/upload-release-action@v2
+      if: startsWith(github.ref, 'refs/tags/v')
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: artifacts/build/netcoreapp5.0/*
+        file_glob: true
+        tag: ${{ github.ref }}
+        overwrite: true
