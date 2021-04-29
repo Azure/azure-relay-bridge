@@ -58,7 +58,7 @@ else
       
         diff --strip-trailing-cr -B -i -w downloaded.txt index.html
         _RESULT=$?
-        rm downloaded.txt
+        rm -f downloaded.txt
         if [ $_RESULT -eq 0 ]; then 
             echo OK
             exit 0

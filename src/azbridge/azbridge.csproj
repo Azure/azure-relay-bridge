@@ -137,12 +137,11 @@
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
-    <!-- <DebDependency Include="lttng-ust" Version=""/> -->
     <DebDependency Include="libcurl3 | libcurl4" Version="" />
     <DebDependency Include="libssl1.0.0 | libssl1.0.2 | libssl1.1" Version="" />
-    <DebDependency Include="libkrb5-3" Version="" />
+    <DebDependency Include="libgssapi-krb5-2"/>
     <DebDependency Include="zlib1g" Version="" />
-    <DebDependency Include="libicu52 | libicu55 | libicu57 | libicu60 | libicu62 | libicu63" Version="" />
+    <DebDependency Include="libicu52 | libicu55 | libicu57 | libicu60 | libicu62 | libicu63 | libicu66 | libicu67" Version="" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
