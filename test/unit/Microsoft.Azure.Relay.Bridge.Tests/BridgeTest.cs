@@ -65,20 +65,21 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     }
                 });
 
-                var s = new TcpClient();
-                s.Connect("127.0.97.1", 29876);
-                var sstream = s.GetStream();
-                using (var w = new StreamWriter(sstream))
+                using (var s = new TcpClient())
                 {
-                    w.WriteLine("Hello!");
-                    w.Flush();
-                    using (var b = new StreamReader(sstream))
+                    s.Connect("127.0.97.1", 29876);
+                    var sstream = s.GetStream();
+                    using (var w = new StreamWriter(sstream))
                     {
-                        Assert.Equal("Hello!", b.ReadLine());
+                        w.WriteLine("Hello!");
+                        w.Flush();
+                        using (var b = new StreamReader(sstream))
+                        {
+                            Assert.Equal("Hello!", b.ReadLine());
+                        }
                     }
                 }
 
-                s.Dispose();
                 l.Stop();
             }
             finally
@@ -115,41 +116,54 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
-                var l = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.97.2"), 29877));
-                l.ReceiveAsync().ContinueWith(async (t) =>
+                using (var l = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.97.2"), 29877)))
                 {
-                    var c = t.Result;
-                    var stream = c.Buffer;
-                    using (var b = new StreamReader(new MemoryStream(stream)))
+                    l.ReceiveAsync().ContinueWith(async (t) =>
                     {
-                        var text = b.ReadLine();
-                        var m1 = new MemoryStream();
-                        using (var w = new StreamWriter(m1))
+                        var c = t.Result;
+                        var stream = c.Buffer;
+                        using (var mr = new MemoryStream(stream))
                         {
-                            w.WriteLine(text);
-                            w.Flush();
-                            await l.SendAsync(m1.GetBuffer(), (int)m1.Length, c.RemoteEndPoint);
+                            using (var b = new StreamReader(mr))
+                            {
+                                var text = b.ReadLine();
+                                using (var mw = new MemoryStream())
+                                {
+                                    using (var w = new StreamWriter(mw))
+                                    {
+                                        w.WriteLine(text);
+                                        w.Flush();
+                                        await l.SendAsync(mw.GetBuffer(), (int)mw.Length, c.RemoteEndPoint);
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    using (var s = new UdpClient())
+                    {
+                        s.Connect("127.0.97.1", 29876);
+                        using (MemoryStream mw = new MemoryStream())
+                        {
+                            using (var w = new StreamWriter(mw))
+                            {
+                                w.WriteLine("Hello!");
+                                w.Flush();
+                                s.Send(mw.GetBuffer(), (int)mw.Length);
+
+                                IPEndPoint addr = null;
+                                var buf = s.Receive(ref addr);
+                                using (var mr = new MemoryStream(buf))
+                                {
+                                    using (var b = new StreamReader(mr))
+                                    {
+                                        Assert.Equal("Hello!", b.ReadLine());
+                                    }
+                                }
+                            }
                         }
                     }
-                });
-
-                var s = new UdpClient();
-                s.Connect("127.0.97.1", 29876);
-                MemoryStream m = new MemoryStream();
-                using (var w = new StreamWriter(m))
-                {
-                    w.WriteLine("Hello!");
-                    w.Flush();
-                    s.Send(m.GetBuffer(), (int)m.Length);
-                    IPEndPoint addr = null;
-                    var buf = s.Receive(ref addr);
-                    using (var b = new StreamReader(new MemoryStream(buf)))
-                    {
-                        Assert.Equal("Hello!", b.ReadLine());
-                    }
                 }
-
-                s.Dispose();
             }
             finally
             {
@@ -188,44 +202,48 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Host host = new Host(cfg);
             host.Start();
 
-
             try
             {
                 // now try to use it
-                var l = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-                l.Bind(new UnixDomainSocketEndPoint(rf.LocalSocket));
-                l.Listen(5);
-
-                l.AcceptAsync().ContinueWith((t) =>
+                using (var l = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP))
                 {
-                    var c = t.Result;
-                    using (var b = new StreamReader(new NetworkStream(c)))
-                    {
-                        var text = b.ReadLine();
-                        using (var w = new StreamWriter(new NetworkStream(c)))
+                    l.Bind(new UnixDomainSocketEndPoint(rf.LocalSocket));
+                    l.Listen(5);
+
+                        l.AcceptAsync().ContinueWith((t) =>
                         {
-                            w.WriteLine(text);
-                            w.Flush();
-                        }
-                    }
-                });
+                            var c = t.Result;
+                            using (var b = new StreamReader(new NetworkStream(c)))
+                            {
+                                var text = b.ReadLine();
+                                using (var w = new StreamWriter(new NetworkStream(c)))
+                                {
+                                    w.WriteLine(text);
+                                    w.Flush();
+                                }
+                            }
+                        });
 
-
-                var s = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP);
-                s.Connect(new UnixDomainSocketEndPoint(lf.BindLocalSocket));
-                var ns = new NetworkStream(s);
-                using (var w = new StreamWriter(ns))
-                {
-                    w.WriteLine("Hello!");
-                    w.Flush();
-                    using (var b = new StreamReader(ns))
+                    using (var s = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.IP))
                     {
-                        string line = b.ReadLine();
-                        Assert.Equal("Hello!", line);
+                        s.Connect(new UnixDomainSocketEndPoint(lf.BindLocalSocket));
+                        using (var ns = new NetworkStream(s))
+                        {
+                            using (var w = new StreamWriter(ns))
+                            {
+                                w.WriteLine("Hello!");
+                                w.Flush();
+                                using (var b = new StreamReader(ns))
+                                {
+                                    string line = b.ReadLine();
+                                    Assert.Equal("Hello!", line);
+                                }
+                            }
+                        }
+                        s.Close(0);
+                        l.Close(0);
                     }
                 }
-                s.Close(0);
-                l.Close(0);
             }
             finally
             {
@@ -268,23 +286,23 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     l.Stop();
                 });
 
-                var s = new TcpClient();
-                s.Connect("127.0.97.1", 29876);
-                s.NoDelay = true;
-                s.Client.Blocking = true;
-                using (var w = s.GetStream())
+                using (var s = new TcpClient())
                 {
-                    byte[] bytes = new byte[1024 * 1024];
-                    Assert.Throws<IOException>(() =>
+                    s.Connect("127.0.97.1", 29876);
+                    s.NoDelay = true;
+                    s.Client.Blocking = true;
+                    using (var w = s.GetStream())
                     {
-                        for (int i = 0; i < 5; i++)
+                        byte[] bytes = new byte[1024 * 1024];
+                        Assert.Throws<IOException>(() =>
                         {
-                            w.Write(bytes, 0, bytes.Length);
-                        }
-                    });
+                            for (int i = 0; i < 5; i++)
+                            {
+                                w.Write(bytes, 0, bytes.Length);
+                            }
+                        });
+                    }
                 }
-
-                s.Dispose();
             }
             finally
             {

@@ -73,7 +73,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     Send(hybridConnectionStream, client, socketAbort)
                         .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
                     Receive(hybridConnectionStream, client, socketAbort)
-                        .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted));
+                        .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted)).ConfigureAwait(false);
             }
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     int read = 0;
                     while (read < 2)
                     {
-                        var r = await source.ReadAsync(length, 0, 2, cancellationToken.Token);
+                        var r = await source.ReadAsync(length, 0, 2, cancellationToken.Token).ConfigureAwait(false);
                         if (r == 0)
                         {
                             return;
@@ -103,14 +103,14 @@ namespace Microsoft.Azure.Relay.Bridge
                     int toRead = length[0] * 256 + length[1];
                     while (read < toRead)
                     {
-                        var r = await source.ReadAsync(buffer, 0, toRead, cancellationToken.Token);
+                        var r = await source.ReadAsync(buffer, 0, toRead, cancellationToken.Token).ConfigureAwait(false);
                         if (r == 0)
                         {
                             return;
                         }
                         read += r;
                     }
-                    await target.SendAsync(buffer, toRead);
+                    await target.SendAsync(buffer, toRead).ConfigureAwait(false);
                 }
                 while (!cancellationToken.IsCancellationRequested);
             }
@@ -127,7 +127,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var datagram = await target.ReceiveAsync();
+                    var datagram = await target.ReceiveAsync().ConfigureAwait(false);
                     cancellationToken.CancelAfter(maxIdleTime);
                     var buffer = new byte[datagram.Buffer.Length + 2];
                     using (var ms = new MemoryStream(buffer))
@@ -136,7 +136,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         ms.Write(datagram.Buffer, 0, datagram.Buffer.Length);
                         if (!cancellationToken.IsCancellationRequested)
                         {
-                            await source.WriteAsync(buffer, 0, (int)ms.Length, cancellationToken.Token);
+                            await source.WriteAsync(buffer, 0, (int)ms.Length, cancellationToken.Token).ConfigureAwait(false);
                         }
                     }
                 }

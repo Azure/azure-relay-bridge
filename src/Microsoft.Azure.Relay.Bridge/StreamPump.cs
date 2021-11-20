@@ -25,7 +25,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     int bytesRead;
 
                     bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
-                    
+
                     if (bytesRead == 0)
                     {
                         shutdownAction?.Invoke();

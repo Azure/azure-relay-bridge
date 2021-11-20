@@ -88,7 +88,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         () => client.Client.Shutdown(SocketShutdown.Send), socketAbort.Token)
                         .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
                     StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(), socketAbort.Token))
-                        .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+                        .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted).ConfigureAwait(false);
 
             }
 

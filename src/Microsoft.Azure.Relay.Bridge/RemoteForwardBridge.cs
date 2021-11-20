@@ -54,7 +54,7 @@ namespace Microsoft.Azure.Relay.Bridge
             shuttingDown.Cancel(); ;
 
             this.IsOpen = false;
-            await this.listener.CloseAsync(TimeSpan.FromSeconds(5));
+            await this.listener.CloseAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
         }
 
         public void Dispose()
@@ -100,7 +100,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 };
             }
 
-            await listener.OpenAsync(shuttingDown.Token);
+            await listener.OpenAsync(shuttingDown.Token).ConfigureAwait(false);
             this.IsOpen = true;
 
             AcceptLoopAsync().Fork(this);
@@ -112,7 +112,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 try
                 {
-                    var hybridConnectionStream = await listener.AcceptConnectionAsync();
+                    var hybridConnectionStream = await listener.AcceptConnectionAsync().ConfigureAwait(false);
                     if (hybridConnectionStream == null)
                     {
                         // we only get null if trhe listener is shutting down
@@ -144,10 +144,10 @@ namespace Microsoft.Azure.Relay.Bridge
                     for (int read = 0; read < versionPreamble.Length;)
                     {
                         var r = await hybridConnectionStream.ReadAsync(versionPreamble, read,
-                            versionPreamble.Length - read);
+                            versionPreamble.Length - read).ConfigureAwait(false);
                         if (r == 0)
                         {
-                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
+                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
                             return;
                         }
 
@@ -162,20 +162,20 @@ namespace Microsoft.Azure.Relay.Bridge
                         // length indicator and then that number of bytes with of UTF-8 encoded
                         // port-name string.
                         var portNameBuffer = new byte[256];
-                        var r = await hybridConnectionStream.ReadAsync(portNameBuffer, 0, 1);
+                        var r = await hybridConnectionStream.ReadAsync(portNameBuffer, 0, 1).ConfigureAwait(false);
                         if (r == 0)
                         {
-                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
+                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
                             return;
                         }
 
                         for (int read = 0; read < portNameBuffer[0];)
                         {
                             r = await hybridConnectionStream.ReadAsync(portNameBuffer, read + 1,
-                                portNameBuffer[0] - read);
+                                portNameBuffer[0] - read).ConfigureAwait(false);
                             if (r == 0)
                             {
-                                await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
+                                await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
                                 return;
                             }
 
@@ -188,8 +188,8 @@ namespace Microsoft.Azure.Relay.Bridge
                     {
                         // if we don't understand the version, we write a 0.0 version preamble back and shut down the connection
                         versionPreamble = new byte[] { 0, 0, 0 };
-                        await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
-                        await CloseConnection(hybridConnectionStream);
+                        await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length).ConfigureAwait(false);
+                        await CloseConnection(hybridConnectionStream).ConfigureAwait(false);
                         return;
                     }
 
@@ -212,28 +212,28 @@ namespace Microsoft.Azure.Relay.Bridge
                         {
                             // bad datagram indicator
                             versionPreamble = new byte[] { 0, 0, 1 };
-                            await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
-                            await CloseConnection(hybridConnectionStream);
+                            await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length).ConfigureAwait(false);
+                            await CloseConnection(hybridConnectionStream).ConfigureAwait(false);
                             return;
                         }
                         else if (!(forwarder is UdpRemoteForwarder) && versionPreamble[2] == 1)
                         {
                             // mismatch
                             versionPreamble = new byte[] { 0, 0, 255 };
-                            await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
-                            await CloseConnection(hybridConnectionStream);
+                            await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length).ConfigureAwait(false);
+                            await CloseConnection(hybridConnectionStream).ConfigureAwait(false);
                             return;
                         }
 
                         // write out 1.0 and handle the stream
                         versionPreamble = new byte[] { 1, 0, versionPreamble[2] };
-                        await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length);
-                        await forwarder.HandleConnectionAsync(hybridConnectionStream);
-                        await CloseConnection(hybridConnectionStream);
+                        await hybridConnectionStream.WriteAsync(versionPreamble, 0, versionPreamble.Length).ConfigureAwait(false);
+                        await forwarder.HandleConnectionAsync(hybridConnectionStream).ConfigureAwait(false);
+                        await CloseConnection(hybridConnectionStream).ConfigureAwait(false);
                     }
                     else
                     {
-                        await CloseConnection(hybridConnectionStream);
+                        await CloseConnection(hybridConnectionStream).ConfigureAwait(false);
                     }
                 }
             }
@@ -247,8 +247,8 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
             {
-                await hybridConnectionStream.ShutdownAsync(cts.Token);
-                await hybridConnectionStream.CloseAsync(cts.Token);
+                await hybridConnectionStream.ShutdownAsync(cts.Token).ConfigureAwait(false);
+                await hybridConnectionStream.CloseAsync(cts.Token).ConfigureAwait(false);
             }
         }
     }
