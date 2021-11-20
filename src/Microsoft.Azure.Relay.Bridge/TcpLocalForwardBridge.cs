@@ -127,7 +127,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 try
                 {
-                    socket = await this.tcpListener.AcceptTcpClientAsync();
+                    socket = await this.tcpListener.AcceptTcpClientAsync().ConfigureAwait(false);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -191,7 +191,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 var tcpstream = tcpClient.GetStream();
                 var socket = tcpClient.Client;
                 
-                using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync())
+                using (var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync().ConfigureAwait(false))
                 {
                     // read and write version preamble
                     hybridConnectionStream.WriteTimeout = 60000;
@@ -205,18 +205,18 @@ namespace Microsoft.Azure.Relay.Bridge
                         /*stream mode*/ 0,
                         (byte)portNameBytes.Length
                     };
-                    await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length);
-                    await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length);
-                    
+                    await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length).ConfigureAwait(false);
+                    await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length).ConfigureAwait(false);
+
                     byte[] replyPreamble = new byte[3];
                     for (int read = 0; read < replyPreamble.Length;)
                     {
                         var r = await hybridConnectionStream.ReadAsync(replyPreamble, read,
-                            replyPreamble.Length - read);
+                            replyPreamble.Length - read).ConfigureAwait(false);
                         if (r == 0)
                         {
-                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
-                            await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+                            await hybridConnectionStream.CloseAsync(CancellationToken.None).ConfigureAwait(false);
                             return;
                         }
                         read += r;
@@ -225,8 +225,8 @@ namespace Microsoft.Azure.Relay.Bridge
                     if (!(replyPreamble[0] == 1 && replyPreamble[1] == 0 && replyPreamble[2] == 0)) 
                     {
                         // version not supported
-                        await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
-                        await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                        await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+                        await hybridConnectionStream.CloseAsync(CancellationToken.None).ConfigureAwait(false);
                         return;
                     }
 
@@ -242,11 +242,11 @@ namespace Microsoft.Azure.Relay.Bridge
                                 .ContinueWith((t)=>socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
                             StreamPump.RunAsync(tcpstream, hybridConnectionStream,
                                 () => hybridConnectionStream?.Shutdown(), socketAbort.Token))
-                                .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+                                .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted).ConfigureAwait(false);
 
                         using (var cts = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                         {
-                            await hybridConnectionStream.CloseAsync(cts.Token);
+                            await hybridConnectionStream.CloseAsync(cts.Token).ConfigureAwait(false);
                         }
                     }
                     catch

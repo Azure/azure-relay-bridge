@@ -137,7 +137,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
                 try
                 {
-                    datagram = await this.udpClient.ReceiveAsync();
+                    datagram = await this.udpClient.ReceiveAsync().ConfigureAwait(false);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -153,12 +153,12 @@ namespace Microsoft.Azure.Relay.Bridge
                 {
                     using (var ct = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
                     {
-                        await route.SendAsync(datagram, ct.Token);
+                        await route.SendAsync(datagram, ct.Token).ConfigureAwait(false);
                     }
                 }
                 else
                 {
-                    var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync();
+                    var hybridConnectionStream = await HybridConnectionClient.CreateConnectionAsync().ConfigureAwait(false);
                     // read and write version preamble
                     hybridConnectionStream.WriteTimeout = 60000;
 
@@ -171,18 +171,18 @@ namespace Microsoft.Azure.Relay.Bridge
                         /*dgram*/ 1,
                         (byte)portNameBytes.Length
                     };
-                    await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length);
-                    await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length);
+                    await hybridConnectionStream.WriteAsync(preamble, 0, preamble.Length).ConfigureAwait(false);
+                    await hybridConnectionStream.WriteAsync(portNameBytes, 0, portNameBytes.Length).ConfigureAwait(false);
 
                     byte[] replyPreamble = new byte[3];
                     for (int read = 0; read < replyPreamble.Length;)
                     {
                         var r = await hybridConnectionStream.ReadAsync(replyPreamble, read,
-                            replyPreamble.Length - read);
+                            replyPreamble.Length - read).ConfigureAwait(false);
                         if (r == 0)
                         {
-                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
-                            await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                            await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+                            await hybridConnectionStream.CloseAsync(CancellationToken.None).ConfigureAwait(false);
                             return;
                         }
                         read += r;
@@ -191,8 +191,8 @@ namespace Microsoft.Azure.Relay.Bridge
                     if (!(replyPreamble[0] == 1 && replyPreamble[1] == 0 && replyPreamble[2] == 1))
                     {
                         // version not supported
-                        await hybridConnectionStream.ShutdownAsync(CancellationToken.None);
-                        await hybridConnectionStream.CloseAsync(CancellationToken.None);
+                        await hybridConnectionStream.ShutdownAsync(CancellationToken.None).ConfigureAwait(false);
+                        await hybridConnectionStream.CloseAsync(CancellationToken.None).ConfigureAwait(false);
                         return;
                     }
 
@@ -202,7 +202,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     newRoute.StartReceiving();
                     using (var ct = new CancellationTokenSource(TimeSpan.FromSeconds(1)))
                     {
-                        await newRoute.SendAsync(datagram, ct.Token);
+                        await newRoute.SendAsync(datagram, ct.Token).ConfigureAwait(false);
                     }
                 }
             }
@@ -247,8 +247,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 ms.Write(datagram.Buffer, 0, datagram.Buffer.Length);
                 if (!ct.IsCancellationRequested)
                 {
-                    await target.WriteAsync(buffer, 0, (int)ms.Length, ct);
-                    await target.FlushAsync(ct);
+                    await target.WriteAsync(buffer, 0, (int)ms.Length, ct).ConfigureAwait(false);
+                    await target.FlushAsync(ct).ConfigureAwait(false);
                 }
             }
         }
@@ -265,7 +265,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     int read = 0;
                     while (read < 2)
                     {
-                        var r = await target.ReadAsync(length, 0, 2, this.routeCancel.Token);
+                        var r = await target.ReadAsync(length, 0, 2, this.routeCancel.Token).ConfigureAwait(false);
                         if (r == 0)
                         {
                             return;
@@ -280,14 +280,14 @@ namespace Microsoft.Azure.Relay.Bridge
                     int toRead = length[0] * 256 + length[1];
                     while (read < toRead)
                     {
-                        var r = await target.ReadAsync(buffer, 0, toRead, this.routeCancel.Token);
+                        var r = await target.ReadAsync(buffer, 0, toRead, this.routeCancel.Token).ConfigureAwait(false);
                         if (r == 0)
                         {
                             return;
                         }         
                         read += r;
                     }                                                                               
-                    await client.SendAsync(buffer, toRead, this.IPEndPoint);
+                    await client.SendAsync(buffer, toRead, this.IPEndPoint).ConfigureAwait(false);
                 }
                 while (!this.routeCancel.IsCancellationRequested);
             });

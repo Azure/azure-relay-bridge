@@ -28,7 +28,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 socket.SendBufferSize = socket.ReceiveBufferSize = 65536;
                 socket.SendTimeout = 60000;
-                await socket.ConnectAsync(new UnixDomainSocketEndPoint(targetServer));
+                await socket.ConnectAsync(new UnixDomainSocketEndPoint(targetServer)).ConfigureAwait(false);
                 var tcpstream = new NetworkStream(socket);
 
                 CancellationTokenSource socketAbort = new CancellationTokenSource();
@@ -38,7 +38,7 @@ namespace Microsoft.Azure.Relay.Bridge
                             .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted),
                         StreamPump.RunAsync(tcpstream, hybridConnectionStream, () => hybridConnectionStream.Shutdown(),
                             socketAbort.Token))
-                    .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted);
+                    .ContinueWith((t) => socketAbort.Cancel(), TaskContinuationOptions.OnlyOnFaulted).ConfigureAwait(false);
             }
         }
     }
