@@ -3,7 +3,7 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <PackagingTargetsPackageVersion>0.1.189</PackagingTargetsPackageVersion>
+    <PackagingTargetsPackageVersion>0.1.220</PackagingTargetsPackageVersion>
     <WixPackageVersion>3.11.2</WixPackageVersion>
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
     <MicrosoftDiagnosticsTracingTraceEventPackageVersion>2.0.66</MicrosoftDiagnosticsTracingTraceEventPackageVersion>
