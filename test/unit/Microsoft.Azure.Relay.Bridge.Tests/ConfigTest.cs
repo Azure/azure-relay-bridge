@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Threading.Tasks;
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay.Bridge.Configuration;
+    using Microsoft.Azure.Relay.Bridge.Tests;
     using Xunit;
 
     public class ConfigTest : IClassFixture<LaunchSettingsFixture>

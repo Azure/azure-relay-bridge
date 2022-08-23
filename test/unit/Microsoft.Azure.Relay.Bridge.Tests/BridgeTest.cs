@@ -8,6 +8,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Net;
     using System.Net.Sockets;
     using Microsoft.Azure.Relay.Bridge.Configuration;
+    using Microsoft.Azure.Relay.Bridge.Tests;
     using Xunit;
 
     public class BridgeTest : IClassFixture<LaunchSettingsFixture>

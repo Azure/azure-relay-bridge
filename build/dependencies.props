@@ -3,14 +3,13 @@
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
-    <PackagingTargetsPackageVersion>0.1.189</PackagingTargetsPackageVersion>
+    <PackagingTargetsPackageVersion>0.1.220</PackagingTargetsPackageVersion>
     <WixPackageVersion>3.11.2</WixPackageVersion>
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
     <MicrosoftDiagnosticsTracingTraceEventPackageVersion>2.0.66</MicrosoftDiagnosticsTracingTraceEventPackageVersion>
-    <MicrosoftNETCoreAppPackageVersion>5.0.0</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>6.0.0</MicrosoftNETCoreAppPackageVersion>
     <MicrosoftNetHttpHeadersPackageVersion>2.2.8</MicrosoftNetHttpHeadersPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>16.9.4</MicrosoftNETTestSdkPackageVersion>
-    <NETStandardLibrary21PackageVersion>2.1.0</NETStandardLibrary21PackageVersion>
     <SystemNetNetworkInformationPackageVersion>4.3.0</SystemNetNetworkInformationPackageVersion>
     <SystemThreadingTasksDataflowPackageVersion>5.0.0</SystemThreadingTasksDataflowPackageVersion>
     <SystemConsolePackageVersion>4.3.1</SystemConsolePackageVersion>
@@ -20,7 +19,7 @@
     <SystemDiagnosticsDiagnosticSourcePackageVersion>4.6.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemNetHttpPackageVersion>4.3.4</SystemNetHttpPackageVersion>
     <SystemNetNameResolutionPackageVersion>4.3.0</SystemNetNameResolutionPackageVersion>
-    <YamlDotNetPackageVersion>11.1.0</YamlDotNetPackageVersion>
+    <YamlDotNetPackageVersion>12.0.0</YamlDotNetPackageVersion>
     <MicrosoftExtensionsLoggingPackageVersion>3.0.0</MicrosoftExtensionsLoggingPackageVersion>
     <MicrosoftExtensionsLoggingConsolePackageVersion>3.0.0</MicrosoftExtensionsLoggingConsolePackageVersion>
     <XunitPackageVersion>2.4.1</XunitPackageVersion>
@@ -30,7 +29,7 @@
     <XunitRunnerMsBuildPackageVersion>2.4.1</XunitRunnerMsBuildPackageVersion>
     <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
     <MicrosoftAzureRelayPackageVersion>2.0.15596</MicrosoftAzureRelayPackageVersion>
-    <McMasterExtensionsCommandLineUtilsPackageVersion>3.1.0</McMasterExtensionsCommandLineUtilsPackageVersion>
+    <McMasterExtensionsCommandLineUtilsPackageVersion>4.0.1</McMasterExtensionsCommandLineUtilsPackageVersion>
     <SerilogExtensionsLoggingFilePackageVersion>2.0.0</SerilogExtensionsLoggingFilePackageVersion>
   </PropertyGroup>
   <Import Project="$(DotNetPackageVersionPropsPath)" Condition=" '$(DotNetPackageVersionPropsPath)' != '' " />

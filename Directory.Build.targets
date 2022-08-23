@@ -1,7 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
-    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'netcoreapp5.0' ">$(MicrosoftNETCoreAppPackageVersion)</RuntimeFrameworkVersion>
-    <NETStandardImplicitPackageVersion Condition=" '$(TargetFramework)' == 'netcoreapp5.0' ">$(NETStandardLibrary21PackageVersion)</NETStandardImplicitPackageVersion>
+    <RuntimeFrameworkVersion Condition=" '$(TargetFramework)' == 'net6.0' ">$(MicrosoftNETCoreAppPackageVersion)</RuntimeFrameworkVersion>
     <!-- aspnet/BuildTools#662 Don't police what version of NetCoreApp we use -->
     <NETCoreAppMaximumVersion>99.9</NETCoreAppMaximumVersion>
   </PropertyGroup>
@@ -9,4 +8,3 @@
     <CallTarget Targets="VSTest" Condition="'$(IsTestProject)' == 'true'" />
   </Target>
 </Project>
-

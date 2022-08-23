@@ -14,7 +14,7 @@ if "%ImageName%"=="" set ImageName=ubuntu.18.04-x64
 if "%ImageSuffix%"=="" set ImageSuffix=deb
 if "%VersionSuffix%"=="" set VersionSuffix=preview
 if "%VersionPrefix%"=="" set VersionPrefix=1.0.0
-if "%TargetFramework%"=="" set TargetFramework=netcoreapp5.0
+if "%TargetFramework%"=="" set TargetFramework=net6.0
 
 pushd "%~dp0"
 

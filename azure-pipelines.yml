@@ -51,7 +51,7 @@ jobs:
     - task: DotNetCoreCLI@2
       inputs:
         command: 'test'
-        arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug /p:TargetFramework=netcoreapp5.0'
+        arguments: '/p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug /p:TargetFramework=net6.0'
 
-    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/netcoreapp5.0
+    - publish: $(System.DefaultWorkingDirectory)/artifacts/build/net6.0
       artifact: XBuild
