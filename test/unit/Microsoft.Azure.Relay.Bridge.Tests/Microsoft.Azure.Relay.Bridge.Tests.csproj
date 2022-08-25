@@ -13,7 +13,6 @@
     <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
     <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
     <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
-    <!--<DotNetCliToolReference Include="dotnet-xunit" Version="$(DotnetXunitPackageVersion)" />-->
   </ItemGroup>
 
   <PropertyGroup>
