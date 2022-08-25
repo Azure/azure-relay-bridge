@@ -53,14 +53,7 @@
 
   <Fragment>
     <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="etwManifest.dll">
-        <File Id="etwManifest.dll" KeyPath="yes" Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.dll" />
-      </Component>
-      <Component Id="etwManifest.man">
-        <File Id="etwManifest.man" KeyPath="yes" Source="$(var.Microsoft.Azure.Relay.Bridge.TargetDir)\Microsoft.Azure.Relay.Bridge.Microsoft-Azure-RelayBridge.etwManifest.man">
-          <util:EventManifest MessageFile="[etwManifest.dll]" ResourceFile="[etwManifest.dll]"></util:EventManifest>
-        </File>
-      </Component>
+      
      </ComponentGroup>
      <ComponentGroup Id="PathInstall" Directory="INSTALLFOLDER">
         <Component Id="Path" Guid="{bfc77cbe-3e65-4cb9-a1db-3d0b14bbe11f}" KeyPath="yes">

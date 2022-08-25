@@ -6,11 +6,7 @@ namespace Microsoft.Azure.Relay.Bridge
     using System;
     using System.Linq;
     using System.Globalization;
-#if USE_MDT_EVENTSOURCE
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     using System.Diagnostics;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using System.Net;
@@ -30,11 +26,7 @@ namespace Microsoft.Azure.Relay.Bridge
     /// </summary>
     [EventSource(Name = "Microsoft-Azure-RelayBridge")]
     sealed class BridgeEventSource :
-#if USE_MDT_EVENTSOURCE
-            Microsoft.Diagnostics.Tracing.EventSource
-#else
             System.Diagnostics.Tracing.EventSource
-#endif
     {
         static DiagnosticSource diags = new DiagnosticListener(typeof(BridgeEventSource).Namespace);
         public static readonly BridgeEventSource Log = new BridgeEventSource();

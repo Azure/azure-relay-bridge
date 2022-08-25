@@ -33,7 +33,7 @@ jobs:
         command: 'test'
         arguments: '/p:WindowsOnly=true'
 
-    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net48
+    - publish: $(System.DefaultWorkingDirectory)\artifacts\build\net6.0
       artifact: WindowsBuild
 
   - job: LinuxBuild

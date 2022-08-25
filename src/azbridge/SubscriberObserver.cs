@@ -6,10 +6,7 @@ namespace azbridge
     using System;
     using System.Diagnostics;
     using Microsoft.Extensions.Logging;
-#if USE_MDT_EVENTSOURCE
-#else
     using System.Diagnostics.Tracing;
-#endif
 
     class SubscriberObserver : IObserver<DiagnosticListener>
     {

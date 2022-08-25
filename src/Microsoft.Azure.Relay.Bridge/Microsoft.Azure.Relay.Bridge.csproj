@@ -7,7 +7,6 @@
 
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeEtwManifest</TargetsForTfmSpecificBuildOutput>
     <Description>Azure Relay Bridge</Description>
     <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -26,30 +25,6 @@
     <PackageReference Include="System.Diagnostics.Tracing" Version="$(SystemDiagnosticsTracingPackageVersion)" />
     <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />
   </ItemGroup>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net48'">
-      <ItemGroup>
-        <PackageReference Include="Microsoft.Diagnostics.Tracing.EventSource" Version="$(MicrosoftDiagnosticsTracingEventSourcePackageVersion)" />
-      </ItemGroup>
-    </When>
-  </Choose>
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'net48'">
-      <PropertyGroup>
-        <DefineConstants>$(DefineConstants);USE_MDT_EVENTSOURCE</DefineConstants>
-      </PropertyGroup>
-    </When>    
-  </Choose>
-
-  <Target Name="IncludeEtwManifest" Condition="'$(TargetFramework)' == 'net48'">
-    <ItemGroup>
-      <TfmSpecificPackageFile Include="$(OutputPath)\*.etwManifest.dll" PackagePath="etw" />
-      <TfmSpecificPackageFile Include="$(OutputPath)\*.etwManifest.man" PackagePath="etw" />
-    </ItemGroup>
-  </Target>
-
 
   <ItemGroup>
     <Compile Update="Strings.Designer.cs">
@@ -78,7 +53,7 @@
 
   <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
     <ItemGroup>
-      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net48\$(AssemblyName).dll" />
+      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net6.0\$(AssemblyName).dll" />
     </ItemGroup>
   </Target>
 
