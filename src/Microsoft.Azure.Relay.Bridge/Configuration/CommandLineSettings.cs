@@ -14,6 +14,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
     public class CommandLineSettings
     {
+#if _WINDOWS
+        [Option(CommandOptionType.NoValue, LongName = "svcinstall", ShortName = "I", Description = "Install as Windows Service")]
+        public bool? ServiceInstall { get; set; }
+        [Option(CommandOptionType.NoValue, LongName = "svcuninstall", ShortName = "U", Description = "Uninstall Windows Service")]
+        public bool? ServiceUninstall { get; set; }
+        [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc", Description = "Reserved for Windows service control manager")]
+        public bool? ServiceRun { get; set; }
+#endif
         [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "e", Description = "Relay endpoint URI")]

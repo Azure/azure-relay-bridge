@@ -1,9 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
+	<OutputType>Exe</OutputType>
+	<DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
     <SelfContained>true</SelfContained>
     <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+	<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
   </PropertyGroup>
 
@@ -26,6 +28,16 @@
     <DebPriority>optional</DebPriority>
     <DebSection>contrib/net</DebSection>
   </PropertyGroup>
+
+	<Choose>
+		<When Condition="'$(OS)' == 'Windows_NT' OR $(RuntimeIdentifier.StartsWith('win'))">
+			<ItemGroup>
+				<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+				<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
+				<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+			</ItemGroup>
+		</When>
+	</Choose>
   
 
   <ItemGroup>
@@ -103,7 +115,7 @@
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
     <DebDependency Include="libcurl3 | libcurl4" Version="" />
     <DebDependency Include="libssl1.0.0 | libssl1.0.2 | libssl1.1" Version="" />
-    <DebDependency Include="libgssapi-krb5-2"/>
+    <DebDependency Include="libgssapi-krb5-2" />
     <DebDependency Include="zlib1g" Version="" />
     <DebDependency Include="libicu52 | libicu55 | libicu57 | libicu60 | libicu62 | libicu63 | libicu66 | libicu67" Version="" />
   </ItemGroup>

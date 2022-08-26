@@ -107,11 +107,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             set
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
-                if (string.IsNullOrWhiteSpace(val))
-                {
-                    RelayConnectionStringBuilder.Endpoint = new Uri("sb://undefined");
-                }
-                else
+                if (!string.IsNullOrWhiteSpace(val))
                 {
                     try
                     {
@@ -150,8 +146,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                                 this);
                         }
                     }
-                }
-                RelayConnectionStringBuilder.SharedAccessKeyName = val;
+                    RelayConnectionStringBuilder.SharedAccessKeyName = val;
+                }                
             }
         }
 
@@ -169,8 +165,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     if (val != null)
                     {
                         Convert.FromBase64String(val);
-                    }
-                    RelayConnectionStringBuilder.SharedAccessKey = val;
+                        RelayConnectionStringBuilder.SharedAccessKey = val;
+                    }                    
                 }
                 catch (FormatException e)
                 {
@@ -193,7 +189,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 var val = value != null ? value.Trim('\'', '\"') : value;
                 try
                 {
-                    RelayConnectionStringBuilder.SharedAccessSignature = val;
+                    if (val != null)
+                    {
+                        RelayConnectionStringBuilder.SharedAccessSignature = val;
+                    }
                 }
                 catch (ArgumentException e)
                 {
@@ -346,9 +345,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         /// Specifies whether the client should terminate the 
         /// connection if it cannot set up all requested local, and remote port forwardings,
         /// (e.g. if either end is unable to bind and listen on a specified port). 
-        /// The default is false.
+        /// The default is true.
         /// </summary>
-        public bool? ExitOnForwardFailure { get; set; }
+        public bool? ExitOnForwardFailure { get; set; } = true;
 
         /// <summary>
         /// Specifies whether remote hosts are allowed to connect to local
@@ -887,7 +886,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 throw BridgeEventSource.Log.ArgumentNull(nameof(otherConfig));
             }
-
+            if (otherConfig.AzureRelayConnectionString != null)
+            {
+                this.AzureRelayConnectionString = otherConfig.AzureRelayConnectionString;
+            }
             if (otherConfig.AddressFamily != null)
             {
                 this.AddressFamily = otherConfig.AddressFamily;
