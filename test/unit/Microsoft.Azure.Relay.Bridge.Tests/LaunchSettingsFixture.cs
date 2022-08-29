@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Microsoft.Azure.Relay.Bridge.Test
+namespace Microsoft.Azure.Relay.Bridge.Tests
 {
     public class LaunchSettingsFixture : IDisposable
     {

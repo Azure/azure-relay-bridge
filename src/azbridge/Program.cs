@@ -9,11 +9,7 @@ namespace azbridge
     using Microsoft.Azure.Relay.Bridge;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using System.Diagnostics;
-#if USE_MDT_EVENTSOURCE
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     using System.Collections.Generic;
     using System.Globalization;
     using System.Linq;
@@ -28,12 +24,6 @@ namespace azbridge
 
         static void Main(string[] args)
         {
-            // before we localize, make sure we have all the error
-            // messages in en-us
-            CultureInfo.CurrentUICulture =
-                CultureInfo.DefaultThreadCurrentUICulture =
-                    CultureInfo.GetCultureInfoByIetfLanguageTag("en-us");
-
             try
             { 
                 CommandLineSettings.Run(args, (c) => Run(c, args));
@@ -52,7 +42,7 @@ namespace azbridge
         {
             try
             {
-#if NET48
+#if _WINDOWS
                 if (settings.ServiceInstall.HasValue && settings.ServiceInstall.Value)
                 {
                     ServiceLauncher.InstallService();
@@ -65,11 +55,10 @@ namespace azbridge
                 }
                 else if (settings.ServiceRun.HasValue && settings.ServiceRun.Value)
                 {
-                    ServiceLauncher.Run(args);
+                    ServiceLauncher.RunAsync(settings).GetAwaiter().GetResult();
                     return 0;
                 }
 #endif
-
                 if ( !string.IsNullOrEmpty(settings.ConfigFile) && !File.Exists(settings.ConfigFile))
                 {
                     Console.WriteLine($"The config file was not found: {settings.ConfigFile}");
@@ -143,7 +132,7 @@ namespace azbridge
                 }
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
-
+                
                 Host host = new Host(config);
                 host.Start();
 

@@ -5,11 +5,7 @@ namespace azbridge
 {
     using System;
     using Microsoft.Azure.Relay.Bridge;
-#if USE_MDT_EVENTSOURCE
-    using Microsoft.Diagnostics.Tracing;
-#else
     using System.Diagnostics.Tracing;
-#endif
     using System.Collections.Generic;
     using Microsoft.Extensions.Logging;
 

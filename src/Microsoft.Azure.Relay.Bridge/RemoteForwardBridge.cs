@@ -60,7 +60,10 @@ namespace Microsoft.Azure.Relay.Bridge
         public void Dispose()
         {
             this.IsOpen = false;
-            this.listener.CloseAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+            if (this.listener != null)
+            {
+                this.listener.CloseAsync(TimeSpan.FromSeconds(5)).GetAwaiter().GetResult();
+            }
         }
 
         /// <summary>

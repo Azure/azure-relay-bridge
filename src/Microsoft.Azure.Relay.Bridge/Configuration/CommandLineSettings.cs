@@ -14,7 +14,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
     public class CommandLineSettings
     {
-#if NET48
+#if _WINDOWS
         [Option(CommandOptionType.NoValue, LongName = "svcinstall", ShortName = "I", Description = "Install as Windows Service")]
         public bool? ServiceInstall { get; set; }
         [Option(CommandOptionType.NoValue, LongName = "svcuninstall", ShortName = "U", Description = "Uninstall Windows Service")]

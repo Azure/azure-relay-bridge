@@ -1,117 +1,88 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+﻿#if _WINDOWS
+using Microsoft.Azure.Relay.Bridge.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using Host = Microsoft.Azure.Relay.Bridge.Host;
 
-#if NET48
 namespace azbridge
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-#if USE_MDT_EVENTSOURCE
-    using Microsoft.Diagnostics.Tracing;
-#else
-    using System.Diagnostics.Tracing;
-#endif
-    using System.IO;
-    using System.ServiceProcess;
-    using System.Threading;
-    using Microsoft.Azure.Relay.Bridge;
-    using Microsoft.Azure.Relay.Bridge.Configuration;
-    using Microsoft.Extensions.Logging;
-
-    public partial class RelayBridgeService : ServiceBase
+    public class RelayBridgeService : BackgroundService
     {
-        Host host;
-        ILogger logger = null;
+        private readonly Config settings;
+        private readonly ILogger _logger;
+        private Host host;
 
-        public RelayBridgeService()
+        public RelayBridgeService(Config settings, ILogger logger)
         {
-            InitializeComponent();
-        }
-
-        public Host Host { get => host; }
-
-        protected override void OnStart(string[] args)
-        {
-            CommandLineSettings.Run(args, Run);
-        }
-
-        int Run(CommandLineSettings settings)
-        {
-            string svcConfigFileName =
-                (Environment.OSVersion.Platform == PlatformID.Unix) ?
-                    $"/etc/azbridge/azbridge_config.svc.yml" :
-             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), 
-                 $"Microsoft\\Azure Relay Bridge\\azbridge_config.svc.yml");
-
-            if (File.Exists(svcConfigFileName))
-            {
-                settings.ConfigFile = svcConfigFileName;
-            }
-            Config config = Config.LoadConfig(settings);
-
-            LogLevel logLevel = LogLevel.Error;
-            if (!settings.Quiet.HasValue || !settings.Quiet.Value)
-            {
-                if (config.LogLevel != null)
-                {
-                    switch (config.LogLevel.ToUpper())
-                    {
-                        case "QUIET":
-                            logLevel = LogLevel.None;
-                            break;
-                        case "FATAL":
-                            logLevel = LogLevel.Critical;
-                            break;
-                        case "ERROR":
-                            logLevel = LogLevel.Error;
-                            break;
-                        case "INFO":
-                            logLevel = LogLevel.Information;
-                            break;
-                        case "VERBOSE":
-                            logLevel = LogLevel.Trace;
-                            break;
-                        case "DEBUG":
-                        case "DEBUG1":
-                        case "DEBUG2":
-                        case "DEBUG3":
-                            logLevel = LogLevel.Debug;
-                            break;
-                    }
-                }                                                                     
-            }
-            else
-            {
-                logLevel = LogLevel.None;
-            }
-            var loggerFactory = new LoggerFactory();          
-            if ( !string.IsNullOrEmpty(config.LogFileName) )
-            {
-                loggerFactory.AddFile(config.LogFileName, logLevel);
-            }                                      
-            logger = loggerFactory.CreateLogger("azbridge");
-            
+            this.settings = settings;
+            _logger = logger;
             DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
-                
-            host = new Host(config);
-            host.Start();
-            return 0;
         }
 
-        protected override void OnStop()
+        public RelayBridgeService(Config settings, ILogger<RelayBridgeService> logger):this(settings, (ILogger)logger)
+        {
+            
+        }
+
+
+        public override Task StartAsync(CancellationToken cancellationToken)
         {
             try
             {
-                host?.Stop();
+                if (host == null)
+                {
+                    host = new Host(settings);
+                }
+                return base.StartAsync(cancellationToken);
             }
-            finally
+            catch (System.Exception ex)
             {
-                host = null;
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
+                return Task.CompletedTask;
             }
         }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (host != null)
+                {
+                    host.Stop();
+                    host = null;
+                }
+                return base.StopAsync(cancellationToken);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
+                return Task.CompletedTask;
+            }
+        }
+
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            try
+            {
+                if (host != null)
+                {
+                    host.Start();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
+            }
+            return Task.CompletedTask;
+        }
     }
-                    
-    
+
 }
 #endif

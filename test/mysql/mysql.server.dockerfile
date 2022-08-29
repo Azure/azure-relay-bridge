@@ -1,4 +1,4 @@
-FROM mysql:5 AS build
+FROM mysql:5-debian AS build
 ARG package_name
 COPY ./tmp/$package_name .
 RUN apt-get update -y

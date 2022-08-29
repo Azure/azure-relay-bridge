@@ -7,7 +7,7 @@ if not errorlevel 0 (
 )
 echo *** Sanity check Windows
 dotnet msbuild /t:restore /p:WindowsOnly=true
-dotnet test -f net48 %*
+dotnet test -f net6.0 %*
 if not errorlevel 0 exit /b 1
 echo *** Building and packaging Windows Targets
 
@@ -16,20 +16,20 @@ if %_DOCKER_BUILD% == "true" (
    dotnet msbuild /t:clean,restore,package /p:WindowsOnly=true;Configuration=Release;RuntimeIdentifier=win10-x64 %*
 ) else (
     echo *** All platforms
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=win10-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=osx-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=debian.9-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=debian.10-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=ubuntu.18.04-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=ubuntu.18.04-arm64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=ubuntu.20.04-arm64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=opensuse.15.0-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=netcoreapp5.0 /p:RuntimeIdentifier=fedora.30-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=osx-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=debian.9-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=debian.10-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.18.04-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.18.04-arm64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-arm64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=opensuse.15.0-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=fedora.30-x64 %*
 )
 
 if not errorlevel 0 exit /b 1
 if %_DOCKER_BUILD% == "true" (
   echo *** Building and packaging Unix/Linux Targets
-  docker run --rm -v %cd%:/build mcr.microsoft.com/dotnet/sdk:5.0 /build/package.sh %*
+  docker run --rm -v %cd%:/build mcr.microsoft.com/dotnet/sdk:6.0 /build/package.sh %*
 )
