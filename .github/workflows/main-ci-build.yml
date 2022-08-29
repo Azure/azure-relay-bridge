@@ -42,6 +42,8 @@ jobs:
     
     - name: Test
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
+    - name: Integration
+      run: verify-build.sh
     
     - uses: actions/upload-artifact@v2
       with:
