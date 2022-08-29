@@ -42,15 +42,16 @@ jobs:
     
     - name: Test
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
-    - name: Integration
-      env:
-         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: bash ./verify-build.sh
-    
+
     - uses: actions/upload-artifact@v2
       with:
         name: XBuild
         path: artifacts/build/net6.0
+
+    - name: Integration
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+      run: bash ./verify-build.sh
     
     - name: Upload Binaries to the Release
       uses: svenstaro/upload-release-action@v2
