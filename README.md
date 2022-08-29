@@ -176,7 +176,7 @@ The package install will put the tool into `/usr/share/azbridge`.
 ### Other distributions and platforms
 
 You can also install the tool from respective platform *.tar.gz archive. For Linux,
-you need to [explicitly install Linux prerequisites for .NET 5.0](https://docs.microsoft.com/en-us/dotnet/core/install/linux)
+you need to [explicitly install Linux prerequisites for .NET 6.0](https://docs.microsoft.com/en-us/dotnet/core/install/linux)
 for your respective distribution. For macOS, you need to [install prerequisites from
 this list](https://docs.microsoft.com/en-us/dotnet/core/install/macos).
 
@@ -186,15 +186,15 @@ The repo contains a complete build and verification structure for all platforms.
 
 The Windows version MUST be built on Windows because the service integration requires
 the full .NET Framework and the installer can only be built on Windows. You will at least
-need the "Build Tools for Visual Studio 2017", and ideally a local install of
-Visual Studio 2017 with desktop C# support.
+need the "Build Tools for Visual Studio 2022", and ideally a local install of
+Visual Studio 2022 with desktop C# support.
 
-All other versions are built with the .NET 5.0 SDK. The DEB and
+All other versions are built with the .NET 6.0 SDK. The DEB and
 RPM packages are only created when building on a Unix (i.e. Linux or macOS) host.
 
-The ideal build environment is a Windows 10/Windows Server 2016 host with Docker for
+The ideal build environment is a Windows host with Docker for
 Windows installed. The `package-all.cmd` script will first build and package all Windows
-targets, and then launch a docker-based build with the official Microsoft .NET Core 5.0
+targets, and then launch a docker-based build with the official Microsoft .NET Core 6.0
 SDK image for the remaining targets. The `package.sh` script will only build and package
 the Unix targets, the `package.cmd` script only Windows targets.
 
