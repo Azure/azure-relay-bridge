@@ -8,7 +8,7 @@ if [ ! -z $5 ]; then VersionSuffix=$5; fi
 if [ ! -z $6 ]; then TargetFramework=$6; fi
 
 if [ -z ${Operation+x} ]; then Operation='build'; fi
-if [ -z ${ImageName+x} ]; then ImageName='ubuntu.18.04-x64'; fi
+if [ -z ${ImageName+x} ]; then ImageName='ubuntu.20.04-x64'; fi
 if [ -z ${ImageSuffix+x} ]; then VersionSuffix='deb'; fi
 if [ -z ${VersionSuffix+x} ]; then VersionSuffix='preview'; fi
 if [ -z ${VersionPrefix+x} ]; then VersionPrefix='1.0.0'; fi
