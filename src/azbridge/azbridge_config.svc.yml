@@ -93,6 +93,11 @@ LocalForward :
 
 LogLevel : ERROR
 
+# Name of the log file. Not used in Windows service mode when logging is directed to 
+# the Windows event log.
+
+LogFileName : 
+
 # Specifies that a TCP port on the remote machine be bound to 
 # a name on the Azure Relay. Each entry can have four properties, "RelayName", "Host", 
 # "HostPort", and "LocalSocket". 

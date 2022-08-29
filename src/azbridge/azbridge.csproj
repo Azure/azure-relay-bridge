@@ -10,6 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
   </ItemGroup> 
 
@@ -43,6 +48,12 @@
   <ItemGroup>
     <LinuxFolder Include="/var/log/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
     <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
+    <Content Include="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
       <LinuxPath>/etc/azbridge/azbridge_config.svc.yml</LinuxPath>
     </Content>

@@ -8,6 +8,8 @@ namespace azbridge
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Configuration;
+    using Microsoft.Extensions.Logging.EventLog;
     using System;
     using System.Collections;
     using System.Configuration;
@@ -83,14 +85,8 @@ namespace azbridge
             {
                 logLevel = LogLevel.None;
             }
-            var loggerFactory = new LoggerFactory();
-            if (!string.IsNullOrEmpty(config.LogFileName))
-            {
-                loggerFactory.AddFile(config.LogFileName, logLevel);
-            }
-            var logger = loggerFactory.CreateLogger("azbridge");
-            DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
-
+            
+            
             IHost host = Host.CreateDefaultBuilder()
                 .UseWindowsService(options =>
                 {
@@ -98,15 +94,21 @@ namespace azbridge
                 })
                 .ConfigureServices(services =>
                 {
-                    services.AddSingleton(logger);
+                    LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(services);
+                    services.Configure<EventLogSettings>(settings =>
+                    {
+                        settings.SourceName = ServiceName;
+                    });                    
                     services.AddSingleton(config);
                     services.AddHostedService<RelayBridgeService>();
                 })
                 .ConfigureLogging((context, logging) =>
                 {
-                    // See: https://github.com/dotnet/runtime/issues/47303
-                    logging.AddConfiguration(
-                        context.Configuration.GetSection("Logging"));
+                    logging.SetMinimumLevel(LogLevel.Debug);
+                    if (!string.IsNullOrEmpty(config.LogFileName))
+                    {
+                        logging.AddFile(config.LogFileName, logLevel);
+                    }
                 })
                 .Build();
 

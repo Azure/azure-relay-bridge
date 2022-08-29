@@ -132,7 +132,7 @@ namespace azbridge
                 }
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
-
+                
                 Host host = new Host(config);
                 host.Start();
 

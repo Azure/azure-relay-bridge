@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Relay.Bridge.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Host = Microsoft.Azure.Relay.Bridge.Host;
@@ -17,33 +19,65 @@ namespace azbridge
         {
             this.settings = settings;
             _logger = logger;
+            DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
         }
 
-        
+        public RelayBridgeService(Config settings, ILogger<RelayBridgeService> logger):this(settings, (ILogger)logger)
+        {
+            
+        }
+
+
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            if (host == null)
+            try
             {
-                host = new Host(settings);
+                if (host == null)
+                {
+                    host = new Host(settings);
+                }
+                return base.StartAsync(cancellationToken);
             }
-            return base.StartAsync(cancellationToken);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
+                return Task.CompletedTask;
+            }
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            if ( host != null )
+            try
             {
-                host.Stop();
-                host = null;
+                if (host != null)
+                {
+                    host.Stop();
+                    host = null;
+                }
+                return base.StopAsync(cancellationToken);
             }
-            return base.StopAsync(cancellationToken);
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
+                return Task.CompletedTask;
+            }
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (host != null)
+            try
             {
-                host.Start();
+                if (host != null)
+                {
+                    host.Start();
+                }
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "{Message}", ex.Message);
+                Environment.Exit(1);
             }
             return Task.CompletedTask;
         }
