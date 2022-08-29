@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Relay.Bridge.Configuration;
+﻿#if _WINDOWS
+using Microsoft.Azure.Relay.Bridge.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -84,3 +85,4 @@ namespace azbridge
     }
 
 }
+#endif
