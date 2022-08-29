@@ -2,7 +2,7 @@
     <Import Project="Directory.Build.props" />
   <PropertyGroup>
     <OutputType>None</OutputType>
-    <RuntimeIdentifier>debian.9-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>debian.10-x64</RuntimeIdentifier>
     <ImageSuffix>deb</ImageSuffix>
   </PropertyGroup>
 
