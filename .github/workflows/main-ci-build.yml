@@ -33,20 +33,33 @@ jobs:
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-x86 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     - name: Build for macOS-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Ubuntu 18-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Ubuntu 18-arm64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     - name: Build for Ubuntu 20-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     - name: Build for Ubuntu 20-arm64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     - name: Build for Debian 10-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=debian.10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for OpenSUSE 15-x64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=opensuse.15.0-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Fedora 30-x64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.36-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     
     - name: Test
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
-    
+
     - uses: actions/upload-artifact@v2
       with:
         name: XBuild
         path: artifacts/build/net6.0
+
+    - name: Integration
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+      run: bash ./verify-build.sh
     
     - name: Upload Binaries to the Release
       uses: svenstaro/upload-release-action@v2
