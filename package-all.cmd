@@ -25,7 +25,7 @@ if %_DOCKER_BUILD% == "true" (
     dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 %*
     dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-arm64 %*
     dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=opensuse.15.0-x64 %*
-    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=fedora.30-x64 %*
+    dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=fedora.36-x64 %*
 )
 
 if not errorlevel 0 exit /b 1
