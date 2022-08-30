@@ -11,7 +11,7 @@ spec:
   selector:
     app: foodportal
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: foodportal
@@ -23,6 +23,9 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: foodportal
-              servicePort: 80
+              service:
+                 name: foodportal
+                 port: 
+                   number: 80
             path: /
+            pathType: Prefix

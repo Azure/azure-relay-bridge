@@ -22,8 +22,6 @@ spec:
             hostnames: [ "{{ $element }}" ]
         {{- end }}   
       {{- end }}
-      imagePullSecrets:
-      - name: clemensv.azurecr.io
       containers:
       - image: "{{ .Values.image.repository }}:{{ .Chart.AppVersion }}"
         name: {{ .Chart.Name }}

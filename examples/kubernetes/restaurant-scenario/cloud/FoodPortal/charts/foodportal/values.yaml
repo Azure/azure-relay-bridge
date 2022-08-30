@@ -2,7 +2,7 @@
 replicaCount: 1
 
 image:
-  repository: clemensv.azurecr.io/foodportal
+  repository: azbridgedemo/foodportal
   pullPolicy: IfNotPresent
 
 service:

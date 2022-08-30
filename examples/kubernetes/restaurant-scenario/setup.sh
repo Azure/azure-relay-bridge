@@ -6,6 +6,7 @@ fi
 if [ -z ${AZBRIDGE_DEMO_CXNSTRING} ]; then
    echo No connection string found
 fi
+
 kubectl delete secret "relaycxn"
 kubectl create secret generic "relaycxn" --from-literal=cxn=$AZBRIDGE_DEMO_CXNSTRING
 
