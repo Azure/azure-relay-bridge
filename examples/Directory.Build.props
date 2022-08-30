@@ -7,7 +7,7 @@
   
 <PropertyGroup>
       <WindowsOnly>false</WindowsOnly>
-      <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">netcoreapp3.0</CoreFrameworks>
+      <CoreFrameworks Condition="'$(WindowsOnly)'!='true'">net6.0</CoreFrameworks>
       <TargetFrameworks>$(CoreFrameworks)</TargetFrameworks>
       <RuntimeIdentifiers></RuntimeIdentifiers>
   </PropertyGroup>
