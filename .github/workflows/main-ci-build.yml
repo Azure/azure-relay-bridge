@@ -43,6 +43,10 @@ jobs:
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     - name: Build for Debian 10-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=debian.10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for OpenSUSE 15-x64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=opensuse.15.0-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Fedora 30-x64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.30-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
     
     - name: Test
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu-x64 /p:Configuration=Debug
