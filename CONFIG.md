@@ -154,17 +154,18 @@ suppressed.
 Specifies that connections to the given Azure Relay name
 and optional logical port name are to be forwarded to the 
 given host and port, or Unix socket*. 
-Whenever a connection is made to the Relay and logical port, 
+Whenever a connection is made to the Relay and logical port,
 the connection is forwarded to this listener (or a concurrently 
 connected listener in a random load distribution fashion), and a 
-then a forwarding connection is made to either port, host:hostport,
+then a forwarding connection is made to either port, target_host:hostport,
 or local_socket, from the local machine.
 
-- `relay_name`: Name of the relay to bind the forwarder to.
-- `port_name`: Optional logical name for the port as defined by
-   the local forwarder bound to this relay (see -L).   
-- `host`: Host name or IP address to forward to.
-- `port`: TCP or UDP port number. TCP ports are the default. 
+* `relay_name`: Name of the relay to bind the forwarder to.
+* `port_name`: Optional logical name for the port as defined by
+   the local forwarder bound to this relay (see -L).
+* `target_host`: Host name or IP address to forward to. Default value is
+  `localhost` if omitted.
+* `port`: TCP or UDP port number. TCP ports are the default.
    UDP port numbers must be suffixed with `U`, 
    e.g. `-T relay:3434U`. UDP forwarders can only be bound to 
    logcial UDP ports.
