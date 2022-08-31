@@ -147,7 +147,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         }
                     }
                     RelayConnectionStringBuilder.SharedAccessKeyName = val;
-                }                
+                }
             }
         }
 
@@ -166,7 +166,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     {
                         Convert.FromBase64String(val);
                         RelayConnectionStringBuilder.SharedAccessKey = val;
-                    }                    
+                    }
                 }
                 catch (FormatException e)
                 {
@@ -702,153 +702,194 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 }
             }
 
+            if (commandLineSettings.RemoteForwardOld != null)
+            {
+                foreach (var rf in commandLineSettings.RemoteForwardOld)
+                {
+                    ParseRemoteForward(config, rf, false);
+                }
+            }
+
             if (commandLineSettings.RemoteForward != null)
             {
                 foreach (var rf in commandLineSettings.RemoteForward)
                 {
-                    int firstColon = rf.IndexOf(':');
-                    if (firstColon == -1)
-                    {
-                        throw BridgeEventSource.Log.ArgumentOutOfRange(
-                            nameof(commandLineSettings.RemoteForward),
-                            $"Invalid -R expression: {rf}", config);
-                    }
-
-                    RemoteForward remoteForward;
-                    try
-                    {
-                        remoteForward = new RemoteForward { RelayName = rf.Substring(0, firstColon) };
-                    }
-                    catch (ArgumentOutOfRangeException e)
-                    {
-                        throw new ArgumentOutOfRangeException(
-                            nameof(commandLineSettings.RemoteForward),
-                            $"Invalid -R expression: {rf}; {e.Message}");
-                    }
-                    config.RemoteForward.Add(remoteForward);
-                    var bindings = rf.Substring(firstColon + 1).Split(';');
-                    foreach (var binding in bindings)
-                    {
-                        string[] rfs = binding.Split(':');
-                        if (rfs.Length > 2)
-                        {
-                            throw BridgeEventSource.Log.ArgumentOutOfRange(
-                                nameof(commandLineSettings.RemoteForward),
-                                $"Invalid -R expression: {rf}",
-                                config);
-                        }
-                        else if (rfs.Length == 1)
-                        {
-                            // this is either -R relay_name:[port_name/]port or -L relay_name:[port_name/]local_socket
-
-                            var portStrings = rfs[0].Split('/');
-                            if (portStrings.Length > 2)
-                            {
-                                throw BridgeEventSource.Log.ArgumentOutOfRange(
-                                    nameof(commandLineSettings.RemoteForward),
-                                    $"Invalid -R expression: {rf}",
-                                    config);
-                            }
-                            var portString = portStrings.Length > 1 ? portStrings[1] : portStrings[0];
-                            var portName = portStrings[0];
-                            // number suffixed by U?
-                            if (new Regex("^[0-9]+U$").Match(portString).Success)
-                            {
-                                // UDP ports are just negative port numbers
-                                portString = "-" + portString.Substring(0, portString.Length - 2);
-                            }
-
-                            if (int.TryParse(portString, out var port))
-                            {
-                                try
-                                {
-                                    // port
-                                    // local_socket
-                                    remoteForward.Bindings.Add(new RemoteForwardBinding
-                                    {
-                                        Host = "localhost",
-                                        HostPort = port,
-                                        PortName = portName
-                                    });
-                                }
-                                catch (ArgumentOutOfRangeException e)
-                                {
-                                    throw new ArgumentOutOfRangeException(
-                                        nameof(commandLineSettings.RemoteForward),
-                                        $"Invalid -R expression: {rf}; {e.Message}");
-                                }
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    // local_socket
-                                    remoteForward.Bindings.Add(new RemoteForwardBinding
-                                    {
-                                        LocalSocket = portString,
-                                        PortName = portName
-                                    });
-                                }
-                                catch (ArgumentOutOfRangeException e)
-                                {
-                                    throw new ArgumentOutOfRangeException(
-                                        nameof(commandLineSettings.RemoteForward),
-                                        $"Invalid -R expression: {rf}; {e.Message}");
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // this is -L relay_name:host:[port_name/]port
-                            var portStrings = rfs[1].Split('/');
-                            if (portStrings.Length > 2)
-                            {
-                                throw BridgeEventSource.Log.ArgumentOutOfRange(
-                                    nameof(commandLineSettings.RemoteForward),
-                                    $"Invalid -R expression: {rf}",
-                                    config);
-                            }
-                            var portString = portStrings.Length > 1 ? portStrings[1] : portStrings[0];
-                            var portName = portStrings[0];
-                            // number suffixed by U?
-                            if (new Regex("^[0-9]+U$").Match(portString).Success)
-                            {
-                                // UDP ports are just negative port numbers
-                                portString = "-" + portString.Substring(0, portString.Length - 2);
-                            }
-
-                            if (int.TryParse(portString, out var port))
-                            {
-                                try
-                                {
-                                    // port
-                                    // local_socket
-                                    remoteForward.Bindings.Add(new RemoteForwardBinding
-                                    {
-                                        Host = rfs[0],
-                                        HostPort = port,
-                                        PortName = portName
-                                    });
-                                }
-                                catch (ArgumentOutOfRangeException e)
-                                {
-                                    throw new ArgumentOutOfRangeException(
-                                        nameof(commandLineSettings.RemoteForward),
-                                        $"Invalid -R expression: {rf}; {e.Message}");
-                                }
-                            }
-                            else
-                            {
-                                throw BridgeEventSource.Log.ArgumentOutOfRange(
-                                    nameof(commandLineSettings.RemoteForward),
-                                    $"Invalid -R 'port' expression: {rfs[2]}",
-                                    config);
-                            }
-                        }
-                    }
+                    ParseRemoteForward(config, rf, true);
                 }
             }
             return config;
+        }
+
+        private static void ParseRemoteForward(Config config, string rf, bool newFormat)
+        {
+            int firstColon = rf.IndexOf(':');
+            if (firstColon == -1)
+            {
+                throw BridgeEventSource.Log.ArgumentOutOfRange(
+                    "RemoteForward", $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}", config);
+            }
+
+            RemoteForward remoteForward;
+            try
+            {
+                remoteForward = new RemoteForward { RelayName = rf.Substring(0, firstColon) };
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "RemoteForward", $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+            }
+            config.RemoteForward.Add(remoteForward);
+            var bindings = rf.Substring(firstColon + 1).Split(';');
+            foreach (var binding in bindings)
+            {
+                string[] rfs = binding.Split(':');
+                if (rfs.Length > 2)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        "RemoteForward",
+                        $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}",
+                        config);
+                }
+                else if (rfs.Length == 1)
+                {
+                    // this is either -R relay_name:[port_name/]port or -R relay_name:[port_name/]local_socket
+
+                    var portStrings = rfs[0].Split('/');
+                    if (portStrings.Length > 2)
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                 "RemoteForward",
+                                 $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}",
+                                 config);
+                    }
+                    var portString = portStrings.Length > 1 ? portStrings[1] : portStrings[0];
+                    var portName = portStrings[0];
+                    // number suffixed by U?
+                    if (new Regex("^[0-9]+U$").Match(portString).Success)
+                    {
+                        // UDP ports are just negative port numbers
+                        portString = "-" + portString.Substring(0, portString.Length - 2);
+                    }
+
+                    if (int.TryParse(portString, out var port))
+                    {
+                        try
+                        {
+                            // port
+                            // local_socket
+                            remoteForward.Bindings.Add(new RemoteForwardBinding
+                            {
+                                Host = "localhost",
+                                HostPort = port,
+                                PortName = portName
+                            });
+                        }
+                        catch (ArgumentOutOfRangeException e)
+                        {
+                            throw new ArgumentOutOfRangeException(
+                                 "RemoteForward",
+                                 $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            // local_socket
+                            remoteForward.Bindings.Add(new RemoteForwardBinding
+                            {
+                                LocalSocket = portString,
+                                PortName = portName
+                            });
+                        }
+                        catch (ArgumentOutOfRangeException e)
+                        {
+                            throw new ArgumentOutOfRangeException(
+                                 "RemoteForward",
+                        $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+                        }
+                    }
+                }
+                else
+                {
+                    // this is -R relay_name:host:[port_name/]port (old format)
+                    //      or -T relay_name:[port_name/]host:port (new format)
+
+                    string hostName;
+                    string portString;
+                    string portName;
+
+                    if (!newFormat)
+                    {
+                        hostName = rfs[0];
+                        var portStrings = rfs[1].Split('/');
+                        if (portStrings.Length > 2)
+                        {
+                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                 "RemoteForward",
+                            $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}",
+                                config);
+                        }
+                        portString = portStrings.Length > 1 ? portStrings[1] : portStrings[0];
+                        portName = portStrings[0];
+                        // number suffixed by U?
+                        if (new Regex("^[0-9]+U$").Match(portString).Success)
+                        {
+                            // UDP ports are just negative port numbers
+                            portString = "-" + portString.Substring(0, portString.Length - 2);
+                        }
+                    }
+                    else
+                    {
+
+                        var portStrings = rfs[0].Split('/');
+                        if (portStrings.Length > 2)
+                        {
+                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                 "RemoteForward",
+                            $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}",
+                                config);
+                        }
+                        portName = portStrings.Length > 1 ? portStrings[0] : rfs[1];
+                        hostName = portStrings.Length > 1 ? portStrings[1] : portStrings[0];
+                        portString = rfs[1];
+                        // number suffixed by U?
+                        if (new Regex("^[0-9]+U$").Match(portString).Success)
+                        {
+                            // UDP ports are just negative port numbers
+                            portString = "-" + portString.Substring(0, portString.Length - 2);
+                        }
+                    }
+
+                    if (int.TryParse(portString, out var port))
+                    {
+                        try
+                        {
+                            // port
+                            // local_socket
+                            remoteForward.Bindings.Add(new RemoteForwardBinding
+                            {
+                                Host = hostName,
+                                HostPort = port,
+                                PortName = portName
+                            });
+                        }
+                        catch (ArgumentOutOfRangeException e)
+                        {
+                            throw new ArgumentOutOfRangeException("RemoteForward",
+                                    $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+                        }
+                    }
+                    else
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            "RemoteForward",
+                            $"Invalid {(newFormat ? "-T" : "-R")} 'port' expression: {rfs[2]}",
+                            config);
+                    }
+                }
+            }
         }
 
         public void SaveConfigFile(string configFileName, bool merge)

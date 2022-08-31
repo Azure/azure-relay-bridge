@@ -35,16 +35,18 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                    " -k abcdefgh" +
                    " -L 127.0.100.1:8008:foo" +
                    " -L 127.0.100.2:8008:bar" +
-#if !NETFRAMEWORK                                           
                    " -L name:baz" +
-#endif                   
                    " -o ConnectTimeout:44" +
                    " -q" +
-                   " -R foo:123" +
-                   " -R bar:10.1.1.1:123" +
-#if !NETFRAMEWORK                                           
+                   " -R foo1:123" +
+                   " -R bar1:10.1.1.1:123" +
+                   " -R foo3:port/123" +
+                   " -R bar3:10.1.1.1:port/123" +
                    " -R baz:abc" +
-#endif                   
+                   " -T foo2:123" +
+                   " -T bar2:10.1.1.1:123" +
+                   " -T foo4:port/123" +
+                   " -T bar4:port/10.1.1.1:123" +
                    " -v";
         }
 
@@ -117,6 +119,58 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 {
                     Config config = Config.LoadConfig(settings);
                     CheckMaxCommandLine(config);
+                    callbackInvoked = true;
+                    return 0;
+                });
+
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void CommandLineTOptionTest()
+        {
+            bool callbackInvoked = false;
+            CommandLineSettings.Run(new string[] { "-T", "relay1:port/1000", "-T", "relay2:port/name:1000", "-T", "relay3:1000", "-T", "relay4:sock" },
+                (settings) =>
+                {
+                    Config config = Config.LoadConfig(settings);
+                    Assert.Equal(4, config.RemoteForward.Count);
+                    Assert.Equal("relay1", config.RemoteForward[0].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[0].HostPort);
+                    Assert.Equal("port", config.RemoteForward[0].PortName);
+                    Assert.Equal("relay2", config.RemoteForward[1].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[1].HostPort);
+                    Assert.Equal("name", config.RemoteForward[1].Host);
+                    Assert.Equal("relay3", config.RemoteForward[2].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[2].HostPort);
+                    Assert.Equal("relay4", config.RemoteForward[3].RelayName);
+                    Assert.Equal("sock", config.RemoteForward[3].LocalSocket);
+                    callbackInvoked = true;
+                    return 0;
+                });
+
+            Assert.True(callbackInvoked);
+        }
+
+        [Fact]
+        public void CommandLineROptionTest()
+        {
+            bool callbackInvoked = false;
+            CommandLineSettings.Run(new string[] { "-R", "relay1:port/1000", "-R", "relay2:name:port/1000", "-R", "relay3:1000", "-R", "relay4:sock" },
+                (settings) =>
+                {
+                    Config config = Config.LoadConfig(settings);
+                    Assert.Equal(4, config.RemoteForward.Count);
+                    Assert.Equal("relay1", config.RemoteForward[0].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[0].HostPort);
+                    Assert.Equal("port", config.RemoteForward[0].PortName);
+                    Assert.Equal("relay2", config.RemoteForward[1].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[1].HostPort);
+                    Assert.Equal("name", config.RemoteForward[1].Host);
+                    Assert.Equal("relay3", config.RemoteForward[2].RelayName);
+                    Assert.Equal(1000, config.RemoteForward[2].HostPort);
+                    Assert.Equal("relay4", config.RemoteForward[3].RelayName);
+                    Assert.Equal("sock", config.RemoteForward[3].LocalSocket);
                     callbackInvoked = true;
                     return 0;
                 });
@@ -560,36 +614,44 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("127.0.0.4", config.BindAddress);
             Assert.Equal(44, config.ConnectTimeout);
             Assert.True(config.GatewayPorts);
-#if !NETFRAMEWORK
             Assert.Equal(3, config.LocalForward.Count);
-#else
-            Assert.Equal(2, config.LocalForward.Count);
-#endif
             Assert.Equal("127.0.100.1", config.LocalForward[0].BindAddress);
             Assert.Equal(8008, config.LocalForward[0].BindPort);
             Assert.Equal("foo", config.LocalForward[0].RelayName);
             Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
-#if !NETFRAMEWORK
             Assert.Equal("name", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
-#endif
 
-#if !NETFRAMEWORK
-            Assert.Equal(3, config.RemoteForward.Count);
-#else
-            Assert.Equal(2, config.RemoteForward.Count);
-#endif
-            Assert.Equal("foo", config.RemoteForward[0].RelayName);
+            Assert.Equal(9, config.RemoteForward.Count);
+            Assert.Equal("foo1", config.RemoteForward[0].RelayName);
             Assert.Equal(123, config.RemoteForward[0].HostPort);
-            Assert.Equal("bar", config.RemoteForward[1].RelayName);
+            Assert.Equal("bar1", config.RemoteForward[1].RelayName);
             Assert.Equal(123, config.RemoteForward[1].HostPort);
             Assert.Equal("10.1.1.1", config.RemoteForward[1].Host);
-#if !NETFRAMEWORK
-            Assert.Equal("baz", config.RemoteForward[2].RelayName);
-            Assert.Equal("abc", config.RemoteForward[2].LocalSocket);
-#endif
+            Assert.Equal("foo3", config.RemoteForward[2].RelayName);
+            Assert.Equal(123, config.RemoteForward[2].HostPort);
+            Assert.Equal("port", config.RemoteForward[2].PortName);
+            Assert.Equal("bar3", config.RemoteForward[3].RelayName);
+            Assert.Equal(123, config.RemoteForward[3].HostPort);
+            Assert.Equal("10.1.1.1", config.RemoteForward[3].Host);
+            Assert.Equal("port", config.RemoteForward[3].PortName);
+            Assert.Equal("baz", config.RemoteForward[4].RelayName);
+            Assert.Equal("abc", config.RemoteForward[4].LocalSocket);
+            Assert.Equal("foo2", config.RemoteForward[5].RelayName);
+            Assert.Equal(123, config.RemoteForward[5].HostPort);
+            Assert.Equal("bar2", config.RemoteForward[6].RelayName);
+            Assert.Equal(123, config.RemoteForward[6].HostPort);
+            Assert.Equal("10.1.1.1", config.RemoteForward[6].Host);
+            Assert.Equal("foo4", config.RemoteForward[7].RelayName);
+            Assert.Equal(123, config.RemoteForward[7].HostPort);
+            Assert.Equal("port", config.RemoteForward[7].PortName);
+            Assert.Equal("bar4", config.RemoteForward[8].RelayName);
+            Assert.Equal(123, config.RemoteForward[8].HostPort);
+            Assert.Equal("10.1.1.1", config.RemoteForward[8].Host);
+            Assert.Equal("port", config.RemoteForward[8].PortName);
+
 
         }
 

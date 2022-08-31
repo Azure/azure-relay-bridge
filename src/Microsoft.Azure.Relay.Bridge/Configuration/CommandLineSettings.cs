@@ -42,7 +42,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public IEnumerable<string> Option { get; set; }
         [Option(CommandOptionType.NoValue, ShortName = "q", Description = "No log output to stdout/stderr")]
         public bool? Quiet { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[address:]port ")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[address:]port ", ShowInHelpText = false)]
+        public IEnumerable<string> RemoteForwardOld { get; set; }
+        [Option(CommandOptionType.MultipleValue, ShortName = "T", Description = "Remote forwarder relay_name:[address:]port ")]
         public IEnumerable<string> RemoteForward { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "s", Description = "Azure Relay shared access signature token")]
         public string Signature { get; set; }
