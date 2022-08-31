@@ -59,7 +59,7 @@ configured and run as a background service on Windows and Linux.
 Since the tool helps with scenarios not dissimilar to SSH tunnels (but without
 requiring peer-to-peer connectivity) the command line syntax of *azbridge* uses 
 elements that resemble SSH's equivalent tunnel functionality, especially the -L 
-and -R arguments. The key difference to SSH is that *azbridge* always binds sockets
+and -T arguments. The key difference to SSH is that *azbridge* always binds sockets
 to an Azure Relay name, and that Azure Relay acts as the identifier for the
 tunnel and as network rendezvous point.
 
@@ -67,8 +67,8 @@ The bridge can either be used directly on the machines where a client or a serve
 resides, or it can be used as a gateway solution. When used as *local forwarder 
 gateway* (*-g* *-L*) and with externally resolvable listener addresses, the bridge
 resides on a host in the network and allows connections from clients across the
-network. The *remote forwarder* (*-R*) can always reach out to off-machine targets
-within its network scope.
+network. The *remote forwarder target* (*-T*) can be off-machine targets
+within the bridge's network scope.
 
 When the bridge is used locally, the client can configure DNS names of the target
 services in the local *hosts* file, picking a unique IP address out of the 127.x.x.x
@@ -99,7 +99,7 @@ constellation:
 * Azure Relay has a configured endpoint
   `wss://mynamespace.servicebus.windows.net/$hc/sql-corp-example-com`
 * Remote Bridge on or near the server runs as
-  `azclient -R sql-corp-example-com:sql.corp.example.com:1433 -x {cxnstring}`
+  `azclient -T sql-corp-example-com:sql.corp.example.com:1433 -x {cxnstring}`
 * SQL Server runs as `sql.corp.example.com:1433`
 
 The `{cxnstring}` represents the connection string for the configured

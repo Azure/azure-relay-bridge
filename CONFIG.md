@@ -9,7 +9,7 @@ name to a remote listener address.
 Since azbridge helps with scenarios not dissimilar to SSH tunnels, albeit without 
 requiring peer-to-peer connectivity, the command line syntax of 'azbridge' uses 
 elements that resemble SSH's equivalent tunnel functionality, especially the -L 
-and -R arguments. The key difference to SSH is that azbridge always binds sockets
+and -T arguments. The key difference to SSH is that azbridge always binds sockets
 to an Azure Relay name, and that Azure Relay acts as the identifier for the 
 tunnel and as network rendezvous point. In other words, you **always** need to 
 pair an azbridge instance running as local forwarder with an azbridge running
@@ -24,7 +24,7 @@ inadvertently enable undesired access to resources on that foreign network.
 
 * **(C)** Client 
 * **(L)** Local forwarder: `azbridge -L 127.3.2.1:5000:myname`
-* **(R)** Remote forwarder: `azbridge -R myname:10.1.2.3:5000`
+* **(R)** Remote forwarder: `azbridge -T myname:10.1.2.3:5000`
 * **(S)** Server listening at `10.1.2.3:5000`
 
 
@@ -99,11 +99,11 @@ Azure Relay name.
 - `port_name`: Optional logical name for the port. If a "local"
    TCP port ought to be mapped to a different "remote" TCP port,
    a logical name allows this clearly, e.g. `-L 13389/rdp:relay`
-   matches to `-R relay:rdp/3389` on the logical port name `rdp`, 
+   matches to `-T relay:rdp/3389` on the logical port name `rdp`, 
    which is bound to TCP port 13389 on the local side and TCP
    port 3389 on the remote side. For TCP/UDP, the default value 
    for `port_name` is the `port` value itself, meaning 
-   `-L 13389:relay` can also be matched with `-R relay:13389/3389`. 
+   `-L 13389:relay` can also be matched with `-T relay:13389/3389`. 
    For Unix sockets, this logical mapping can also be used, and 
    the default value is the name of `local_socket`. It is 
    permitted for multiple local TCP ports and Unix sockets or 
@@ -147,9 +147,9 @@ is no separate command-line flag.
 Quiet mode.  Causes most warning and diagnostic messages to be
 suppressed.
 
-**-R relay_name:[port_name/]hostport{;...}**<br/>
-**-R relay_name:host:[port_name/]hostport{;...}**<br/>
-**-R relay_name:[port_name/]local_socket{;...}**
+**-T relay_name:[port_name/]hostport{;...}**<br/>
+**-T relay_name:[port_name/]host:hostport{;...}**<br/>
+**-T relay_name:[port_name/]local_socket{;...}**
 
 Specifies that connections to the given Azure Relay name
 and optional logical port name are to be forwarded to the 
@@ -166,7 +166,7 @@ or local_socket, from the local machine.
 - `host`: Host name or IP address to forward to.
 - `port`: TCP or UDP port number. TCP ports are the default. 
    UDP port numbers must be suffixed with `U`, 
-   e.g. `-R relay:3434U`. UDP forwarders can only be bound to 
+   e.g. `-T relay:3434U`. UDP forwarders can only be bound to 
    logcial UDP ports.
 - `local_socket`: Unix socket name. The expression will be 
    interpreted as a Unix socket name if it's not a valid `port`
@@ -174,7 +174,7 @@ or local_socket, from the local machine.
 
 There can be multiple local binding expressions given for a 
 `relay_name`, separated by semicolons. The expressions can 
-also mix protocols, e.g. `-R relay:7777;7777U` binds to 
+also mix protocols, e.g. `-T relay:7777;7777U` binds to 
 TCP and UDP port forwarders for 7777 on one relay name.
 
 Port forwardings can also be specified in the configuration file.
@@ -182,8 +182,15 @@ Privileged ports can be forwarded only when running with elevated privileges.
 IPv6 addresses can be specified by enclosing the address in square
 brackets.
 
-The -R option can be used multiple times on a single command line,
+The -T option can be used multiple times on a single command line,
 but only once for each `relay_name`.
+
+**-R relay_name:[port_name/]hostport{;...}**<br/>
+**-R relay_name:host:[port_name/]hostport{;...}**<br/>
+**-R relay_name:[port_name/]local_socket{;...}**
+
+Backwards compatibility option for -T with outdated (because confusing)
+placement of the host name.
 
 **-S signature**
 
@@ -210,7 +217,7 @@ can be overridden by the -E (Endpoint), -K (SharedAccessKeyName),
 
 If an EntityPath is specified in the connection string, that name 
 is the only valid option for the relay_name expressions in the
--L and -R options or for expressions in the effective configuration
+-L and -T options or for expressions in the effective configuration
 file.
 
 The connection string can be set via the AZURE_BRIDGE_CONNECTIONSTRING
@@ -238,7 +245,7 @@ like the command line options, partially lean on similar expressions
 used in SSH, even though the configuration format differs from that of SSH.
 
 The "LocalForward" and "RemoteForward" sections define bindings as with
-the -L and -R command line options above.
+the -L and -T command line options above.
 
 * **AddressFamily** - Specifies which address family to use when connecting.  Valid
   arguments are "any", "inet" (use IPv4 only), or "inet6"

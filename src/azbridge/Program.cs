@@ -69,7 +69,7 @@ namespace azbridge
                 if (config.LocalForward.Count == 0 &&
                      config.RemoteForward.Count == 0)
                 {
-                    Console.WriteLine("You must specify at least one -L or -R forwarder.");
+                    Console.WriteLine("You must specify at least one -L or -T forwarder.");
                     return 2;
                 }
 
