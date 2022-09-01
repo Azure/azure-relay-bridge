@@ -105,8 +105,13 @@ namespace Microsoft.Azure.Relay.Bridge
                     var remoteForwarders = new Dictionary<string, IRemoteForwarder>();
                     foreach (var binding in remoteForward.Bindings)
                     {
-#if !NETFRAMEWORK
-                        if (!string.IsNullOrEmpty(binding.LocalSocket))
+                        if (binding.Http)
+                        {
+                            var tcpRemoteForwarder =
+                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http);
+                            remoteForwarders.Add(tcpRemoteForwarder.PortName, tcpRemoteForwarder);
+                        }
+                        else if (!string.IsNullOrEmpty(binding.LocalSocket))
                         {
                             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                             {
@@ -118,12 +123,10 @@ namespace Microsoft.Azure.Relay.Bridge
                                 new SocketRemoteForwarder(binding.PortName, binding.LocalSocket);
                             remoteForwarders.Add(socketRemoteForwarder.PortName, socketRemoteForwarder);
                         }
-                        else
-#endif
-                        if (binding.HostPort > 0)
+                        else if (binding.HostPort > 0)
                         {
                             var tcpRemoteForwarder =
-                                new TcpRemoteForwarder(this.config, binding.PortName, binding.Host, binding.HostPort);
+                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http);
                             remoteForwarders.Add(tcpRemoteForwarder.PortName, tcpRemoteForwarder);
                         }
                         else if (binding.HostPort < 0)

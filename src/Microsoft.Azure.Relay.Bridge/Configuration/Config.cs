@@ -15,6 +15,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     using System.Net.NetworkInformation;
     using System.Reflection;
     using System.Runtime.Serialization;
+    using System.Text;
     using System.Text.RegularExpressions;
     using YamlDotNet.Core;
 
@@ -717,6 +718,14 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     ParseRemoteForward(config, rf, true);
                 }
             }
+
+            if (commandLineSettings.RemoteHttpForward != null)
+            {
+                foreach (var rf in commandLineSettings.RemoteHttpForward)
+                {
+                    ParseRemoteHttpForward(config, rf, true);
+                }
+            }
             return config;
         }
 
@@ -885,10 +894,150 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     {
                         throw BridgeEventSource.Log.ArgumentOutOfRange(
                             "RemoteForward",
-                            $"Invalid {(newFormat ? "-T" : "-R")} 'port' expression: {rfs[2]}",
+                            $"Invalid {(newFormat ? "-T" : "-R")} 'port' expression: {portString}",
                             config);
                     }
                 }
+            }
+        }
+
+        private static void ParseRemoteHttpForward(Config config, string rf, bool newFormat)
+        {
+            int firstColon = rf.IndexOf(':');
+            if (firstColon == -1)
+            {
+                throw BridgeEventSource.Log.ArgumentOutOfRange(
+                    "RemoteHttpForward", $"Invalid -H expression: {rf}", config);
+            }
+
+            RemoteForward remoteForward;
+            try
+            {
+                remoteForward = new RemoteForward { RelayName = rf.Substring(0, firstColon), Http = true };
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                throw new ArgumentOutOfRangeException(
+                    "RemoteHttpForward", $"Invalid -H expression: {rf}; {e.Message}");
+            }
+            config.RemoteForward.Add(remoteForward);
+            var bindings = rf.Substring(firstColon + 1).Split(';');
+            foreach (var binding in bindings)
+            {
+                string[] rfs = binding.Split(':');
+                if (rfs.Length > 2)
+                {
+                    throw BridgeEventSource.Log.ArgumentOutOfRange(
+                        "RemoteHttpForward",
+                        $"Invalid -H expression: {rf}",
+                        config);
+                }
+                else if (rfs.Length == 1)
+                {
+                    // this is -H relay_name:{http|https}/hostname
+
+                    var portStrings = rfs[0].Split('/');
+                    if (portStrings.Length < 2)
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                 "RemoteHttpForward",
+                                 $"Invalid -H expression: {rf}",
+                                 config);
+                    }
+                    var hostString = portStrings[1];
+                    var portName = portStrings[0];
+                    CheckHttpPortName(config, rf, portName);
+
+                    try
+                    {
+                        StringBuilder path = new StringBuilder("/");
+                        for(int i = 2; i < portStrings.Length; i++)
+                        {
+                            path.Append(portStrings[i]).Append("/");
+                        }
+                        remoteForward.Bindings.Add(new RemoteForwardBinding
+                        {
+                            Host = hostString,
+                            HostPort = portName == "http" ? 80 : 443,
+                            PortName = portName,
+                            Path = path.ToString(),
+                            Http = true
+                        });
+                    }
+                    catch (ArgumentOutOfRangeException e)
+                    {
+                        throw new ArgumentOutOfRangeException(
+                                "RemoteForward",
+                                $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+                    }
+
+                }
+                else
+                {
+                    // this is -H relay_name:{http|https}/host:port
+                    string hostName;
+                    string portString;
+                    string portName;
+
+                    
+                    var portStrings = rfs[0].Split('/');
+                    if (portStrings.Length < 2)
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                "RemoteForward",
+                        $"Invalid -H expression: {rf}",
+                            config);
+                    }
+                    portName = portStrings[0];
+                    hostName = portStrings[1];
+                    portString = rfs[1];
+
+                    CheckHttpPortName(config, rf, portName);
+
+                    StringBuilder path = new StringBuilder("/");
+                    for (int i = 2; i < portStrings.Length; i++)
+                    {
+                        path.Append(portStrings[i]).Append("/");
+                    }
+
+                    if (int.TryParse(portString, out var port))
+                    {
+                        try
+                        {
+                            remoteForward.Bindings.Add(new RemoteForwardBinding
+                            {
+                                Host = hostName,
+                                HostPort = port,
+                                PortName = portName,
+                                Path = path.ToString(),
+                                Http = true
+                            });
+                        }
+                        catch (ArgumentOutOfRangeException e)
+                        {
+                            throw new ArgumentOutOfRangeException("RemoteForward",
+                                    $"Invalid {(newFormat ? "-T" : "-R")} expression: {rf}; {e.Message}");
+                        }
+                    }
+                    else
+                    {
+                        throw BridgeEventSource.Log.ArgumentOutOfRange(
+                            "RemoteForward",
+                            $"Invalid -H 'port' expression: {portString}",
+                            config);
+                    }
+                }
+            }
+        }
+
+        private static void CheckHttpPortName(Config config, string rf, string portName)
+        {
+            if (portName != "http" && portName != "https")
+            {
+                throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                          "RemoteHttpForward",
+                                          $"Invalid -H expression. Must use 'http/' or 'https/' port name: {rf}",
+                                          config);
             }
         }
 

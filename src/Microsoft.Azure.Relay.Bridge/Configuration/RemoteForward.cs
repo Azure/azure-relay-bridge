@@ -57,7 +57,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
                 if (val != null &&
-                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
+                    !new Regex("^[0-9A-Za-z/_-]+$").Match(val).Success)
                 {
                     throw BridgeEventSource.Log.ArgumentOutOfRange(
                         nameof(RelayName),
@@ -144,7 +144,12 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     bindings[0].HostPort = value;
                 }
             }
-        }                               
+        }
+
+        public bool Http
+        {
+            get; set;
+        }
 
 
         public string LocalSocket
