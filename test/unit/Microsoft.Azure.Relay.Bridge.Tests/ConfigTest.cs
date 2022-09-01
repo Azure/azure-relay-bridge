@@ -47,6 +47,11 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                    " -T bar2:10.1.1.1:123" +
                    " -T foo4:port/123" +
                    " -T bar4:port/10.1.1.1:123" +
+                   " -H foo5:https/service.example.com" +
+                   " -H bar5:http/service.example.com:81" +
+                   " -H baz5:http/service.example.com" +
+                   " -H abc/def:http/service.example.com/foo" +
+                   " -H ghi/jkl:http/service1.example.com/foo;http/service2.example.com/foo" +
                    " -v";
         }
 
@@ -624,7 +629,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("name", config.LocalForward[2].BindLocalSocket);
             Assert.Equal("baz", config.LocalForward[2].RelayName);
 
-            Assert.Equal(9, config.RemoteForward.Count);
+            Assert.Equal(14, config.RemoteForward.Count);
             Assert.Equal("foo1", config.RemoteForward[0].RelayName);
             Assert.Equal(123, config.RemoteForward[0].HostPort);
             Assert.Equal("bar1", config.RemoteForward[1].RelayName);
@@ -651,6 +656,34 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal(123, config.RemoteForward[8].HostPort);
             Assert.Equal("10.1.1.1", config.RemoteForward[8].Host);
             Assert.Equal("port", config.RemoteForward[8].PortName);
+            Assert.Equal("foo5", config.RemoteForward[9].RelayName);
+            Assert.Equal(443, config.RemoteForward[9].HostPort);
+            Assert.Equal("https", config.RemoteForward[9].PortName);
+            Assert.Equal("service.example.com", config.RemoteForward[9].Host);
+            Assert.Equal("bar5", config.RemoteForward[10].RelayName);
+            Assert.Equal(81, config.RemoteForward[10].HostPort);
+            Assert.Equal("http", config.RemoteForward[10].PortName);
+            Assert.Equal("service.example.com", config.RemoteForward[10].Host);
+            Assert.Equal("baz5", config.RemoteForward[11].RelayName);
+            Assert.Equal(80, config.RemoteForward[11].HostPort);
+            Assert.Equal("http", config.RemoteForward[11].PortName);
+            Assert.Equal("service.example.com", config.RemoteForward[11].Host);
+            Assert.Equal("abc/def", config.RemoteForward[12].RelayName);
+            Assert.Equal(80, config.RemoteForward[12].Bindings[0].HostPort);
+            Assert.Equal("http", config.RemoteForward[12].Bindings[0].PortName);
+            Assert.Equal("service.example.com", config.RemoteForward[12].Bindings[0].Host);
+            Assert.Equal("/foo/", config.RemoteForward[12].Bindings[0].Path);
+            Assert.Equal("ghi/jkl", config.RemoteForward[13].RelayName);
+            Assert.Equal(80, config.RemoteForward[13].Bindings[0].HostPort);
+            Assert.Equal("http", config.RemoteForward[13].Bindings[0].PortName);
+            Assert.Equal("service1.example.com", config.RemoteForward[13].Bindings[0].Host);
+            Assert.Equal("/foo/", config.RemoteForward[13].Bindings[1].Path);
+            Assert.Equal(80, config.RemoteForward[13].Bindings[1].HostPort);
+            Assert.Equal("http", config.RemoteForward[13].Bindings[1].PortName);
+            Assert.Equal("service2.example.com", config.RemoteForward[13].Bindings[1].Host);
+            Assert.Equal("/foo/", config.RemoteForward[13].Bindings[1].Path);
+
+            Assert.True(config.RemoteForward[10].Http);
 
 
         }

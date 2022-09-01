@@ -36,16 +36,18 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string SharedAccessKeyName { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "k", Description = "Azure Relay shared access policy key")]
         public string SharedAccessKey { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "L", Description = "Local forwarder [address:]port:relay_name")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "L", Description = "Local forwarder [hostname:]port[/port_name]:relay_name")]
         public IEnumerable<string> LocalForward { get; set; }
         [Option(CommandOptionType.MultipleValue, ShortName = "o", Description = "Configuration file option override key:value")]
         public IEnumerable<string> Option { get; set; }
         [Option(CommandOptionType.NoValue, ShortName = "q", Description = "No log output to stdout/stderr")]
         public bool? Quiet { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[address:]port ", ShowInHelpText = false)]
+        [Option(CommandOptionType.MultipleValue, ShortName = "R", Description = "Remote forwarder relay_name:[hostname:]port ", ShowInHelpText = false)]
         public IEnumerable<string> RemoteForwardOld { get; set; }
-        [Option(CommandOptionType.MultipleValue, ShortName = "T", Description = "Remote forwarder relay_name:[address:]port ")]
+        [Option(CommandOptionType.MultipleValue, ShortName = "T", Description = "Remote forwarder relay_name:[port_name/][hostname:]port ")]
         public IEnumerable<string> RemoteForward { get; set; }
+        [Option(CommandOptionType.MultipleValue, ShortName = "H", Description = "Remote HTTP(S) forwarder relay_name:{http|https}/[hostname:]port ")]
+        public IEnumerable<string> RemoteHttpForward { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "s", Description = "Azure Relay shared access signature token")]
         public string Signature { get; set; }
 

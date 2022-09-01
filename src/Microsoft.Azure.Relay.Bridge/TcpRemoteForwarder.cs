@@ -5,28 +5,43 @@ namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
     using System.Linq;
     using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Net.NetworkInformation;
     using System.Net.Sockets;
+    using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
     using Configuration;
     using Microsoft.Azure.Relay;
 
-    sealed class TcpRemoteForwarder : IRemoteForwarder
+    sealed class TcpRemoteForwarder : IRemoteRequestForwarder
     {
         readonly Config config;
         readonly int targetPort;
         readonly string targetServer;
         static Random rnd = new Random();
+        private HttpClient httpClient;
+        private string relaySubpath;
 
-        internal TcpRemoteForwarder(Config config, string portName, string targetServer, int targetPort)
+        internal TcpRemoteForwarder(Config config, string relayName, string portName, string targetServer, int targetPort, string targetPath, bool http)
         {
             this.config = config;
             this.PortName = portName;
             this.targetServer = targetServer;
             this.targetPort = targetPort;
+
+            
+            if ( http )
+            {
+                this.httpClient = new HttpClient();
+                this.httpClient.BaseAddress = new UriBuilder(portName, targetServer, targetPort, targetPath).Uri;
+                this.httpClient.DefaultRequestHeaders.ExpectContinue = false;
+                this.relaySubpath = "/" + relayName;
+            }
         }
 
         public string PortName { get; }
@@ -72,6 +87,108 @@ namespace Microsoft.Azure.Relay.Bridge
 
             }
 
+        }
+
+       
+        public async Task HandleRequest(RelayedHttpListenerContext ctx)
+        {
+            DateTime startTimeUtc = DateTime.UtcNow;
+            try
+            {
+                HttpRequestMessage requestMessage = CreateHttpRequestMessage(ctx);
+                HttpResponseMessage responseMessage = await this.httpClient.SendAsync(requestMessage);
+                await SendResponseAsync(ctx, responseMessage);
+                await ctx.Response.CloseAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e.GetType().Name}: {e.Message}");
+                SendErrorResponse(e, ctx);
+            }
+            finally
+            {
+                LogRequest(startTimeUtc, ctx);
+            }
+        }
+
+        HttpRequestMessage CreateHttpRequestMessage(RelayedHttpListenerContext context)
+        {
+            var requestMessage = new HttpRequestMessage();
+            if (context.Request.HasEntityBody)
+            {
+                requestMessage.Content = new StreamContent(context.Request.InputStream);
+                string contentType = context.Request.Headers[HttpRequestHeader.ContentType];
+                if (!string.IsNullOrEmpty(contentType))
+                {
+                    requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                }
+            }
+
+            string relativePath = context.Request.Url.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+            if ( relativePath.StartsWith(this.relaySubpath) )
+            {
+                relativePath = relativePath.Substring(this.relaySubpath.Length+1);
+            }
+            requestMessage.RequestUri = new Uri(httpClient.BaseAddress, relativePath);
+            requestMessage.Method = new HttpMethod(context.Request.HttpMethod);
+
+            foreach (var headerName in context.Request.Headers.AllKeys)
+            {
+                if (string.Equals(headerName, "Host", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(headerName, "Content-Type", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Don't flow these headers here
+                    continue;
+                }
+
+                requestMessage.Headers.Add(headerName, context.Request.Headers[headerName]);
+            }
+
+            return requestMessage;
+        }
+
+        async Task SendResponseAsync(RelayedHttpListenerContext context, HttpResponseMessage responseMessage)
+        {
+            context.Response.StatusCode = responseMessage.StatusCode;
+            context.Response.StatusDescription = responseMessage.ReasonPhrase;
+            foreach (KeyValuePair<string, IEnumerable<string>> header in responseMessage.Headers)
+            {
+                if (string.Equals(header.Key, "Transfer-Encoding"))
+                {
+                    continue;
+                }
+
+                context.Response.Headers.Add(header.Key, string.Join(",", header.Value));
+            }
+
+            foreach (KeyValuePair<string, IEnumerable<string>> header in responseMessage.Content.Headers)
+            {
+                context.Response.Headers.Add(header.Key, string.Join(",", header.Value));
+            }
+
+            var responseStream = await responseMessage.Content.ReadAsStreamAsync();
+            await responseStream.CopyToAsync(context.Response.OutputStream);
+        }
+
+        void SendErrorResponse(Exception e, RelayedHttpListenerContext context)
+        {
+            context.Response.StatusCode = HttpStatusCode.InternalServerError;
+
+#if DEBUG || INCLUDE_ERROR_DETAILS
+            context.Response.StatusDescription = $"Internal Server Error: {e.GetType().FullName}: {e.Message}";
+#endif
+            context.Response.Close();
+        }
+
+        void LogRequest(DateTime startTimeUtc, RelayedHttpListenerContext context)
+        {
+            DateTime stopTimeUtc = DateTime.UtcNow;
+            StringBuilder buffer = new StringBuilder();
+            buffer.Append($"{startTimeUtc.ToString("s", CultureInfo.InvariantCulture)}, ");
+            buffer.Append($"\"{context.Request.HttpMethod} {context.Request.Url.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped)}\", ");
+            buffer.Append($"{(int)context.Response.StatusCode}, ");
+            buffer.Append($"{(int)stopTimeUtc.Subtract(startTimeUtc).TotalMilliseconds}");
+            //TODO wire logger for verbose mode Console.WriteLine(buffer);
         }
     }
 }

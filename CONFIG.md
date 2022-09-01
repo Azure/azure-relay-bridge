@@ -147,6 +147,25 @@ is no separate command-line flag.
 Quiet mode.  Causes most warning and diagnostic messages to be
 suppressed.
 
+**-H relay_name:http/hostport{;...}**<br/>
+**-H relay_name:http/host[/path]:hostport{;...}**<br/>
+**-H relay_name:https/hostport{;...}**<br/>
+**-H relay_name:https/host[/path]:hostport{;...}**<br/>
+
+Specifies that HTTP requests to the given Azure Relay name
+are to be forwarded to the given host and port. For any Relay 
+name, this is mutually exclusive with the use of the -T option. 
+
+The required logical port names "http" and "https" indicate which protocol
+shall be used when forwarding requests to the target.  
+
+- `relay_name`: Name of the relay to bind the forwarder to.
+- `host`: Host name or IP address to forward to.
+- `path` : Path prefix to append to the outgoing requests. The relay name 
+   is stripped.
+- `hostport`: TCP port number. (defaults to 443 for https and 80 for http)
+
+
 **-T relay_name:[port_name/]hostport{;...}**<br/>
 **-T relay_name:[port_name/]host:hostport{;...}**<br/>
 **-T relay_name:[port_name/]local_socket{;...}**
@@ -162,9 +181,9 @@ or local_socket, from the local machine.
 
 - `relay_name`: Name of the relay to bind the forwarder to.
 - `port_name`: Optional logical name for the port as defined by
-   the local forwarder bound to this relay (see -L).   
+   the local forwarder bound to this relay (see -L). 
 - `host`: Host name or IP address to forward to.
-- `port`: TCP or UDP port number. TCP ports are the default. 
+- `hostport`: TCP or UDP port number. TCP ports are the default. 
    UDP port numbers must be suffixed with `U`, 
    e.g. `-T relay:3434U`. UDP forwarders can only be bound to 
    logcial UDP ports.

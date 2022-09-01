@@ -9,5 +9,11 @@ namespace Microsoft.Azure.Relay.Bridge
     {
         string PortName { get; }
         Task HandleConnectionAsync(HybridConnectionStream hybridConnectionStream);
+        
+    }
+
+    interface IRemoteRequestForwarder : IRemoteForwarder
+    {
+        Task HandleRequest(RelayedHttpListenerContext ctx);
     }
 }

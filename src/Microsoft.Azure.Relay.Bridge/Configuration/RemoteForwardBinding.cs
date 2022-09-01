@@ -12,7 +12,7 @@
         int hostPort;
         string localSocket = null;
         string portName;
-
+      
         public string Host
         {
             get => host;
@@ -95,6 +95,18 @@
                 }
                 localSocket = val;
             }
+        }
+
+        public bool Http 
+        {
+            get; 
+            set; 
+        }
+        
+        public string Path 
+        { 
+            get; 
+            internal set; 
         }
     }
 }

@@ -72,6 +72,7 @@ namespace Microsoft.Azure.Relay.Bridge
         /// <exception cref="System.Security.SecurityException">Throws a SecurityException if Group Policy prohibits Resource Publishing.</exception>
         public async Task Open()
         {
+            
             if (this.IsOpen)
             {
                 throw new InvalidOperationException();
@@ -81,6 +82,16 @@ namespace Microsoft.Azure.Relay.Bridge
             this.listener.Online += (s, e) => { Online?.Invoke(this, e); };
             this.listener.Offline += (s, e) => { Offline?.Invoke(this, e); };
             this.listener.Connecting += (s, e) => { Connecting?.Invoke(this, e); };
+
+            // if there are any request forwarders (http)
+            var rrfs = (from rf in remoteForwarders.Values where rf is IRemoteRequestForwarder select rf as IRemoteRequestForwarder).ToList();
+            if ( rrfs.Count() > 0)
+            {
+                this.listener.RequestHandler = (ctx) =>
+                {
+                    rrfs[rnd.Next(rrfs.Count() - 1)].HandleRequest(ctx);
+                };
+            }
 
             await listener.OpenAsync(shuttingDown.Token);
             this.IsOpen = true;
