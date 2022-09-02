@@ -957,10 +957,47 @@ namespace Microsoft.Azure.Relay.Bridge
             this.WriteEvent(166);
         }
 
+        [Event(167,
+
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward HTTP request forwarded")]
+        void RemoteForwardHttpRequestForwarded(string message)
+        {
+            this.WriteEvent(167, message);
+        }
+
+        [NonEvent]
+        internal void RemoteForwardHttpRequestForwarded(EventTraceActivity eventTraceActivity, string message)
+        {
+            diags.Write(nameof(RemoteForwardHttpRequestForwarded), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+            RemoteForwardHttpRequestForwarded(message);
+        }
+
+        [Event(168,
+
+            Level = EventLevel.Verbose,
+            Keywords = Keywords.RemoteForward,
+            Message = "Remote forward host configuration is being updated")]
+        void RemoteForwardTcpSocketAccepted(string message)
+        {
+            this.WriteEvent(168, message);
+        }
+
+        [NonEvent]
+        internal void RemoteForwardTcpSocketAccepted(EventTraceActivity eventTraceActivity, string message)
+        {
+            diags.Write(nameof(RemoteForwardTcpSocketAccepted), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity });
+            RemoteForwardTcpSocketAccepted(message);
+        }
+
+
         public class Keywords // This is a bitvector
         {
             public const EventKeywords RemoteForward = (EventKeywords)0x0001;
             public const EventKeywords LocalForward = (EventKeywords)0x0002;
         }
+
+
     }
 }
