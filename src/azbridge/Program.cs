@@ -121,15 +121,21 @@ namespace azbridge
 
                 var loggerFactory = LoggerFactory.Create((builder) =>
                 {
+                    builder.SetMinimumLevel(logLevel);
                     if (string.IsNullOrEmpty(config.LogFileName))
                     {
-                        builder.AddConsole();
+                        builder.AddConsole((options) => { options.LogToStandardErrorThreshold = LogLevel.Error; });
                     }
-                });
-                if (!string.IsNullOrEmpty(config.LogFileName))
-                {
-                    loggerFactory.AddFile(config.LogFileName, logLevel);
-                }
+                    else
+                    {
+                        var fn = Path.GetFileNameWithoutExtension(config.LogFileName);
+                        var dir = Path.GetDirectoryName(config.LogFileName);
+                        var ext = Path.GetExtension(config.LogFileName);
+                        var fileName = Path.Combine(dir, $"{fn}-{{Date}}{ext}");                        
+                        builder.AddFile(fileName, logLevel);
+                    }
+                });                
+                
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
                 

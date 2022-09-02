@@ -5,6 +5,7 @@ namespace Microsoft.Azure.Relay.Bridge
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Globalization;
     using System.Linq;
     using System.Net;
@@ -48,6 +49,8 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public async Task HandleConnectionAsync(HybridConnectionStream hybridConnectionStream)
         {
+            EventTraceActivity handleConnectionActivity = BridgeEventSource.NewActivity("HandleTcpConnection");
+
             using (TcpClient client = new TcpClient())
             {
                 client.NoDelay = true;
@@ -77,6 +80,8 @@ namespace Microsoft.Azure.Relay.Bridge
                 await client.ConnectAsync(targetServer, targetPort);
                 var tcpstream = client.GetStream();
 
+                BridgeEventSource.Log.RemoteForwardTcpSocketAccepted(handleConnectionActivity, $"{targetServer}:{targetPort}");
+
                 CancellationTokenSource socketAbort = new CancellationTokenSource();
                 await Task.WhenAll(
                     StreamPump.RunAsync(hybridConnectionStream, tcpstream,
@@ -92,6 +97,8 @@ namespace Microsoft.Azure.Relay.Bridge
        
         public async Task HandleRequest(RelayedHttpListenerContext ctx)
         {
+            EventTraceActivity handleRequestActivity = BridgeEventSource.NewActivity("HandleRequest");
+            
             DateTime startTimeUtc = DateTime.UtcNow;
             try
             {
@@ -107,7 +114,13 @@ namespace Microsoft.Azure.Relay.Bridge
             }
             finally
             {
-                LogRequest(startTimeUtc, ctx);
+                DateTime stopTimeUtc = DateTime.UtcNow;
+                StringBuilder buffer = new StringBuilder();
+                buffer.Append($"{startTimeUtc.ToString("s", CultureInfo.InvariantCulture)}, ");
+                buffer.Append($"\"{ctx.Request.HttpMethod} {ctx.Request.Url.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped)}\", ");
+                buffer.Append($"{(int)ctx.Response.StatusCode}, ");
+                buffer.Append($"{(int)stopTimeUtc.Subtract(startTimeUtc).TotalMilliseconds}");
+                BridgeEventSource.Log.RemoteForwardHttpRequestForwarded(handleRequestActivity, buffer.ToString());
             }
         }
 
@@ -184,15 +197,6 @@ namespace Microsoft.Azure.Relay.Bridge
             context.Response.Close();
         }
 
-        void LogRequest(DateTime startTimeUtc, RelayedHttpListenerContext context)
-        {
-            DateTime stopTimeUtc = DateTime.UtcNow;
-            StringBuilder buffer = new StringBuilder();
-            buffer.Append($"{startTimeUtc.ToString("s", CultureInfo.InvariantCulture)}, ");
-            buffer.Append($"\"{context.Request.HttpMethod} {context.Request.Url.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped)}\", ");
-            buffer.Append($"{(int)context.Response.StatusCode}, ");
-            buffer.Append($"{(int)stopTimeUtc.Subtract(startTimeUtc).TotalMilliseconds}");
-            //TODO wire logger for verbose mode Console.WriteLine(buffer);
-        }
+        
     }
 }

@@ -104,10 +104,14 @@ namespace azbridge
                 })
                 .ConfigureLogging((context, logging) =>
                 {
-                    logging.SetMinimumLevel(LogLevel.Debug);
+                    logging.SetMinimumLevel(logLevel);
                     if (!string.IsNullOrEmpty(config.LogFileName))
                     {
-                        logging.AddFile(config.LogFileName, logLevel);
+                        var fn = Path.GetFileNameWithoutExtension(config.LogFileName);
+                        var dir = Path.GetDirectoryName(config.LogFileName);
+                        var ext = Path.GetExtension(config.LogFileName);
+                        var fileName = Path.Combine(dir, $"{fn}-{{Date}}{ext}");
+                        logging.AddFile(fileName, logLevel);                        
                     }
                 })
                 .Build();
