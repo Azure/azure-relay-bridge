@@ -126,8 +126,12 @@ namespace Microsoft.Azure.Relay.Bridge
 
             string relativePath = context.Request.Url.GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
             if ( relativePath.StartsWith(this.relaySubpath) )
-            {
-                relativePath = relativePath.Substring(this.relaySubpath.Length+1);
+            { 
+                relativePath = relativePath.Substring(this.relaySubpath.Length);
+                if (relativePath.StartsWith("/"))
+                {
+                    relativePath = relativePath.Substring(1);
+                }                
             }
             requestMessage.RequestUri = new Uri(httpClient.BaseAddress, relativePath);
             requestMessage.Method = new HttpMethod(context.Request.HttpMethod);
