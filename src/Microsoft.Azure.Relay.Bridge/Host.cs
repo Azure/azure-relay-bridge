@@ -8,7 +8,12 @@ namespace Microsoft.Azure.Relay.Bridge
     using System.IO;
     using System.Reflection;
     using System.Text;
+    using System.Threading;
+    using global::Azure.Core;
+    using global::Azure.Identity;
     using Microsoft.Azure.Relay.Bridge.Configuration;
+    using Microsoft.Identity.Client;
+    using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
@@ -17,11 +22,33 @@ namespace Microsoft.Azure.Relay.Bridge
         LocalForwardHost hybridConnectionTcpListenerHost;
         RemoteForwardHost hybridConnectionTcpClientHost;
         private Config config;
-        EventTraceActivity hostActivity = BridgeEventSource.NewActivity("Host");           
+        EventTraceActivity hostActivity = BridgeEventSource.NewActivity("Host");
 
         public Host(Config config)
         {
             this.config = config;
+        }
+
+        static Host()
+        {
+            DefaultAzureCredentialTokenProvider = GetDefaultAzureCredentialTokenProvider();
+        }
+
+        static TokenProvider GetDefaultAzureCredentialTokenProvider()
+        {
+            return TokenProvider.CreateAzureActiveDirectoryTokenProvider(
+                async (audience, authority, state) =>
+                {
+                    var defaultAzureCredential = new DefaultAzureCredential();
+                    var trc = new TokenRequestContext(new[] { authority });
+                    return (await defaultAzureCredential.GetTokenAsync(trc)).Token;
+                },
+                "https://relay.azure.net/.default");
+        }
+
+        public static TokenProvider DefaultAzureCredentialTokenProvider 
+        {
+            get;
         }
 
         public void Start()
@@ -65,7 +92,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     jwriter.Formatting = Formatting.Indented;
                     config.WriteTo(jwriter);
                     jwriter.Flush();
-                }                    
+                }
             }
         }
 
