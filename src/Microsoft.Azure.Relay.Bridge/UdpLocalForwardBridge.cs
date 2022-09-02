@@ -34,7 +34,14 @@ namespace Microsoft.Azure.Relay.Bridge
         {
             PortName = portName;
             this.config = config;
-            this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
+            if (connectionString.SharedAccessKeyName == null && connectionString.SharedAccessSignature == null)
+            {
+                this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
+            }
+            else
+            {
+                this.hybridConnectionClient = new HybridConnectionClient(connectionString.ToString());
+            }
         }
 
         public event EventHandler NotifyException;

@@ -32,6 +32,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 BridgeEventSource.Log.RemoteForwardHostStartFailure(activity, exception);
                 this.activity.DiagnosticsActivity.Stop();
+                throw;
             }
         }
 

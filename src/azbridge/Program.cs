@@ -76,13 +76,14 @@ namespace azbridge
                 var globalCxn = config.AzureRelayConnectionString;
                 if ( globalCxn == null &&
                     (config.LocalForward.Any((f)=>f.ConnectionString == null) ||
-                    config.RemoteForward.Any((f) => f.ConnectionString == null)))
+                    config.RemoteForward.Any((f) => f.ConnectionString == null)) &&
+                    config.AzureRelayEndpoint == null)
                 {
-                    Console.WriteLine("Connection string(s) undefined; -x/AzureRelayConnectionString. azbridge -h for help.");
+                    
+                    Console.WriteLine("Connection string(s) undefined; -x/AzureRelayConnectionString and no endpoint defined -e. azbridge -h for help.");
 
                     return 3;
-                }
-
+                } 
                 LogLevel logLevel = LogLevel.Error;
                 if (!settings.Quiet.HasValue || !settings.Quiet.Value)
                 {
@@ -138,7 +139,8 @@ namespace azbridge
                 
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
-                
+
+                Console.WriteLine("Press Ctrl+C to stop.");
                 Host host = new Host(config);
                 host.Start();
 

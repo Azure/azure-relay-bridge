@@ -78,7 +78,14 @@ namespace Microsoft.Azure.Relay.Bridge
                 throw new InvalidOperationException();
             }
 
-            this.listener = new HybridConnectionListener(connectionString.ToString());
+            if (connectionString.SharedAccessKeyName == null && connectionString.SharedAccessSignature == null)
+            {
+                this.listener = new HybridConnectionListener(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
+            }
+            else
+            {
+                this.listener = new HybridConnectionListener(connectionString.ToString());
+            }
             this.listener.Online += (s, e) => { Online?.Invoke(this, e); };
             this.listener.Offline += (s, e) => { Offline?.Invoke(this, e); };
             this.listener.Connecting += (s, e) => { Connecting?.Invoke(this, e); };
