@@ -123,6 +123,7 @@ namespace azbridge
                 var loggerFactory = LoggerFactory.Create((builder) =>
                 {
                     builder.SetMinimumLevel(logLevel);
+                    
                     if (string.IsNullOrEmpty(config.LogFileName))
                     {
                         builder.AddConsole((options) => { options.LogToStandardErrorThreshold = LogLevel.Error; });
@@ -140,7 +141,7 @@ namespace azbridge
                 logger = loggerFactory.CreateLogger("azbridge");
                 DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(logger));
 
-                Console.WriteLine("Press Ctrl+C to stop.");
+                
                 Host host = new Host(config);
                 host.Start();
 
@@ -151,6 +152,7 @@ namespace azbridge
                     loggerFactory.Dispose();
                     _closing.Set();
                 };
+                Console.WriteLine("Press Ctrl+C to stop.");
                 _closing.WaitOne();
             }
             catch (FileNotFoundException e)
