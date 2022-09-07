@@ -81,7 +81,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void HandledExceptionAsError(object source, Exception exception)
         {
-            diags.Write(nameof(HandledExceptionAsError), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { source,exception.Message } });
+            diags.Write(nameof(HandledExceptionAsError), new DiagnosticsRecord { Level = EventLevel.Error, Info = new { source, exception } });
             this.HandledExceptionAsError(CreateSourceString(source), ExceptionToString(exception));
         }
 
@@ -89,7 +89,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void HandledExceptionAsInformation(object source, Exception exception)
         {
-            diags.Write(nameof(HandledExceptionAsInformation), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { source,exception.Message } });
+            diags.Write(nameof(HandledExceptionAsInformation), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { source,exception } });
             this.HandledExceptionAsInformation(CreateSourceString(source), ExceptionToString(exception));
         }
 
@@ -97,7 +97,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void HandledExceptionAsWarning(object source, Exception exception)
         {
-            diags.Write(nameof(HandledExceptionAsWarning), new DiagnosticsRecord { Level = EventLevel.Warning, Info = new { source,exception.Message } });
+            diags.Write(nameof(HandledExceptionAsWarning), new DiagnosticsRecord { Level = EventLevel.Warning, Info = new { source, exception } });
             this.HandledExceptionAsWarning(CreateSourceString(source), ExceptionToString(exception));
         }
 
@@ -254,7 +254,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void RemoteForwardHostStartFailure(EventTraceActivity eventTraceActivity, Exception exception)
         {
-            diags.Write(nameof(RemoteForwardHostStartFailure), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { exception.Message } });
+            diags.Write(nameof(RemoteForwardHostStartFailure), new DiagnosticsRecord { Level = EventLevel.Verbose, Activity = eventTraceActivity.Activity, Info = new { exception } });
             RemoteForwardHostStartFailure(exception.GetType().FullName, exception.Message);
         }
 
@@ -433,7 +433,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardBridgeConnectionFailed(EventTraceActivity bridgeActivity, Exception exception)
         {
-            diags.Write(nameof(LocalForwardBridgeConnectionFailed), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity,exception.Message } });
+            diags.Write(nameof(LocalForwardBridgeConnectionFailed), new DiagnosticsRecord { Level = EventLevel.Informational, Info = new { bridgeActivity,exception } });
 
             LocalForwardBridgeConnectionFailed(exception.GetType().FullName, exception.Message);
         }
@@ -537,7 +537,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardBridgeStartFailure(EventTraceActivity eventTraceActivity, LocalForward localForward, Exception exception)
         {
-            diags.Write(nameof(LocalForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForward, exception.Message } });
+            diags.Write(nameof(LocalForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForward, exception } });
             LocalForwardBridgeStartFailure(exception.GetType().FullName, exception.Message);
         }
 
@@ -554,7 +554,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, string localForwardBridge, Exception exception)
         {
-            diags.Write(nameof(LocalForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForwardBridge = localForwardBridge,exception.Message } });
+            diags.Write(nameof(LocalForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { localForwardBridge = localForwardBridge, exception} });
             LocalForwardBridgeStopFailure(exception.GetType().FullName, exception.Message);
         }
 
@@ -624,7 +624,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void RemoteForwardBridgeStopFailure(EventTraceActivity eventTraceActivity, Exception exception)
         {
-            diags.Write(nameof(RemoteForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception.Message } });
+            diags.Write(nameof(RemoteForwardBridgeStopFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
 
             RemoteForwardBridgeStopFailure(exception.GetType().FullName, exception.Message);
         }
@@ -659,7 +659,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void RemoteForwardBridgeStartFailure(EventTraceActivity eventTraceActivity, Uri hybridConnectionUri, Exception exception)
         {
-            diags.Write(nameof(RemoteForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri,exception.Message } });
+            diags.Write(nameof(RemoteForwardBridgeStartFailure), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { hybridConnectionUri,exception } });
             RemoteForwardBridgeStartFailure(hybridConnectionUri.ToString(), exception.GetType().FullName, exception.Message);
         }
 
@@ -802,7 +802,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardListenerStoppingFailed(EventTraceActivity eventTraceActivity, Exception exception)
         {
-            diags.Write(nameof(LocalForwardListenerStoppingFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception.Message } });
+            diags.Write(nameof(LocalForwardListenerStoppingFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
             LocalForwardListenerStoppingFailed(exception.GetType().FullName, exception.Message);
         }
 
@@ -819,7 +819,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardListenerStartFailed(EventTraceActivity eventTraceActivity, Exception exception)
         {
-            diags.Write(nameof(LocalForwardListenerStartFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception.Message } });
+            diags.Write(nameof(LocalForwardListenerStartFailed), new DiagnosticsRecord { Level = EventLevel.Error, Activity = eventTraceActivity.Activity, Info = new { exception } });
 
             LocalForwardListenerStartFailed(exception.GetType().FullName, exception.Message);
         }
@@ -855,7 +855,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardSocketError(EventTraceActivity eventTraceActivity, string endpoint, AggregateException exception)
         {
-            diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { endpoint,exception.Message } });
+            diags.Write(nameof(LocalForwardSocketError), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { endpoint, exception } });
             LocalForwardSocketError(endpoint, exception.GetType().FullName, exception.Message);
         }
 
@@ -891,7 +891,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardSocketCloseFailed(EventTraceActivity eventTraceActivity, string socket, Exception exception)
         {
-            diags.Write(nameof(LocalForwardSocketCloseFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket,exception.Message } });
+            diags.Write(nameof(LocalForwardSocketCloseFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { socket,exception } });
             LocalForwardSocketCloseFailed(socket, exception.GetType().FullName, exception.Message);
         }
 
@@ -926,7 +926,7 @@ namespace Microsoft.Azure.Relay.Bridge
         [NonEvent]
         public void LocalForwardSocketAcceptLoopFailed(EventTraceActivity eventTraceActivity, Exception exception)
         {
-            diags.Write(nameof(LocalForwardSocketAcceptLoopFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { exception.Message } });
+            diags.Write(nameof(LocalForwardSocketAcceptLoopFailed), new DiagnosticsRecord { Level = EventLevel.Warning, Activity = eventTraceActivity.Activity, Info = new { exception } });
             LocalForwardSocketAcceptLoopFailed(exception.GetType().FullName, exception.Message);
         }
 

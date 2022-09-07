@@ -23,14 +23,14 @@ if [ "${Operation}" == "build" ]; then
     if [ ! -d "tmp" ]; then mkdir tmp; fi
   
     cp ../../artifacts/build/$TargetFramework/$PackageName tmp/ > /dev/null
-    docker build -f mysql.server.dockerfile . --tag azbridge-mysql-server --build-arg package_name=$PackageName
+    docker build -q -f mysql.server.dockerfile . --tag azbridge-mysql-server --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
        popd
        exit $_RESULT
     fi
-    docker build -f mysql.client.dockerfile . --tag azbridge-mysql-client --build-arg package_name=$PackageName
+    docker build -q -f mysql.client.dockerfile . --tag azbridge-mysql-client --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
@@ -46,7 +46,7 @@ else
         _CXNSTRING=$AZBRIDGE_TEST_CXNSTRING
         if [ -z $_CXNSTRING ]; then 
             echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
-            exit 
+            exit 2
         fi
         
         # start the web server
@@ -60,7 +60,7 @@ else
         # stop the web server
         docker stop $server_name
       
-        #diff --strip-trailing-cr -B -i -w downloaded.txt index.html
+        diff --strip-trailing-cr -B -i -w downloaded.txt index.html
                 
         if [ $_RESULT -eq 0 ]; then 
             echo OK

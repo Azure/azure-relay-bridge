@@ -8,7 +8,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Description>Azure Relay Bridge</Description>
-    <IsPackable>false</IsPackable>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
   </PropertyGroup>
