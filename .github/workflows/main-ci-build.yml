@@ -62,7 +62,8 @@ jobs:
       run: bash ./verify-build.sh
       
     # create a release if a tag has been pushed
-    - uses: ncipollo/release-action@v1
+    - name: Generate Release
+      uses: ncipollo/release-action@v1
       if: startsWith(github.ref, 'refs/tags/v')
       with:
         artifacts: "artifacts/build/net6.0/*"
