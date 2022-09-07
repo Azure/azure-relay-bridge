@@ -23,14 +23,14 @@ if [ "${Operation}" == "build" ]; then
     if [ ! -d "tmp" ]; then mkdir tmp; fi
   
     cp ../../artifacts/build/$TargetFramework/$PackageName tmp/ > /dev/null
-    docker build -f mysql.server.dockerfile . --tag azbridge-mysql-server --build-arg package_name=$PackageName
+    docker build -q -f mysql.server.dockerfile . --tag azbridge-mysql-server --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
        popd
        exit $_RESULT
     fi
-    docker build -f mysql.client.dockerfile . --tag azbridge-mysql-client --build-arg package_name=$PackageName
+    docker build -q -f mysql.client.dockerfile . --tag azbridge-mysql-client --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp

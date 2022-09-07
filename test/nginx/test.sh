@@ -23,14 +23,14 @@ if [ "${Operation}" == "build" ]; then
     if [ ! -d "tmp" ]; then mkdir tmp; fi
   
     cp ../../artifacts/build/$TargetFramework/$PackageName tmp/ > /dev/null
-    docker build -f $ImageName.server.dockerfile . --tag azbridge-nginx-server-$ImageName --build-arg package_name=$PackageName
+    docker build -q -f $ImageName.server.dockerfile . --tag azbridge-nginx-server-$ImageName --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
        popd
        exit $_RESULT
     fi
-    docker build -f $ImageName.client.dockerfile . --tag azbridge-nginx-client-$ImageName --build-arg package_name=$PackageName
+    docker build -q -f $ImageName.client.dockerfile . --tag azbridge-nginx-client-$ImageName --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
