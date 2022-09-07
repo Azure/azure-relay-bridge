@@ -1,5 +1,5 @@
 FROM opensuse/leap:15 AS build1
-RUN zypper --non-interactive  install -y nginx
+RUN zypper --non-interactive  install -y nginx >/dev/null
 COPY index.html /srv/www/htdocs/
 
 FROM build1 AS build2

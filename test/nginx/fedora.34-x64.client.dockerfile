@@ -1,5 +1,5 @@
 FROM fedora:34 AS build1
-RUN yum install -y wget
+RUN yum install -y wget >/dev/null
 
 FROM build1 AS build2
 ARG package_name
