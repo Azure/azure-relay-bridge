@@ -46,7 +46,7 @@ else
         _CXNSTRING=$AZBRIDGE_TEST_CXNSTRING
         if [ -z $_CXNSTRING ]; then 
             echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
-            exit 
+            exit 2
         fi
         
         # start the web server

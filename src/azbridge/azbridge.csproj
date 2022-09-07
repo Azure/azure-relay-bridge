@@ -5,14 +5,12 @@
 	<DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
     <SelfContained>true</SelfContained>
     <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-	<PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
+    <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
     <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="appsettings.Development.json" />
-    <None Remove="appsettings.json" />
-  </ItemGroup>
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
@@ -48,10 +46,10 @@
   <ItemGroup>
     <LinuxFolder Include="/var/log/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
     <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="appsettings.Development.json">
+    <Content Include="appsettings.Development.json" CopyToPublishDirectory="False">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="appsettings.json">
+    <Content Include="appsettings.json" CopyToPublishDirectory="False">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
@@ -100,43 +98,14 @@
   </ItemGroup>
 
   <!-- Fedora, CentOS, and RHEL dependencies -->
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('ol'))">
-    <RpmDependency Include="libstdc++" Version="" />
-    <RpmDependency Include="libunwind" Version="" />
-    <RpmDependency Include="libicu" Version="" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora'))">
-    <RpmDotNetDependency Include="compat-openssl10" Version="" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('ol'))">
-    <RpmDotNetDependency Include="openssl-libs" Version="" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('centos'))">
-    <!-- <RpmDependency Include="lttng-ust" Version=""/> -->
-    <RpmDependency Include="libcurl" Version="" />
-    <RpmDependency Include="openssl-libs" Version="" />
-    <RpmDependency Include="krb5-libs" Version="" />
-    <RpmDependency Include="libicu" Version="" />
-    <RpmDependency Include="zlib" Version="" />
-  </ItemGroup>
-
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
-    <DebDependency Include="libcurl3 | libcurl4" Version="" />
-    <DebDependency Include="libssl1.0.0 | libssl1.0.2 | libssl1.1" Version="" />
-    <DebDependency Include="libgssapi-krb5-2" />
-    <DebDependency Include="zlib1g" Version="" />
-    <DebDependency Include="libicu52 | libicu55 | libicu57 | libicu60 | libicu62 | libicu63 | libicu66 | libicu67" Version="" />
+    <DebDependency Include="ca-certificates" Version="" />
   </ItemGroup>
 
   <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
     <RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
-    <RpmDotNetDependency Include="libicu" Version="" />
-    <RpmDotNetDependency Include="krb5" Version="" />
   </ItemGroup>
-
+ 
   <!-- Linux Daemon install properties -->
   <PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
     <CreateUser>true</CreateUser>
