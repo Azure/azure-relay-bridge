@@ -1,6 +1,9 @@
 #!/bin/bash
 
-if [ ! -z $APPVEYOR_BUILD_VERSION ]; then _VersionProp="/p:VersionPrefix=$APPVEYOR_BUILD_VERSION"; fi
+if [ -z $AZBRIDGE_TEST_CXNSTRING ]; then 
+  echo "Skipping integration tests due to missing AZBRIDGE_TEST_CXNSTRING secret"
+  exit 0
+fi
 
 pushd test/mysql
 dotnet msbuild /t:build /p:Configuration=Debug /p:TargetFramework=net6.0 $_BuildProp $_VersionProp $@
