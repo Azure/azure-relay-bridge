@@ -17,7 +17,7 @@ if [ $_RESULT -ne 0 ]; then
 fi
 popd
 pushd test/nginx
-dotnet msbuild /t:build /p:Configuration=Debug /p:TargetFramework=net6.0 $_BuildProp $_VersionProp $@
+dotnet msbuild /t:clean,build /p:Configuration=Debug /p:TargetFramework=net6.0 $_BuildProp $_VersionProp $@
 _RESULT=$?
 if [ $_RESULT -ne 0 ]; then 
     popd
