@@ -17,6 +17,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # Mandatory to use the extract version from tag action
+
+    - name: Extract version from tag
+      uses: damienaicheh/extract-version-from-tag-action@v1.0.0
+    - name: Export version  
+      run: |
+         echo "BUILDVERSION=$MAJOR.$MINOR.$PATCH$PRERELEASE" >> $GITHUB_ENV
+         echo "PRODVERSION=$MAJOR.$MINOR" >> $GITHUB_ENV      
+      
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
       with:
