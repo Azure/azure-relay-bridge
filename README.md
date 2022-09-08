@@ -1,6 +1,7 @@
 # Azure Relay Bridge
 
-[![Build Status](https://clemensv.visualstudio.com/azure-relay-bridge/_apis/build/status/clemensv.azure-relay-bridge?branchName=master)](https://clemensv.visualstudio.com/azure-relay-bridge/_build/latest?definitionId=1&branchName=master)
+![Build Status](https://github.com/Azure/azure-relay-bridge/actions/workflows/main-ci-build.yml/badge.svg)
+
 
 > _NOTE: This is an unsupported tool that is provided as-is. Azure product support is not available. Any issues must be filed here and there is no guaranteed reaction time for addressing any such issues._
 
