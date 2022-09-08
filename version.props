@@ -6,6 +6,6 @@
   <VersionPrefix>0.6.$(RunNumber)</VersionPrefix>
   <VersionPrefix Condition="'$(PRODVERSION)'!=''">$(PRODVERSION)</VersionPrefix>
   <VersionSuffix>rel</VersionSuffix>
-  <VersionSuffix Condition="'$(VERSIONSUFFIX)'!=''">$(VERSIONSUFFIX)</VersionPrefix>
+  <VersionSuffix Condition="'$(VERSIONSUFFIX)'!=''">$(VERSIONSUFFIX)</VersionSuffix>
   </PropertyGroup>
 </Project>
