@@ -4,7 +4,7 @@
   <RunNumber Condition="'$(GITHUB_RUN_NUMBER)'!=''">$(GITHUB_RUN_NUMBER)</RunNumber>
   <RunNumber Condition="'$(PATCHVERSION)'!=''">$(PATCHVERSION)</RunNumber>
   <VersionPrefix>0.6.$(RunNumber)</VersionPrefix>
-  <VersionPrefix Condition="'$(PRODVERSION)'!=''">$(PRODVERSION)</VersionPrefix>
+  <VersionPrefix Condition="'$(PRODVERSION)'!=''">$(PRODVERSION).$(RunNumber)</VersionPrefix>
   <VersionSuffix>rel</VersionSuffix>
   <VersionSuffix Condition="'$(VERSIONSUFFIX)'!=''">$(VERSIONSUFFIX)</VersionSuffix>
   </PropertyGroup>
