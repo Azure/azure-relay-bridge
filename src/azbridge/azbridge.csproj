@@ -1,36 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-	<OutputType>Exe</OutputType>
-	<DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
-    <SelfContained>true</SelfContained>
-    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
-    <PublishSingleFile Condition="'$(Configuration)' == 'Release'">true</PublishSingleFile>
-    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
+		<SelfContained>true</SelfContained>
+		<PublishReadyToRunComposite>false</PublishReadyToRunComposite>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
+		<InvariantGlobalization>true</InvariantGlobalization>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
-  </ItemGroup> 
+	<ItemGroup>
+		<RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+	</ItemGroup>
 
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <OutputType>Exe</OutputType>
-    <OutputName>azbridge</OutputName>
-    <Description>Azure Relay Bridge CLI</Description>
-    <PackageTags>azure</PackageTags>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
-    <WindowsOnly>false</WindowsOnly>
-    <PackageMaintainer>Clemens Vasters &lt;clemensv@microsoft.com&gt;</PackageMaintainer>
-    <PackageDescription>$(Description)</PackageDescription>
-    <DebHomepage>https://azure.com</DebHomepage>
-    <DebPriority>optional</DebPriority>
-    <DebSection>contrib/net</DebSection>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+		<OutputType>Exe</OutputType>
+		<OutputName>azbridge</OutputName>
+		<Description>Azure Relay Bridge CLI</Description>
+		<PackageTags>azure</PackageTags>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+		<OutputPath>bin\$(Configuration)\$(Platform)\</OutputPath>
+		<WindowsOnly>false</WindowsOnly>
+		<PackageMaintainer>Clemens Vasters &lt;clemensv@microsoft.com&gt;</PackageMaintainer>
+		<PackageDescription>$(Description)</PackageDescription>
+		<DebHomepage>https://azure.com</DebHomepage>
+		<DebPriority>optional</DebPriority>
+		<DebSection>contrib/net</DebSection>
+	</PropertyGroup>
 
 	<Choose>
 		<When Condition="'$(OS)' == 'Windows_NT' OR $(RuntimeIdentifier.StartsWith('win'))">
@@ -41,150 +38,150 @@
 			</ItemGroup>
 		</When>
 	</Choose>
-  
-
-  <ItemGroup>
-    <LinuxFolder Include="/var/log/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
-    <LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="appsettings.Development.json" CopyToPublishDirectory="False">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="appsettings.json" CopyToPublishDirectory="False">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
-      <LinuxPath>/etc/azbridge/azbridge_config.svc.yml</LinuxPath>
-    </Content>
-    <Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
-      <LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
-    </Content>
-    <Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
-      <LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
-      <LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos')))">0555</LinuxFileMode>
-    </Content>
-    <Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-    <Content Include="../tools/Powershell/get-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge</PostInstallScript>
-    <PostRemoveScript>rm /usr/local/bin/azbridge</PostRemoveScript>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
-    <PackageReference Include="System.Console" Version="$(SystemConsolePackageVersion)" />
-    <PackageReference Include="System.IO" Version="$(SystemIOPackageVersion)" />
-    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
-    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
-    <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingPackageVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsLoggingConsolePackageVersion)" />
-    <PackageReference Include="Serilog.Extensions.Logging.File" Version="$(SerilogExtensionsLoggingFilePackageVersion)" />
-    <PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
-  </ItemGroup>
-
-  <PropertyGroup>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj">
-      <Private>true</Private>
-    </ProjectReference>
-  </ItemGroup>
-
-  <!-- Fedora, CentOS, and RHEL dependencies -->
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
-    <DebDependency Include="ca-certificates" Version="" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
-    <RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
-  </ItemGroup>
- 
-  <!-- Linux Daemon install properties -->
-  <PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
-    <CreateUser>true</CreateUser>
-    <UserName>azbridge</UserName>
-    <InstallService>false</InstallService>
-    <SymlinkAppHostInBin>true</SymlinkAppHostInBin> 
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Update="Strings.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
 
 
-  <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
-    <ItemGroup>
-      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net6.0\$(AssemblyName).exe" />
-    </ItemGroup>
-  </Target>
+	<ItemGroup>
+		<LinuxFolder Include="/var/log/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
+		<LinuxFolder Include="/etc/azbridge" Group="azbridge" Owner="azbridge" RemoveOnUninstall="true" Condition="! $(RuntimeIdentifier.StartsWith('win'))" />
+		<Content Include="appsettings.Development.json" CopyToPublishDirectory="False">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="appsettings.json" CopyToPublishDirectory="False">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+			<LinuxPath>/etc/azbridge/azbridge_config.svc.yml</LinuxPath>
+		</Content>
+		<Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+			<LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
+		</Content>
+		<Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
+			<LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
+			<LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos')))">0555</LinuxFileMode>
+		</Content>
+		<Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+		<Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+		<Content Include="../tools/Powershell/get-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
+	</ItemGroup>
 
-  <Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget))) AND $(RuntimeIdentifier.StartsWith('win'))">
-    <Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
-  </Target>
-  <Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net6.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
-    <Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
-  </Target>
-  <Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
-    <Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
-  </Target>
-  <Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
-    <Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
-  </Target>
-  <Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
-    <PropertyGroup>
-      <MsiDir>$(PublishDir)../msi</MsiDir>
-      <_OutputName>azbridge_installer.$(PackageVersion).$(RuntimeIdentifier)</_OutputName>
-      <VS160COMNTOOLS Condition="'$(VS160COMNTOOLS)'==''">C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\</VS160COMNTOOLS>
-    </PropertyGroup>
-    <Exec WorkingDirectory="../azbridge-installer" Command="restore.cmd" />
-    <!-- MUST USE 32-bit for WiX -->
-   <Error Condition="'$(VS160COMNTOOLS)'==''" Text="VS160COMNTOOLS is not set. MSI installers MUST be built with msbuild.exe and not with dotnet msbuild" />
-    <Exec Command="&quot;$(VS160COMNTOOLS)..\..\MSBuild\Current\Bin\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
-  </Target>
-  <Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+	<PropertyGroup>
+		<PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge</PostInstallScript>
+		<PostRemoveScript>rm /usr/local/bin/azbridge</PostRemoveScript>
+	</PropertyGroup>
 
-  </Target>
-  <Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">
-    <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high" />
-  </Target>
+	<ItemGroup>
+		<PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
+		<PackageReference Include="System.Console" Version="$(SystemConsolePackageVersion)" />
+		<PackageReference Include="System.IO" Version="$(SystemIOPackageVersion)" />
+		<PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
+		<PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
+		<PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
+		<PackageReference Include="System.Diagnostics.DiagnosticSource" Version="$(SystemDiagnosticsDiagnosticSourcePackageVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="$(MicrosoftExtensionsLoggingPackageVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MicrosoftExtensionsLoggingConsolePackageVersion)" />
+		<PackageReference Include="Serilog.Extensions.Logging.File" Version="$(SerilogExtensionsLoggingFilePackageVersion)" />
+		<PackageReference Include="Packaging.Targets" Version="$(PackagingTargetsPackageVersion)" />
+	</ItemGroup>
 
-  <Target Name="PublishProjectIfFrameworkAndRIDSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != ''  and '$(RuntimeIdentifier)' != ''" />
-  <Target Name="PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">
-    <ItemGroup>
-      <_PublishRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
-    </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
-  </Target>
-  <Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and ('$(OS)' == 'Unix' OR '$(WindowsOnly)'=='false')">
-    <ItemGroup>
-      <_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
-    </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
-  </Target>
-  <Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
-    <ItemGroup>
-      <_PublishFramework Include="$(TargetFrameworks)" />
-    </ItemGroup>
-    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity);RuntimeIdentifier=$(RuntimeIdentifier)" Condition="!('$(OS)' == 'Unix')" />
-  </Target>
-  <Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkAndRIDSet;PublishProjectForAllFrameworksIfFrameworkUnset;PublishProjectForAllUnixRIDsIfTargetFrameworkSet;PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" />
+	<PropertyGroup>
+		<AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+		<GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Microsoft.Azure.Relay.Bridge\Microsoft.Azure.Relay.Bridge.csproj">
+			<Private>true</Private>
+		</ProjectReference>
+	</ItemGroup>
+
+	<!-- Fedora, CentOS, and RHEL dependencies -->
+	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
+		<DebDependency Include="ca-certificates" Version="" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
+		<RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
+	</ItemGroup>
+
+	<!-- Linux Daemon install properties -->
+	<PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+		<CreateUser>true</CreateUser>
+		<UserName>azbridge</UserName>
+		<InstallService>false</InstallService>
+		<SymlinkAppHostInBin>true</SymlinkAppHostInBin>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Update="Strings.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Strings.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Update="Strings.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Strings.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+
+	<Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
+		<ItemGroup>
+			<WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net6.0\$(AssemblyName).exe" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget))) AND $(RuntimeIdentifier.StartsWith('win'))">
+		<Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
+	</Target>
+	<Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net6.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+		<Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
+	</Target>
+	<Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+		<Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
+	</Target>
+	<Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+		<Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
+	</Target>
+	<Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
+		<PropertyGroup>
+			<MsiDir>$(PublishDir)../msi</MsiDir>
+			<_OutputName>azbridge_installer.$(PackageVersion).$(RuntimeIdentifier)</_OutputName>
+			<VS160COMNTOOLS Condition="'$(VS160COMNTOOLS)'==''">C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\</VS160COMNTOOLS>
+		</PropertyGroup>
+		<Exec WorkingDirectory="../azbridge-installer" Command="restore.cmd" />
+		<!-- MUST USE 32-bit for WiX -->
+		<Error Condition="'$(VS160COMNTOOLS)'==''" Text="VS160COMNTOOLS is not set. MSI installers MUST be built with msbuild.exe and not with dotnet msbuild" />
+		<Exec Command="&quot;$(VS160COMNTOOLS)..\..\MSBuild\Current\Bin\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
+		<Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
+	</Target>
+	<Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+
+	</Target>
+	<Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">
+		<Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high" />
+	</Target>
+
+	<Target Name="PublishProjectIfFrameworkAndRIDSet" DependsOnTargets="PublishPackages" Condition=" '$(TargetFramework)' != ''  and '$(RuntimeIdentifier)' != ''" />
+	<Target Name="PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == '' and '$(OS)' == 'Windows_NT'">
+		<ItemGroup>
+			<_PublishRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
+		</ItemGroup>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
+	</Target>
+	<Target Name="PublishProjectForAllUnixRIDsIfTargetFrameworkSet" Condition=" '$(TargetFramework)' != '' and '$(RuntimeIdentifier)' == ''  and ('$(OS)' == 'Unix' OR '$(WindowsOnly)'=='false')">
+		<ItemGroup>
+			<_PublishRuntimeIdentifier Include="$(UnixRuntimeIdentifiers)" />
+		</ItemGroup>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=$(TargetFramework);RuntimeIdentifier=%(_PublishRuntimeIdentifier.Identity)" />
+	</Target>
+	<Target Name="PublishProjectForAllFrameworksIfFrameworkUnset" Condition=" '$(TargetFramework)' == '' ">
+		<ItemGroup>
+			<_PublishFramework Include="$(TargetFrameworks)" />
+		</ItemGroup>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Package" Properties="TargetFramework=%(_PublishFramework.Identity);RuntimeIdentifier=$(RuntimeIdentifier)" Condition="!('$(OS)' == 'Unix')" />
+	</Target>
+	<Target Name="Package" DependsOnTargets="PublishProjectIfFrameworkAndRIDSet;PublishProjectForAllFrameworksIfFrameworkUnset;PublishProjectForAllUnixRIDsIfTargetFrameworkSet;PublishProjectForAllWindowsRIDsIfTargetFrameworkSet" />
 </Project>

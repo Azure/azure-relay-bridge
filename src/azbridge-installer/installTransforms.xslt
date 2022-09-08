@@ -25,7 +25,7 @@
         <xsl:with-param name="fileid">SvcFileId</xsl:with-param>
       </xsl:apply-templates>
       <wix:ServiceInstall Id="InstallABS" Name="azbridgesvc" Description="Azure Relay Bridge Service" Start="demand" ErrorControl="normal" Type="ownProcess" Arguments="--svc" Vital="yes" Account="NT AUTHORITY\NETWORKSERVICE" />
-      <wix:ServiceControl Id="ControllABS" Name="azbridgesvc" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+      <!--<wix:ServiceControl Id="ControllABS" Name="azbridgesvc" Start="install" Stop="both" Remove="uninstall" Wait="yes" />-->
     </xsl:copy>
   </xsl:template>
 

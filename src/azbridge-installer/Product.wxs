@@ -8,14 +8,10 @@
     <PropertyRef Id="WIX_ACCOUNT_NETWORKSERVICE" />
     <PropertyRef Id="WIX_ACCOUNT_USERS" />
     <PropertyRef Id="WIX_ACCOUNT_ADMINISTRATORS" />
-    <PropertyRef Id="WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED" />
     <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)license.rtf" />
     <WixVariable Id="WixUIBannerBmp" Value="..\assets\dlgbanner.bmp" />
     <WixVariable Id="WixUIDialogBmp" Value="..\assets\dlgbkgnd.bmp" />
-    <Condition Message="This application requires .NET Framework 4.6.2 or later. Please install the .NET Framework then run this installer again.">
-      <![CDATA[Installed OR WIX_IS_NETFRAMEWORK_462_OR_LATER_INSTALLED]]>
-    </Condition>
-
+    
     <Property Id="INSTALL_SERVICE" Secure="yes" Value="0" />
     <Property Id="INSTALL_PATH" Secure="yes" Value="1" />
 
