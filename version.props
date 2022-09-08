@@ -3,6 +3,7 @@
 	<RunNumber>0</RunNumber>  
   <RunNumber Condition="'$(GITHUB_RUN_NUMBER)'!=''">$(GITHUB_RUN_NUMBER)</RunNumber>
   <VersionPrefix>0.6.$(RunNumber)</VersionPrefix>
+  <VersionPrefix Condition="'$(BUILDNUMBER)'!=''">$(BUILDNUMBER)</VersionPrefix>
   <VersionSuffix>rel</VersionSuffix>
   </PropertyGroup>
 </Project>
