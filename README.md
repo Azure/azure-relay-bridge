@@ -15,9 +15,10 @@ Active Azure Relay ("Hybrid Connections") listeners are charged hourly.
 Namespaces and relays are not chnarged for while not in use; please review the
 [pricing FAQ](https://azure.microsoft.com/en-us/pricing/details/service-bus/#faq).
 
-> _NOTE: This is an unsupported tool that is provided as-is. Issues must be
-> filed here and there is no guaranteed reaction time for addressing any such
-> issues._
+> _NOTE: Azure Relay is a fully supported cloud service that has been around for
+> well over a decade, but this tool is not covered by Azure product support.
+> Issues must be filed here and there is no guaranteed reaction time for
+> addressing any such issues._
 
 This README document illustrates some simple usage scenarios. For further
 details, including installation instructions, please read the
