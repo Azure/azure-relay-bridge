@@ -10,7 +10,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
     sealed class RemoteForwardHost
     {
-        readonly Dictionary<string, RemoteForwardBridge> forwardBridges = new Dictionary<string, RemoteForwardBridge>();
+        readonly List<RemoteForwardBridge> forwardBridges = new List<RemoteForwardBridge>();
         Config config;
         EventTraceActivity activity = BridgeEventSource.NewActivity("RemoteForwardHost");
 
@@ -156,7 +156,7 @@ namespace Microsoft.Azure.Relay.Bridge
                                         };
                     remoteForwardBridge.Open().Wait();
 
-                    this.forwardBridges.Add(hybridConnectionUri.AbsoluteUri, remoteForwardBridge);
+                    this.forwardBridges.Add(remoteForwardBridge);
 
                     BridgeEventSource.Log.RemoteForwardBridgeStart(stopActivity, hybridConnectionUri.AbsoluteUri);
                 }
@@ -222,7 +222,7 @@ namespace Microsoft.Azure.Relay.Bridge
 
         void StopEndpoints()
         {
-            foreach (var bridge in this.forwardBridges.Values)
+            foreach (var bridge in this.forwardBridges)
             {
                 StopEndpoint(bridge);
             }
