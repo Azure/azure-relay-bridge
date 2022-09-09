@@ -12,10 +12,10 @@ namespace Microsoft.Azure.Relay.Bridge
 
     sealed class LocalForwardHost
     {
-        readonly Dictionary<string, TcpLocalForwardBridge> listenerBridges = new Dictionary<string, TcpLocalForwardBridge>();
-        readonly Dictionary<string, UdpLocalForwardBridge> udpBridges = new Dictionary<string, UdpLocalForwardBridge>();
+        readonly List<TcpLocalForwardBridge> listenerBridges = new List<TcpLocalForwardBridge>();
+        readonly List<UdpLocalForwardBridge> udpBridges = new List<UdpLocalForwardBridge>();
 #if !NETFRAMEWORK
-        readonly Dictionary<string, SocketLocalForwardBridge> socketListenerBridges = new Dictionary<string, SocketLocalForwardBridge>();
+        readonly List<SocketLocalForwardBridge> socketListenerBridges = new List<SocketLocalForwardBridge>();
 #endif
         private Config config;
         private EventTraceActivity activity = BridgeEventSource.NewActivity("LocalForwardHost");
@@ -75,7 +75,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
                         socketListenerBridge.Run(binding.BindLocalSocket);
 
-                        this.socketListenerBridges.Add(hybridConnectionUri.AbsoluteUri, socketListenerBridge);
+                        this.socketListenerBridges.Add(socketListenerBridge);
                     }
                     BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, IPAddress.Any, localForward);
                 }
@@ -118,7 +118,7 @@ namespace Microsoft.Azure.Relay.Bridge
                             TcpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
                         tcpListenerBridge.Run(new IPEndPoint(bindToAddress, binding.BindPort));
 
-                        this.listenerBridges.Add(hybridConnectionUri.AbsoluteUri, tcpListenerBridge);
+                        this.listenerBridges.Add(tcpListenerBridge);
                     }
 
                     BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
@@ -159,7 +159,7 @@ namespace Microsoft.Azure.Relay.Bridge
                             UdpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
                         udpListenerBridge.Run(new IPEndPoint(bindToAddress, -binding.BindPort));
 
-                        this.udpBridges.Add(hybridConnectionUri.AbsoluteUri, udpListenerBridge);
+                        this.udpBridges.Add(udpListenerBridge);
                     }
 
                     BridgeEventSource.Log.LocalForwardBridgeStart(startActivity, bindToAddress, localForward);
@@ -264,16 +264,16 @@ namespace Microsoft.Azure.Relay.Bridge
 
         void StopEndpoints()
         {
-            foreach (var bridge in this.listenerBridges.Values)
+            foreach (var bridge in this.listenerBridges)
             {
                 this.StopEndpoint(bridge);
             }
-            foreach (var bridge in this.udpBridges.Values)
+            foreach (var bridge in this.udpBridges)
             {
                 this.StopEndpoint(bridge);
             }
 #if !NETFRAMEWORK
-            foreach (var bridge in this.socketListenerBridges.Values)
+            foreach (var bridge in this.socketListenerBridges)
             {
                 this.StopEndpoint(bridge);
             }
