@@ -1,0 +1,54 @@
+<Project>
+    <Import Project="Directory.Build.props" />
+  <PropertyGroup>
+    <OutputType>None</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">tar.gz</ImageSuffix>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse'))">tar.gz</ImageSuffix>
+    <ImageSuffix Condition="'$(ImageSuffix)' == ''">zip</ImageSuffix>
+  </PropertyGroup>
+
+  <Target Name="Install" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+      <Exec Command="test.cmd build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows'"/>
+  </Target>
+  <Target Name="RunTest" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+      <Exec Command="test.cmd test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;"  Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows'"/>
+  </Target>
+  <Target Name="Uninstall" Condition=" '$(RuntimeIdentifier)' != ''  AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+      <Exec Command="test.cmd clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
+      <Exec Command="bash ./test.sh clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows'"/>
+  </Target>
+
+  <Target Name="BuildProjectIfRIDSet" DependsOnTargets="Install" Condition=" '$(RuntimeIdentifier)' != ''">
+      <Message Text="Target: $(PlatformTarget) $(RuntimeIdentifier) $(TargetFramework)" Importance="high" />
+  </Target>
+  <Target Name="BuildProjectForAllWindowsRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_BuildRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="RuntimeIdentifier=%(_BuildRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="Build" DependsOnTargets="BuildProjectIfRIDSet;BuildProjectForAllWindowsRIDs" />  
+
+  <Target Name="VSTestProjectIfRIDSet" DependsOnTargets="RunTest" Condition=" '$(RuntimeIdentifier)' != ''" />
+  <Target Name="VSTestProjectForAllWindowsRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_VSTestRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="VSTest" Properties="RuntimeIdentifier=%(_VSTestRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="VSTest" DependsOnTargets="VSTestProjectIfRIDSet;VSTestProjectForAllWindowsRIDs" />  
+
+  <Target Name="CleanProjectIfRIDSet" DependsOnTargets="Uninstall" Condition=" '$(RuntimeIdentifier)' != ''" />
+  <Target Name="CleanProjectForAllWindowsRIDs" Condition=" '$(RuntimeIdentifier)' == ''">
+    <ItemGroup>
+      <_CleanRuntimeIdentifier Include="$(WindowsRuntimeIdentifiers)" />
+    </ItemGroup>
+    <MSBuild Projects="$(MSBuildProjectFile)" Targets="Clean" Properties="RuntimeIdentifier=%(_CleanRuntimeIdentifier.Identity)" />
+  </Target>
+  <Target Name="Clean" DependsOnTargets="CleanProjectIfRIDSet;CleanProjectForAllWindowsRIDs" />  
+</Project>
