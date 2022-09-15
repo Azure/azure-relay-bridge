@@ -12,14 +12,15 @@ on:
 
 jobs:
   build:
-
-    runs-on: windows-latest
+    strategy:
+       matrix:
+         os: [ubuntu-latest, windows-latest]
+         include:
+          - os: windows-latest
+            windows: true
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: Vampire/setup-wsl@v1
-      with:
-        distribution: Ubuntu-20.04
-        
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0 # Mandatory to use the extract version from tag action
@@ -43,29 +44,44 @@ jobs:
 
     - name: Build for Windows 10-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'windows-latest'
     - name: Build for Windows 10-arm64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-arm /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'windows-latest'
     - name: Build for Windows 10-x86
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-x86 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'windows-latest'
     - name: Build for macOS-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Ubuntu 18-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Ubuntu 18-arm64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Ubuntu 20-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Ubuntu 20-arm64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Debian 10-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=debian.10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for OpenSUSE 15-x64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=opensuse.15.0-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     - name: Build for Fedora 30-x64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.34-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      if: matrix.os == 'ubuntu-latest'
     
-    - name: Test
+    - name: Unit Test Windows x64
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 /p:Configuration=Debug
+      if: matrix.os == 'windows-latest'
+    - name: Unit Test Windows x64
+      run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Debug
+      if: matrix.os == 'ubuntu-latest'
 
     - uses: actions/upload-artifact@v2
       with:
@@ -75,7 +91,8 @@ jobs:
     - name: Integration Tests Docker/Linux
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: wsl-bash ./verify-build.sh
+      run: bash ./verify-build.sh
+      if: matrix.os == 'ubuntu-latest'
       
     # create a release if a tag has been pushed
     - name: Generate Release
