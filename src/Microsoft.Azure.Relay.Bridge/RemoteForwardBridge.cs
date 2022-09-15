@@ -194,7 +194,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     }
 
                     IRemoteForwarder forwarder = null;                    
-                    if (remoteForwarders.Count == 1)
+                    if (remoteForwarders.Count == 1 && int.TryParse(portName, out var port))
                     {
                         forwarder = remoteForwarders.Values.First();
                     }
