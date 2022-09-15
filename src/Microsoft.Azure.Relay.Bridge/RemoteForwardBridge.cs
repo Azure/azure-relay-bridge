@@ -193,7 +193,20 @@ namespace Microsoft.Azure.Relay.Bridge
                         return;
                     }
 
-                    if (remoteForwarders.TryGetValue(portName, out var forwarder))
+                    IRemoteForwarder forwarder = null;                    
+                    if (remoteForwarders.Count == 1)
+                    {
+                        forwarder = remoteForwarders.Values.First();
+                    }
+                    else
+                    {
+                        if (!remoteForwarders.TryGetValue(portName, out forwarder))
+                        {
+                            forwarder = null;
+                        }
+                    }
+
+                    if ( forwarder != null)
                     {
                         if (forwarder is UdpRemoteForwarder && versionPreamble[2] != 1)
                         {
