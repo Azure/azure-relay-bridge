@@ -68,10 +68,10 @@ jobs:
         name: XBuild
         path: artifacts/build/net6.0
 
-    - name: Integration
+    - name: Integration Tests Docker/Linux
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: ./verify-build.cmd
+      run: bash ./verify-build.sh
       
     # create a release if a tag has been pushed
     - name: Generate Release
