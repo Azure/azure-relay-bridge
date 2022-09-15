@@ -13,7 +13,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
         internal static string GetConnectionString()
         {
-            return Environment.GetEnvironmentVariable("AZBRIDGE_TEST_CXNSTRING")?.Trim('\"');
+            string cxn = Environment.GetEnvironmentVariable("AZBRIDGE_TEST_CXNSTRING")?.Trim('\"');
+            if (string.IsNullOrEmpty(cxn))
+            {
+                throw new InvalidOperationException("The AZBRIDGE_TEST_CXNSTRING environment string must be set to a preconfigured Relay namespace for this test to execute");
+            }
+            return cxn;
         }
     }
 }
