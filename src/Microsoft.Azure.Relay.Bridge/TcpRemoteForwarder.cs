@@ -77,7 +77,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     // pick one of those eligible endpoints
                     client.Client.Bind(new IPEndPoint(eligibleAddresses[rnd.Next(eligibleAddresses.Count)], 0));
                 }
-                await client.ConnectAsync(targetServer, targetPort);
+                await client.ConnectAsync(targetServer, targetPort).ConfigureAwait(false);
                 var tcpstream = client.GetStream();
 
                 BridgeEventSource.Log.RemoteForwardTcpSocketAccepted(handleConnectionActivity, $"{targetServer}:{targetPort}");

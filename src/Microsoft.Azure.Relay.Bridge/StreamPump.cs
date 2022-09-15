@@ -24,14 +24,14 @@ namespace Microsoft.Azure.Relay.Bridge
                 {
                     int bytesRead;
 
-                    bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken);
+                    bytesRead = await source.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
                     
                     if (bytesRead == 0)
                     {
                         shutdownAction?.Invoke();
                         return;
                     }
-                    await target.WriteAsync(buffer, 0, bytesRead, cancellationToken);
+                    await target.WriteAsync(buffer, 0, bytesRead, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception e)
