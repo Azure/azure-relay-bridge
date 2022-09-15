@@ -16,6 +16,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - uses: Vampire/setup-wsl@v1
+      with:
+        distribution: Ubuntu-20.04
+        
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0 # Mandatory to use the extract version from tag action
@@ -71,7 +75,7 @@ jobs:
     - name: Integration Tests Docker/Linux
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: bash ./verify-build.sh
+      run: wsl-bash ./verify-build.sh
       
     # create a release if a tag has been pushed
     - name: Generate Release
