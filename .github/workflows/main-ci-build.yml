@@ -77,9 +77,13 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
     
     - name: Unit Test Windows x64
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 /p:Configuration=Debug
       if: matrix.os == 'windows-latest'
-    - name: Unit Test Windows x64
+    - name: Unit Test Ubuntu 20.04
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
       run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Debug
       if: matrix.os == 'ubuntu-latest'
 
