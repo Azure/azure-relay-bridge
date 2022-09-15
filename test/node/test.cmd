@@ -30,6 +30,7 @@ if "%Operation%"=="build" (
     )
     if not exist %DirName% mkdir %DirName%    
     unzip -d %DirName% ..\..\artifacts\build\%TargetFramework%\%PackageName%
+    npm install
     popd
     exit /b
 )
@@ -55,15 +56,8 @@ if '%AZBRIDGE_TEST_CXNSTRING%' == "" (
 )
 
 rem start the web server
-start node index.js
-start %DirName%\azbridge.exe -R a1:3000 -c %AZBRIDGE_TEST_CXNSTRING%
-for /f %%i in ( srvrun.log ) do set _SERVER_NAME=%%i
-rem run the client
-docker run -v %_MOUNTPATH%:/tests --rm -e AZBRIDGE_TEST_CXNSTRING=%AZBRIDGE_TEST_CXNSTRING% azbridge-nginx-client-%ImageName%:latest bash /tests/run_client.sh
-rem stop the web server
-docker stop %_SERVER_NAME%
+powershell ./run-test.ps1 %DirName%
 
-fc /L downloaded.txt index.html > NUL
 if ERRORLEVEL 1 (
     set _RESULT=%ERRORLEVEL%
     echo Error %_RESULT%
