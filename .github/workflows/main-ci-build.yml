@@ -71,7 +71,7 @@ jobs:
     - name: Integration
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: bash ./verify-build.cmd
+      run: ./verify-build.cmd
       
     # create a release if a tag has been pushed
     - name: Generate Release
