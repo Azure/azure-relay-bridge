@@ -122,7 +122,9 @@ jobs:
       uses: ncipollo/release-action@v1
       if: startsWith(github.ref, 'refs/tags/v')
       with:
-        artifacts: "artifacts/build/net6.0/*"
+        artifacts: | 
+          "artifacts/build/net6.0/*"
+          "artifacts/build/images/*"
         generateReleaseNotes: true
         allowUpdates: true
     
