@@ -71,13 +71,5 @@ exit _RESULT
 
 :clean
 
-set IMAGE_NAME=%ImageName%
-
-for /f %%i in ('docker images azbridge-nginx-server-%IMAGE_NAME% -q') do set _IMAGE_ID=%%i
-if "%_IMAGE_ID%"=="" exit /b
-docker rmi -f azbridge-nginx-server-%ImageName%:latest
-
-for /f %%i in ('docker images azbridge-nginx-client-%IMAGE_NAME% -q') do set _IMAGE_ID=%%i
-if "%_IMAGE_ID%"=="" exit /b
-docker rmi -f azbridge-nginx-client-%ImageName%:latest
-popd
+if exist %DirName% rd /s /q %DirName%
+if exist node_modules rd /s /q node_modules

@@ -1,10 +1,7 @@
 pushd "%~dp0"
 
-
-pushd test\nginx
-dotnet msbuild /t:build,vstest
+pushd test\node
+dotnet msbuild /t:clean,build,vstest
 popd
 
-
-
-
+popd
