@@ -50,12 +50,12 @@ exit
 
 :test 
 
-if '%AZBRIDGE_TEST_CXNSTRING%' == "" ( 
+echo on
+if "%AZBRIDGE_TEST_CXNSTRING%" == "" ( 
     echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
     exit /b
 )
 
-rem start the web server
 powershell ./run-test.ps1 %DirName%
 
 if ERRORLEVEL 1 (

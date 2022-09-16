@@ -1,6 +1,7 @@
 Param (
 [string]$AzBridgeLocation
 )
+Set-PSDebug -Trace 2
 
 $azbridge1 = Start-Process -FilePath $AzBridgeLocation\azbridge.exe -ArgumentList "-T","a1:3000","-x","$Env:AZBRIDGE_TEST_CXNSTRING","-v" -PassThru 
 $nodeserver = Start-Process -FilePath "node" -ArgumentList "index.js" -PassThru
