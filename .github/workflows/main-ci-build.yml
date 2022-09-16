@@ -44,7 +44,7 @@ jobs:
 
     - name: Build Docker Image TAR file
       run: |
-         mkdir artifacts/build/images 
+         mkdir -p artifacts/build/images 
          docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" --output type=tar,dest=out.tar
          mv out.tar artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
       if: matrix.os == 'ubuntu-latest'
