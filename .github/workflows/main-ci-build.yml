@@ -45,8 +45,8 @@ jobs:
     - name: Build Docker Image TAR file
       run: |
          mkdir -p artifacts/build/images 
-         DOCKER_BUILDKIT=1 docker build . --output type=tar,dest=out.tar --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" 
-         mv out.tar artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
+         DOCKER_BUILDKIT=1 docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" -t azbridge:${{ env.PRODVERSION }} -t azbridge
+         docker save azbridge:${{ env.PRODVERSION }} > artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}.tar
       if: matrix.os == 'ubuntu-latest'
 
     - name: Build for Windows 10-x64
