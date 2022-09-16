@@ -42,6 +42,13 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
+    - name: Build Docker Image TAR file
+      run: |
+         mkdir artifacts/build/images 
+         docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" --output type=tar,dest=out.tar
+         mv out.tar artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
+      if: matrix.os == 'ubuntu-latest'
+
     - name: Build for Windows 10-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
@@ -75,13 +82,7 @@ jobs:
     - name: Build for Fedora 30-x64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.34-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
-    - name: Build Docker Image TAR file
-      run: |
-         mkdir artifacts/build/images 
-         docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" --output type=tar,dest=out.tar
-         mv out.tar artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
-      if: matrix.os == 'ubuntu-latest'
-    
+        
     - name: Unit Test Windows x64
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
