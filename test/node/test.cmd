@@ -51,7 +51,8 @@ exit
 :test 
 
 echo on
-if "%AZBRIDGE_TEST_CXNSTRING%" == "" ( 
+set _CHK=%AZBRIDGE_TEST_CXNSTRING:"=%
+if "%_CHK%" == "" ( 
     echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
     exit /b
 )
