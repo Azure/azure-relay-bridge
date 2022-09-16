@@ -98,6 +98,12 @@ jobs:
       run: bash ./verify-build.sh
       if: matrix.os == 'ubuntu-latest'
       
+    - name: Integration Tests Windows
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+      run: ./verify-build.cmd
+      if: matrix.os == 'windows-latest'
+      
     # create a release if a tag has been pushed
     - name: Generate Release
       uses: ncipollo/release-action@v1

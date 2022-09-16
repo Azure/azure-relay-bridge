@@ -4,7 +4,7 @@
 		<CoreFrameworks>net6.0</CoreFrameworks>
 		<TargetFrameworks>$(CoreFrameworks)</TargetFrameworks>
 		<TargetFramework Condition="'$(TargetFramework)'==''">net6.0</TargetFramework>
-		<WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win7-x64;win7-x86;win10-x64;win10-x86;</WindowsRuntimeIdentifiers>
+		<WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win10-x64;win10-x86;win10-arm64;</WindowsRuntimeIdentifiers>
 		<UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;debian.10-x64;ubuntu.18.04-x64;ubuntu.18.04-arm64;ubuntu.20.04-x64;ubuntu.20.04-arm64;opensuse.15.0-x64;fedora.34-x64</UnixRuntimeIdentifiers>
 		<RuntimeIdentifiers>$(WindowsRuntimeIdentifiers)$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
 	</PropertyGroup>
