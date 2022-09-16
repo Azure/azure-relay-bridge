@@ -234,7 +234,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 #endif
 
-        [Fact]
+        [Fact(Skip = true)]
         public void TcpBridgeBadListener()
         {
             // set up the bridge first
