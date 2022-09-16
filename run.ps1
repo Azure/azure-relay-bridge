@@ -1,1 +1,1 @@
-msbuild -t:Clean,Build $args 
+dotnet msbuild -t:Clean,Restore,Build $args 

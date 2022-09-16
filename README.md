@@ -137,7 +137,7 @@ For most scenarios involving TLS, it is important for the hostnames to match the
 subject name of the presented certificates during the TLS handshake. 
 
 When the bridge is used on the client side, you can configure DNS names of the
-target services in the local *hosts* file, picking a unique IP address out of
+target services in the local *hosts* file, picking a unique IPv4 address out of
 the 127.x.x.x range for each service, and then configuring a local forwarder for
 the respective target address. 
 
@@ -352,4 +352,6 @@ requests to `https://localhost:443`
 Using `azbridge` in a Kubernetes sidecar container, you can reach APIs and
 services running inside of containers in a cluster without having them exposed
 via an Ingress controller.
+
+See the [OVERVIEW](OVERVIEW.md) document for further details.
 

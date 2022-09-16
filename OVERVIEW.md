@@ -1,16 +1,18 @@
 # Azure Relay Bridge
 
-Participation in this project is subject to the [Microsoft Open Source Code of
-Conduct](https://opensource.microsoft.com/codeofconduct).
+> Participation in this project is subject to the [Microsoft Open Source Code of
+> Conduct](https://opensource.microsoft.com/codeofconduct).
 
-The Azure Relay Bridge (azrbidge) is a tool that allows creating TCP, UDP, HTTP,
-and Unix Socket tunnels between any pair of hosts, as long as those hosts each
-have outbound Internet connectivity on port 443 (HTTPS) to the Azure Relay
-service.
+The Azure Relay Bridge (`azbridge`) is a simple command line tool that allows
+creating TCP, UDP, HTTP, and Unix Socket tunnels between any pair of hosts,
+allowing to traverse NATs and Firewalls without requiring VPNs, only using
+outbound HTTPS (443) Internet connectivity from either host. Neither of those
+hosts must be running in Azure; the Azure Relay helps facilitating the
+connection. 
 
 The Relay Bridge is designed for reaching networked assets in any environment
 where it is impractical or impossible for those assets to be directly reachable
-through a public IP address.
+through a public IP address. 
 
 For instance, if you need to reach an on-premises database or application from
 a cloud-based solution, the on-premises assets are typically not accessible
@@ -32,9 +34,11 @@ even bind multiple services inside separate container instances to the same name
 And you can do all that without configuring any kind of inbound network access 
 to the containers.
 
-Practically all TCP-based services, including HTTP(S), are compatible with
-the Azure Relay Bridge. For services that require connections to be made from
-both parties, the bridge can concurrently act as local and remote bridge.
+Some of these scenarios are illustrated in the [README](README.md) file.
+
+Practically all UDP- and TCP-based services, including HTTP(S), are compatible
+with the Azure Relay Bridge. For services that require connections to be made
+from both parties, the bridge can concurrently act as local and remote bridge.
 
 All Azure Relay endpoints are secure, requiring TLS 1.2+ (aka SSL) WebSocket
 connections for all connections through the Relay, and both communicating
@@ -50,8 +54,8 @@ connects each incoming connection to the target service.
 
 ## azbridge
 
-The Relay Bridge is a command line utility ("azbridge") with binary distributions
-for Windows, macOS, and several Linux distributions. It can optionally also be
+The bridge is a command line utility ("azbridge") with binary distributions for
+Windows, macOS, and several Linux distributions. It can optionally also be
 configured and run as a background service on Windows and Linux.
 
 Since the tool helps with scenarios not dissimilar to SSH tunnels (but without
@@ -78,12 +82,14 @@ the "hosts" file as `127.1.2.3 sql.corp.example.com`, and then use a local forwa
 configuration that refers to the `127.1.2.3` address, for example
 `azbridge -L 127.1.2.3:1433:relay`.
 
-When used as a *local forwarder gateway*, you will need to use addresses that can be
-reached by the clients in your network, and ideally have a multi-homed setup where
-the gateway node has a network address, e.g. from the `10.x.x.x` range, per remote 
-target service host. For naming support, those network addresses should be registered
-in a DNS service reachable and used by the clients in your network. A DNS service is
-also required for resolving wildcard addresses, even for the local scenario.
+When you use the bridge as a "gateway" which can be reached from other machines
+accessing the tunnel, you will need to use addresses that can be reached by the
+clients in your network, and ideally have a multi-homed setup where the gateway
+node has a network address, e.g. from the `10.x.x.x` range, per remote target
+service host. For naming support, those network addresses should be registered
+in a DNS service reachable and used by the clients in your network. A DNS
+service is also required for resolving wildcard addresses, even for the local
+scenario.
 
 With a local configuration, when using *azbridge* to reach a Microsoft SQL Server
 instance endpoint (port 1433) on a different network, you would use the following
@@ -92,11 +98,11 @@ constellation:
 * SQL Client connects to sql.corp.example.com:1433, whereby the local "hosts" file
   re-maps the server name to a local address with the entry
   `127.0.5.1 sql.corp.example.com`
-* Local bridge on the same machine the client runs as
+* The local bridge on the same machine the client runs as
   `azclient -L 127.0.5.1:1433:sql-corp-example-com -x {cxnstring}`
-* Azure Relay has a configured endpoint
-  `wss://mynamespace.servicebus.windows.net/$hc/sql-corp-example-com`
-* Remote Bridge on or near the server runs as
+* Azure Relay has a configured hybrid connection endpoint `sql-corp-example-com`
+  on namespace `mynamespace.servicebus.windows.net`
+* The remote bridge on or near the server runs as
   `azclient -T sql-corp-example-com:sql.corp.example.com:1433 -x {cxnstring}`
 * SQL Server runs as `sql.corp.example.com:1433`
 
@@ -110,9 +116,8 @@ the [Configuration and Command Line Options](CONFIG.md) document.
 
 ## Downloads
 
-This is an early preview. Unsigned (!) binaries are available for direct download
-from the [Github Releases](../../releases) page for evaluation. Signed binaries will eventually
-be available for download with common package managers.
+Unsigned (!) binaries are available for direct download from the [Github
+Releases](../../releases) page. 
 
 ## Installation 
 
@@ -124,13 +129,17 @@ of some prerequisites may be required.
 ### Windows 
 
 The easiest way to install the bridge on Windows is by using the appropriate
-*.msi package. The installer adds the tool to the PATH and also registers
-the "azbridge" Windows service. The service is configured for on-demand
-(manual) start at installation time.
+*.msi package. The installer adds the tool to the PATH and also optionally
+registers the "azbridge" Windows service. The service is configured for
+on-demand (manual) start at installation time.
 
 > **IMPORTANT:** The builds are not signed. Download the MSI file,
-unblock it, and then install. Otherwise the application may not work as
+[unblock it](https://winaero.com/how-to-unblock-files-downloaded-from-the-internet-in-windows-11), and then install. Otherwise the application may not work as
 expected.
+
+### Docker 
+
+
 
 ### Linux
 
@@ -184,47 +193,52 @@ list](https://docs.microsoft.com/en-us/dotnet/core/install/macos).
 
 The repo contains a complete build and verification structure for all platforms.
 
-The Windows version MUST be built on Windows because the service integration requires
-the full .NET Framework and the installer can only be built on Windows. You will at least
-need the "Build Tools for Visual Studio 2022", and ideally a local install of
-Visual Studio 2022 with desktop C# support.
+The Windows version MUST be built on Windows because the installer can only be
+built on Windows. You will at least need the "Build Tools for Visual Studio
+2022", and ideally a local install of Visual Studio 2022 with desktop C#
+support.
 
 All other versions are built with the .NET 6.0 SDK. The DEB and
 RPM packages are only created when building on a Unix (i.e. Linux or macOS) host.
 
-The ideal build environment is a Windows host with Docker for
-Windows installed. The `package-all.cmd` script will first build and package all Windows
-targets, and then launch a docker-based build with the official Microsoft .NET Core 6.0
-SDK image for the remaining targets. The `package.sh` script will only build and package
-the Unix targets, the `package.cmd` script only Windows targets.
+The ideal build environment is a Windows host with Docker for Windows installed.
+The `package-all.cmd` script will first build and package all Windows targets,
+and then launch a docker-based build with the official Microsoft .NET Core 6.0
+SDK image for the remaining targets. The `package.sh` script will only build and
+package the Unix targets, the `package.cmd` script only Windows targets. The
+`build.cmd` and `build.sh` scripts only build the project without packaging.
 
-All build output is placed into `./artifacts/build`
+All packaging output is placed into `./artifacts/build/*`
 
 ## Tests
 
-Running the Unit tests and the Integration tests both require an Azure Relay namespace
-to be available for use and configured. Before running any of the test scenarios, the
-environment variable `AZBRIDGE_TEST_CXNSTRING` must be set to the Relay namespace
-connection string (enclosed in quotes) on the build platform.
+Running the Unit tests and the Integration tests both require an Azure Relay
+namespace to be available for use and configured. Before running any of the test
+scenarios, the environment variable `AZBRIDGE_TEST_CXNSTRING` must be set to the
+Relay namespace connection string (enclosed in quotes) on the build platform.
+The given Relay namespace must be preconfigured with hybrid connections named
+"a1", "a2", and "a3".
 
-An [Azure Resource Manager template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli) 
+An [Azure Resource Manager
+template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
 to deploy a namespace with the definitions required for testing resides in
-`./src/tools/azure/test-resource-template.json`. The template expects the name of a new namespace
-and a region location as inputs.
+`./src/tools/azure/test-resource-template.json`. The template expects the name
+of a new namespace and a region location as inputs.
 
 Once the template has been deployed using either Powershell or the Azure CLI,
 you can find the "sendListenConnectionString" value (starts with "Endpoint...")
 in the returned output. Copy and save that value for use in the
 `AZBRIDGE_TEST_CXNSTRING` environment variable.
 
-The Unit tests can be run from the command line with `dotnet test` with an .NET Core build.
+The Unit tests can be run from the command line with `dotnet test`.
 
 For integration testing that installs and executes the emitted packages, run
-`verify-build.cmd`/`verify-build.sh`. Expect for Windows, the integration tests
-depend on a local Docker installation: The script cleans any existing images,
-builds CentOS, Debian, Fedora, and Ubuntu images with the newly built binaries,
-and then executes a series of tests on each image.
+`verify-build.cmd` (Windows) or `verify-build.sh` (Linux). With Linux, the
+integration tests depend on a local Docker installation: The script cleans any
+existing images, builds CentOS, Debian, Fedora, and Ubuntu images with the newly
+built binaries, and then executes a series of tests on each image.
 
 ## Contributions
 
-We're gladly accepting contributions. Please review the [contribution rules](CONTRIBUTING.md).
+We're gladly accepting contributions. Please review the [contribution
+rules](CONTRIBUTING.md).

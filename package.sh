@@ -1,6 +1,5 @@
 #!/bin/bash
 pushd "${0%/*}" > /dev/null 
-if [ ! -z $APPVEYOR_BUILD_VERSION ]; then _VersionProp="/p:VersionPrefix=$APPVEYOR_BUILD_VERSION"; fi
 if [ ! -z $BUILDVERSION ]; then _VersionProp="/p:VersionPrefix=$BUILDVERSION"; fi
 dotnet restore
 dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=osx-x64 $_BuildProp $_VersionProp $@
