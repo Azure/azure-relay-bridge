@@ -77,6 +77,7 @@ jobs:
       if: matrix.os == 'ubuntu-latest'
     - name: Build Docker Image TAR file
       run: mkdir artifacts/build/images && docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" --output type=tar,dest=artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}.tar
+      if: matrix.os == 'ubuntu-latest'
     
     - name: Unit Test Windows x64
       env:
