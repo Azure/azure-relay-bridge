@@ -75,6 +75,8 @@ jobs:
     - name: Build for Fedora 30-x64
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.34-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
+    - name: Build Docker Image TAR file
+      run: mkdir artifacts/build/images && docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" --output type=tar,dest=artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}.tar
     
     - name: Unit Test Windows x64
       env:
@@ -91,6 +93,11 @@ jobs:
       with:
         name: XBuild
         path: artifacts/build/net6.0
+    
+    - uses: actions/upload-artifact@v2
+      with:
+        name: XBuild
+        path: artifacts/build/images
 
     - name: Integration Tests Docker/Linux
       env:
