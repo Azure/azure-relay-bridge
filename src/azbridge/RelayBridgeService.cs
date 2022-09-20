@@ -1,4 +1,4 @@
-﻿#if _WINDOWS
+﻿#if _WINDOWS || _SYSTEMD
 using Microsoft.Azure.Relay.Bridge.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -47,22 +47,21 @@ namespace azbridge
             }
         }
 
-        public override Task StopAsync(CancellationToken cancellationToken)
+        public override async Task StopAsync(CancellationToken cancellationToken)
         {
             try
             {
+                await base.StopAsync(cancellationToken);
                 if (host != null)
                 {
                     host.Stop();
                     host = null;
-                }
-                return base.StopAsync(cancellationToken);
+                }                
             }
             catch (System.Exception ex)
             {
                 _logger.LogError(ex, "{Message}", ex.Message);
                 Environment.Exit(1);
-                return Task.CompletedTask;
             }
         }
 
@@ -70,10 +69,14 @@ namespace azbridge
         {
             try
             {
-                if (host != null)
+                return Task.Run(() =>
                 {
-                    host.Start();
-                }
+                    if (host != null)
+                    {
+                        host.Start();
+                    }
+                    stoppingToken.WaitHandle.WaitOne();
+                });
             }
             catch (System.Exception ex)
             {

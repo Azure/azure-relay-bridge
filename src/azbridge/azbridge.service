@@ -2,7 +2,8 @@
 Description=Azure Relay Bridge
   
 [Service]
-ExecStart=/usr/shared/azbridge
+Type=notify
+ExecStart=/usr/share/azbridge/azbridge --svc
     
 [Install]
 WantedBy=multi-user.target

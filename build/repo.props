@@ -11,6 +11,9 @@
 	<PropertyGroup Condition="'$(OS)' == 'Windows_NT' OR $(RuntimeIdentifier.StartsWith('win'))">
 		<DefineConstants>_WINDOWS</DefineConstants>
 	</PropertyGroup>
+	<PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) ">
+		<DefineConstants>_SYSTEMD</DefineConstants>
+	</PropertyGroup>
 	<ItemGroup>
 		<DotNetCoreRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
 	</ItemGroup>

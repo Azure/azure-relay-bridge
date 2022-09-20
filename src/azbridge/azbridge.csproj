@@ -30,13 +30,20 @@
 	</PropertyGroup>
 
 	<Choose>
-		<When Condition="'$(OS)' == 'Windows_NT' OR $(RuntimeIdentifier.StartsWith('win'))">
+		<When Condition="$(DefineConstants.Contains('_WINDOWS'))">
 			<ItemGroup>
 				<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
 				<PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="6.0.0" />
 				<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
 			</ItemGroup>
 		</When>
+		<Otherwise>
+			<ItemGroup>
+				<PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
+				<PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="6.0.0" />
+				<PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+			</ItemGroup>
+		</Otherwise>
 	</Choose>
 
 
@@ -55,6 +62,9 @@
 		<Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
 			<LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
 		</Content>
+		<Content Include="azbridge.service" CopyToPublishDirectory="PreserveNewest" Condition="$(DefineConstants.Contains('_SYSTEMD'))">
+			<LinuxPath>/etc/systemd/system/azbridge.service</LinuxPath>
+		</Content>
 		<Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
 			<LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
 			<LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos')))">0555</LinuxFileMode>
@@ -66,7 +76,7 @@
 
 	<PropertyGroup>
 		<PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge</PostInstallScript>
-		<PostRemoveScript>rm /usr/local/bin/azbridge</PostRemoveScript>
+		<PostRemoveScript>/bin/rm -f /usr/local/bin/azbridge</PostRemoveScript>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -104,10 +114,10 @@
 	</ItemGroup>
 
 	<!-- Linux Daemon install properties -->
-	<PropertyGroup Condition="$(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+	<PropertyGroup Condition="$(DefineConstants.Contains('_SYSTEMD'))">
 		<CreateUser>true</CreateUser>
 		<UserName>azbridge</UserName>
-		<InstallService>false</InstallService>
+		<InstallService>true</InstallService>
 		<SymlinkAppHostInBin>true</SymlinkAppHostInBin>
 	</PropertyGroup>
 

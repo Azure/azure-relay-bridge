@@ -93,8 +93,8 @@ LocalForward :
 
 LogLevel : ERROR
 
-# Name of the log file. Not used in Windows service mode when logging is directed to 
-# the Windows event log.
+# Name of the log file. Not used in Windows service mode or SystemD mode when logging is directed to 
+# the Windows event log or SystemD logs 
 
 LogFileName : 
 
