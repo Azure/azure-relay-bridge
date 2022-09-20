@@ -1,4 +1,4 @@
-FROM centos:9 AS build1
+FROM tgagor/centos:9 AS build1
 RUN yum install -y wget >/dev/null
 
 FROM build1 AS build2

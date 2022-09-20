@@ -1,4 +1,4 @@
-FROM centos:9 AS build1
+FROM tgagor/centos:9 AS build1
 RUN yum install -y nginx >/dev/null
 COPY index.html /usr/share/nginx/html
 
