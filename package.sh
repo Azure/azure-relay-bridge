@@ -10,5 +10,6 @@ dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:Targe
 dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-arm64 $_BuildProp $_VersionProp $@
 dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=opensuse.15.0-x64 $_BuildProp $_VersionProp $@
 dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=fedora.34-x64 $_BuildProp $_VersionProp $@
+dotnet msbuild /t:Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=centos.9-x64 $_BuildProp $_VersionProp $@
 
 popd

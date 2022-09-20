@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">deb</ImageSuffix>
-    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse'))">rpm</ImageSuffix>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos'))">rpm</ImageSuffix>
     <ImageSuffix Condition="'$(ImageSuffix)' == ''">tar.gz</ImageSuffix>
   </PropertyGroup>
 

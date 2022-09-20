@@ -10,9 +10,9 @@ echo *** Building and packaging Windows Targets
 
 if %_DOCKER_BUILD% == "true" (
    echo *** Windows only
-   dotnet msbuild /t:clean,restore,package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 %*
-   dotnet msbuild /t:clean,restore,Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-arm64 %*
-   dotnet msbuild /t:clean,restore,Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x86 %*
+   dotnet msbuild /t:restore,package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 %*
+   dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-arm64 %*
+   dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x86 %*
 ) else (
     echo *** All platforms
     dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=true /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 %*
@@ -26,6 +26,7 @@ if %_DOCKER_BUILD% == "true" (
     dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-arm64 %*
     dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=opensuse.15.0-x64 %*
     dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=fedora.34-x64 %*
+    dotnet msbuild /t:restore,Package /p:Configuration=Release /p:WindowsOnly=false /p:TargetFramework=net6.0 /p:RuntimeIdentifier=centos.9-x64 %*
 )
 
 if not errorlevel 0 exit /b 1

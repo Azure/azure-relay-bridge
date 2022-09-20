@@ -53,12 +53,16 @@ namespace azbridge
                     ServiceLauncher.UninstallService();
                     return 0;
                 }
-                else if (settings.ServiceRun.HasValue && settings.ServiceRun.Value)
+#endif
+#if _WINDOWS || _SYSTEMD
+                if (settings.ServiceRun.HasValue && settings.ServiceRun.Value)
                 {
                     ServiceLauncher.RunAsync(settings).GetAwaiter().GetResult();
                     return 0;
                 }
 #endif
+
+
                 if ( !string.IsNullOrEmpty(settings.ConfigFile) && !File.Exists(settings.ConfigFile))
                 {
                     Console.WriteLine($"The config file was not found: {settings.ConfigFile}");

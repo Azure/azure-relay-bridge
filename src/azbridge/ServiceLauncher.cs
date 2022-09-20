@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if _WINDOWS
+#if _WINDOWS || _SYSTEMD
 namespace azbridge
 {
     using Microsoft.Azure.Relay.Bridge.Configuration;
@@ -85,20 +85,25 @@ namespace azbridge
             {
                 logLevel = LogLevel.None;
             }
-            
-            
+
+
             IHost host = Host.CreateDefaultBuilder()
+#if _WINDOWS
                 .UseWindowsService(options =>
                 {
                     options.ServiceName = ServiceName;
                 })
+#elif _SYSTEMD
+                .UseSystemd()
+#endif
+
                 .ConfigureServices(services =>
                 {
                     LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(services);
                     services.Configure<EventLogSettings>(settings =>
                     {
                         settings.SourceName = ServiceName;
-                    });                    
+                    });
                     services.AddSingleton(config);
                     services.AddHostedService<RelayBridgeService>();
                 })
@@ -111,7 +116,7 @@ namespace azbridge
                         var dir = Path.GetDirectoryName(config.LogFileName);
                         var ext = Path.GetExtension(config.LogFileName);
                         var fileName = Path.Combine(dir, $"{fn}-{{Date}}{ext}");
-                        logging.AddFile(fileName, logLevel);                        
+                        logging.AddFile(fileName, logLevel);
                     }
                 })
                 .Build();
@@ -151,32 +156,10 @@ namespace azbridge
             };
             process.Start();
             process.WaitForExit();
-            if ( process.ExitCode != 0 )
+            if (process.ExitCode != 0)
             {
                 throw new Exception($"Process failed with exit code {process.ExitCode}");
             }
-        }
-
-        internal static void StartService()
-        {
-            if (!IsInstalled())
-                return;
-#if _WINDOWS
-#pragma warning disable CA1416 // Validate platform compatibility
-            using (ServiceController controller =
-                new ServiceController(ServiceName))
-            {
-                if (controller.Status != ServiceControllerStatus.Running)
-                {
-                    controller.Start();
-                    controller.WaitForStatus(ServiceControllerStatus.Running,
-                        TimeSpan.FromSeconds(10));
-                }
-            }
-#pragma warning restore CA1416 // Validate platform compatibility
-#else
-             return true;
-#endif
         }
 
         internal static bool IsInstalled()
@@ -200,51 +183,6 @@ namespace azbridge
              return true;
 #endif
         }
-
-        internal static bool IsRunning()
-        {
-#if _WINDOWS
-#pragma warning disable CA1416 // Validate platform compatibility
-
-            using (var controller = new ServiceController(ServiceName))
-            {
-                if (!IsInstalled())
-                    return false;
-                return (controller.Status == ServiceControllerStatus.Running);
-            }
-#pragma warning restore CA1416 // Validate platform compatibility
-#else
-             return true;
-#endif
-        }
-
-
-        internal static void StopService()
-        {
-#if _WINDOWS
-#pragma warning disable CA1416 // Validate platform compatibility
-            if (!IsInstalled())
-                return;
-            using (ServiceController controller =
-                new ServiceController(ServiceName))
-            {
-                try
-                {
-                    if (controller.Status != ServiceControllerStatus.Stopped)
-                    {
-                        controller.Stop();
-                        controller.WaitForStatus(ServiceControllerStatus.Stopped,
-                             TimeSpan.FromSeconds(10));
-                    }
-                }
-                catch
-                {
-                    throw;
-                }
-            }
-        }
-#pragma warning restore CA1416 // Validate platform compatibility
-#endif
     }
 }
 #endif
