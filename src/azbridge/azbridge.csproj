@@ -75,8 +75,8 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge</PostInstallScript>
-		<PostRemoveScript>/bin/rm -f /usr/local/bin/azbridge</PostRemoveScript>
+		<PostInstallScript>ln -sf /usr/share/azbridge/azbridge /usr/local/bin/azbridge;</PostInstallScript>
+		<PostRemoveScript>/bin/rm -f /usr/local/bin/azbridge;</PostRemoveScript>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -104,7 +104,7 @@
 		</ProjectReference>
 	</ItemGroup>
 
-	<!-- Fedora, CentOS, and RHEL dependencies -->
+	<!-- Debian and Ubuntu -->
 	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
 		<DebDependency Include="ca-certificates" Version="" />
 	</ItemGroup>
