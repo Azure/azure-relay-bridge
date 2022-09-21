@@ -68,6 +68,8 @@ On the database machine, the bridge is bound in the reverse, mapping "db" to the
 local TCP port 16161 as a client connecting to the database with the `-T`
 option. All traffic through the bridge is forwarded end-to-end.
 
+## Hybrid Connection Setup
+
 The required Azure Relay resource (the *Hybrid Connection*) can be set up with a
 few lines of script (showing BASH syntax):
 

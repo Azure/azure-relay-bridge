@@ -109,10 +109,42 @@ constellation:
 The `{cxnstring}` represents the connection string for the configured
 Azure Relay endpoint with appropriate send and/or listen permissions.
 
-The connection string can be obtained from the portal.
+The connection string can be obtained from the portal or Azure CLI, as 
+explained in the [README.md](README.md#hybrid-connection-setup).
 
-Further details about how to use the tool and how to configure it can be found in
-the [Configuration and Command Line Options](CONFIG.md) document.
+Further details about how to use the tool and how to configure it can be found
+in the [Configuration and Command Line Options](CONFIG.md) document. For all
+settings, including the namespace connection string you can set defaults in a
+machine-wide configuration file that is described in the [configuration
+file](CONFIG.md#configuration-file) section of that document. 
+
+## Services and Daemons
+
+When the tool is installed via MSI file on Windows or via one of the DEB or RPM
+packages on Linux, the tool is also installed as a system service.
+
+### Windows Service
+
+On Windows, the service name is "azbridgesvc". The service can be started and
+stopped using any service control manager tool, such as
+[`sc.exe`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/sc-config).
+
+The configuration data for the Windows Service is read from the
+`$env:ProgramData\Microsoft\Azure Relay Bridge\azbridge_config.svc.yml` file,
+which is described in [CONFIG.md](CONFIG.md#configuration-file). 
+
+The file requires administrative permissions to change.
+
+### Linux SystemD daemon
+
+On Linux, the service is registered with systemd as "azbridge.service" and
+can be managed with `systemctl`.
+
+The configuration data for the daemon is read from the
+`/etc/azbridge/azbridge_config.svc.yml`  file,
+which is described in [CONFIG.md](CONFIG.md#configuration-file).
+
+The file requires administrative permissions to change.
 
 ## Downloads
 
@@ -133,17 +165,18 @@ The easiest way to install the bridge on Windows is by using the appropriate
 registers the "azbridge" Windows service. The service is configured for
 on-demand (manual) start at installation time.
 
-> **IMPORTANT:** The builds are not signed. Download the MSI file,
-[unblock it](https://winaero.com/how-to-unblock-files-downloaded-from-the-internet-in-windows-11), and then install. Otherwise the application may not work as
-expected.
+> **IMPORTANT:** The builds are not signed. Download the MSI file, [unblock
+it](https://winaero.com/how-to-unblock-files-downloaded-from-the-internet-in-windows-11),
+and then install. Otherwise the application may not work as expected.
 
 ### Docker 
 
-Download the `azbridge-oci-image-x.x.x.tar` file from the releases page and import it 
-into your docker image repository using `docker load -i azbridge-oci-image-x.x.x.tar`. 
+Download the `azbridge-oci-image-x.x.x.tar` file from the releases page and
+import it into your docker image repository using `docker load -i
+azbridge-oci-image-x.x.x.tar`. 
 
-The docker image's entry point is the azbridge tool itself, meaning you can run the 
-container with `docker run --rm -it azbridge {parameters}`. 
+The docker image's entry point is the azbridge tool itself, meaning you can run
+the container with `docker run --rm -it azbridge {parameters}`. 
 
 If you want to use the image as a base image to override the entry point, the
 configured entry point for the installed runtime is at `app/azbridge`. 
