@@ -1,0 +1,16 @@
+# Azure Relay Bridge Configuration
+
+# Replace the value with the connection string returned when the template was deployed
+AzureRelayConnectionString : <<insert connection string>>
+
+# The remote forwarder points to TCP port 1433 of the SQL Server on localhost.
+# If the bridge runs on a separate machine, this can also point to another
+# host on the local network.
+
+RemoteForward :
+   - RelayName: sql
+     Host: localhost
+     PortName: tds
+     HostPort: 1433
+
+LogLevel: INFO

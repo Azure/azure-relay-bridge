@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaceName": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        }
+    },
+    "variables": {
+        "apiVersion": "2017-04-01"
+    },
+    "resources": [{
+            "type": "Microsoft.Relay/namespaces",
+            "name": "[parameters('namespaceName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/AuthorizationRules",
+            "name": "[concat(parameters('namespaceName'), '/sendlisten')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "properties": {
+                "rights": [
+                    "Send",
+                    "Listen"
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces', parameters('namespaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/hybridConnections",
+            "name": "[concat(parameters('namespaceName'), '/sql')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "properties": {
+                "requiresClientAuthorization": true
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces', parameters('namespaceName'))]"
+            ]
+        }
+    ],
+    "outputs": {
+        "serviceBusNamespaceName": {
+            "type": "string",
+            "value": "[parameters('namespaceName')]"
+        },
+        "sendListenConnectionString": {
+            "type": "string",
+            "value": "[listkeys(resourceId('Microsoft.Relay/namespaces/AuthorizationRules', parameters('namespaceName'), 'sendlisten'),variables('apiVersion')).primaryConnectionString]"
+        }
+    }
+}

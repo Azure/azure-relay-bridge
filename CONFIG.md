@@ -252,10 +252,10 @@ The configuration file can exist in three locations:
 
 1. Machine configuration, always loaded if present.
    Linux: /etc/azurebridge/azurebridge_config
-   Windows: %ALLUSERSPROFILE%\Microsoft\AzureBridge\azbridge_config
+   Windows: %PROGRAMDATA%\Microsoft\AzureBridge\azbridge_config.machine.yml
 2. User configuration, overrides and complements machine config.
-   Linux: ~/.azurebridge/config
-   Windows: %USERPROFILE%\.azurebridge\config
+   Linux: ~/.azbridge/azbridge_config.yml
+   Windows: %APPDATA%\azbridge\azbridge_config.yml
 3. Override user configuration location for current execution with 
    the -f option.
 

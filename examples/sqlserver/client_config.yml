@@ -1,0 +1,15 @@
+# Azure Relay Bridge Configuration
+
+# Replace the value with the connection string returned when the template was deployed
+AzureRelayConnectionString : <<insert connection string>>
+
+# The local forwarder binds 127.0.0.2 port 1433 to 
+# hybrid connection "sql" using the logical port name "tds"
+
+LocalForward :
+   - BindAddress: 127.0.0.2
+     BindPort: 1433
+     PortName: tds
+     RelayName: sql
+
+LogLevel: INFO
