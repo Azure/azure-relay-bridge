@@ -125,8 +125,52 @@ sqlcmd -S tcp:localsql,1433 -P <<password>> -U <<username>>
 
 Mind that if you enable TLS (Encryption) for SQL Server (as you should), the
 host name alias you configure must match the remote SQL server's host name in
-order for the certificate validation on the client to function correctly. Concretely, if the SQL Server's host name on its local network is "sql.corp.example.com", that exact name must be used for the host name alias.
-
+order for the certificate validation on the client to function correctly.
+Concretely, if the SQL Server's host name on its local network is
+"sql.corp.example.com", that exact name must be used for the host name alias.
 
 The Azure Relay tunnel is *always* TLS protected, independent of the SQL server
 configuration.
+
+## Running the bridge as a Windows Service or Linux daemon
+
+### Windows Service
+
+On Windows, if you install the tool with the MSI installer, the bridge is
+registered as a Windows Service as "azbridgesvc".
+
+To run either the client or the server side in that service, merge the
+configuration file snippets above into the `$env:ProgramData\Microsoft\Azure Relay
+Bridge\azbridge_config.svc.yml` file, which is described in
+[CONFIG.md](CONFIG.md#configuration-file).
+
+Since the service might be used with multiple Azure Relay namespaces and or
+differentiated permissions, you can define local connection strings for each
+local and remote forwarder:
+
+```yml
+RemoteForward :
+   - RelayName: sql
+     Host: localhost
+     PortName: tds
+     HostPort: 1433
+     ConnectionString: <<connection string>>
+```
+
+The file requires administrative permissions to change.
+
+### Linux SystemD daemon
+
+On Linux, the service is registered with systemd as "azbridge.service" and can
+be managed with `systemctl` if the tool was installed via the DEB or RPM
+packages.
+
+To run either the client or the server side in that daemon, merge the
+configuration file snippets above into the
+`/etc/azbridge/azbridge_config.svc.yml`  file, which is described in
+[CONFIG.md](CONFIG.md#configuration-file).
+
+The file requires administrative permissions to change.
+
+As with Windows above, you can also override connection strings at the forwarder
+level on Linux.
