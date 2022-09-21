@@ -27,7 +27,7 @@ az group create --name $_NS --location westeurope
 az relay namespace create -g $_NS --name $_NS
 az relay hyco create -g $_NS --namespace-name $_NS --name sql
 az relay namespace authorization-rule create -g $_NS --namespace-name $_NS -n sendlisten --rights Send Listen
-az relay namespace authorization-rule keys list -g cvtest888 --namespace-name cvtest888 -n sendlisten --out tsv --query "primaryConnectionString"
+az relay namespace authorization-rule keys list -g $_NS --namespace-name $_NS -n sendlisten --out tsv --query "primaryConnectionString"
 ```
 
 ## Customizing the config files
