@@ -56,10 +56,10 @@
 		<Content Include="appsettings.json" CopyToPublishDirectory="False">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
-		<Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+		<Content Include="azbridge_config.svc.yml" CopyToPublishDirectory="PreserveNewest">
 			<LinuxPath>/etc/azbridge/azbridge_config.svc.yml</LinuxPath>
 		</Content>
-		<Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))">
+		<Content Include="azbridge_config.machine.yml" CopyToPublishDirectory="PreserveNewest">
 			<LinuxPath>/etc/azbridge/azbridge_config.machine.yml</LinuxPath>
 		</Content>
 		<Content Include="azbridge.service" CopyToPublishDirectory="PreserveNewest" Condition="$(DefineConstants.Contains('_SYSTEMD'))">
