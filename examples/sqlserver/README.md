@@ -1,8 +1,7 @@
-## Microsoft SQL Server example
+# Azure Relay Bridge - Microsoft SQL Server example
 
-This directory contains a set of sample files illustrating how to bridge to a
-SQL Server instance.
-
+This directory contains a set of sample files illustrating how to bridge SQL
+clients to a remote SQL Server instance in a private network via Azure Relay.
 
 ## Relay Setup
 
