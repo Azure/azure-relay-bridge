@@ -1,0 +1,13 @@
+# Azure Relay Bridge Configuration
+
+# The local forwarder binds 127.0.0.2 port 1433 to 
+# hybrid connection "sql" using the logical port name "tds"
+
+LocalForward :
+   - BindAddress: 127.1.0.2
+     BindPort: 13389
+     PortName: rdp
+     RelayName: <<machinename>>
+     ConnectionString: <<connection string>>
+
+LogLevel: INFO

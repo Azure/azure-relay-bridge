@@ -1,0 +1,61 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaceName": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "targetHostName": {
+            "type": "String"
+        }
+    },
+    "variables": {
+        "apiVersion": "2017-04-01"
+    },
+    "resources": [{
+            "type": "Microsoft.Relay/namespaces",
+            "name": "[parameters('namespaceName')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "location": "[parameters('location')]",
+            "dependsOn": []
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/hybridConnections",
+            "name": "[concat(parameters('namespaceName'), '/', parameters('targetHostName'))]",
+            "apiVersion": "[variables('apiVersion')]",
+            "properties": {
+                "requiresClientAuthorization": true
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces', parameters('namespaceName'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Relay/namespaces/hybridConnections/authorizationRules",
+            "name": "[concat(parameters('namespaceName'), '/', parameters('targetHostName'), '/sendlisten')]",
+            "apiVersion": "[variables('apiVersion')]",
+            "properties": {
+                "rights": [
+                    "Send",
+                    "Listen"
+                ]
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Relay/namespaces/hybridConnections', parameters('namespaceName'), parameters('targetHostName'))]"
+            ]
+        }
+    ],
+    "outputs": {
+        "serviceBusNamespaceName": {
+            "type": "string",
+            "value": "[parameters('namespaceName')]"
+        },
+        "sendListenConnectionString": {
+            "type": "string",
+            "value": "[listkeys(resourceId('Microsoft.Relay/namespaces/hybridConnections/authorizationRules', parameters('namespaceName'), parameters('targetHostName'),'sendlisten'),variables('apiVersion')).primaryConnectionString]"
+        }
+    }
+}

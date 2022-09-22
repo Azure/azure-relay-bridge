@@ -3,6 +3,26 @@
 This directory contains a set of sample files illustrating how to bridge SQL
 clients to a remote SQL Server instance in a private network via Azure Relay.
 
+```
+  Private Network A          │          │      Private Network B
+                             │          │
+                             │          │
+                             │          │
+         TCP:127.0.0.2:1433  │          │             TCP:localhost:1433
+┌──────────┐      ┌────────┐ │          │   ┌────────┐    ┌─────────────┐
+│          │      │        │ │          │   │        │    │             │
+│  Client  ├──────►azbridge├─┼──────┐ ┌─┼───►azbridge├────► SQL Server  │
+│ (sqlcmd) │      │        │ │      │ │ │   │        │    │             │
+└──────────┘      └────────┘        │ │     └────────┘    └─────────────┘
+                                 ┌──▼─┴───┐
+                                 │  sql   │
+                                 │        │
+azbridge -f ./client_config.yml  │        │ azbridge -f ./server_config.yml
+                                 └────────┘
+sqlcmd -S tcp:127.0.0.2,1433    Azure Relay
+                                 Namespace
+```
+
 ## Relay Setup
 
 First, create an Azure Relay namespace with a Hybrid Connection named "sql". 

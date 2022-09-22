@@ -1,0 +1,14 @@
+# Azure Relay Bridge Configuration
+
+# The remote forwarder points to TCP port 1433 of the SQL Server on localhost.
+# If the bridge runs on a separate machine, this can also point to another
+# host on the local network.
+
+RemoteForward :
+   - RelayName: <<machinename>>
+     Host: localhost
+     PortName: rdp
+     HostPort: 3389
+     ConnectionString: <<connection string>>
+
+LogLevel: INFO
