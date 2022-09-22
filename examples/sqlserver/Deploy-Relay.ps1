@@ -19,5 +19,5 @@ param(
     [string] $location
 )
 
-$ = New-AzResourceGroup -Name $NamespaceName -Location $Location
+New-AzResourceGroup -Name $NamespaceName -Location $Location
 New-AzResourceGroupDeployment -ResourceGroupName $NamespaceName -TemplateFile "$PSScriptRoot\relay-resource-template.json" -namespaceName $namespaceName -location $location
