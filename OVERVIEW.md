@@ -99,11 +99,11 @@ constellation:
   re-maps the server name to a local address with the entry
   `127.0.5.1 sql.corp.example.com`
 * The local bridge on the same machine the client runs as
-  `azclient -L 127.0.5.1:1433:sql-corp-example-com -x {cxnstring}`
+  `azbridge -L 127.0.5.1:1433:sql-corp-example-com -x {cxnstring}`
 * Azure Relay has a configured hybrid connection endpoint `sql-corp-example-com`
   on namespace `mynamespace.servicebus.windows.net`
 * The remote bridge on or near the server runs as
-  `azclient -T sql-corp-example-com:sql.corp.example.com:1433 -x {cxnstring}`
+  `azbridge -T sql-corp-example-com:sql.corp.example.com:1433 -x {cxnstring}`
 * SQL Server runs as `sql.corp.example.com:1433`
 
 The `{cxnstring}` represents the connection string for the configured
