@@ -51,11 +51,11 @@ address.
 
 Reserved. Not presently supported
 
-**-E endpoint_uri**
+**-e endpoint_uri**
 
 Azure Relay endpoint URI (see -x).
 
-**-F configfile**
+**-f configfile**
 
 Specifies an alternative per-user configuration file.  If a configuration 
 file is given on the command line, the system-wide configuration file 
@@ -65,7 +65,11 @@ ignored.
    
 The default for the per-user configuration file is ~/.azurebridge/config
 on Linux and %USERPROFILE%\.azurebridge\config on Windows.
-   
+
+**-l logfile**
+
+Specifices a log file.
+
 **-g**    
 
 Allows remote hosts to connect to local forwarded ports.
@@ -211,14 +215,10 @@ but only once for each `relay_name`.
 Backwards compatibility option for -T with outdated (because confusing)
 placement of the host name.
 
-**-S signature**
+**-s signature**
 
 Azure Relay shared access signature (previously issued access token)
 to use (see -x)
-
-**-V**
-
-Display the version number and exit.
 
 **-v** 
 
@@ -241,7 +241,12 @@ file.
 
 The connection string can be set via the AZURE_BRIDGE_CONNECTIONSTRING
 environment variable. 
- 
+
+**-?**
+**-h**
+
+Show help information.
+
 ## Configuration File
 
 The configuration file is a YAML file that specifies options that apply 
