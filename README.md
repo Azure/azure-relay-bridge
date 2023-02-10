@@ -279,7 +279,7 @@ can have.
                       Namespace
 
                                  azbridge \
-                                   -H latavola/https:443 \
+                                   -H latavola:https/443 \
                                    -e sb://mydemo.servicebus.windows.net
 ```
 
