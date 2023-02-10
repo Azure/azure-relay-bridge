@@ -319,7 +319,7 @@ az relay hyco update -g mydemo --namespace-name mydemo --name latavola \
               --requires-client-authorization false
 ```
 
-The command `azbridge -H latavola/https:443 -e sb://mydemo.servicebus.windows.net`
+The command `azbridge -H latavola:https/443 -e sb://mydemo.servicebus.windows.net`
 will bind the external address to
 `https://mydemo.servicebus.windows.net/latavola` and will forward arriving
 requests to `https://localhost:443` 
