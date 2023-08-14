@@ -128,4 +128,18 @@ jobs:
         artifacts: "artifacts/build/net6.0/*,artifacts/build/images/*"
         generateReleaseNotes: true
         allowUpdates: true
-    
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+      if: matrix.os == 'ubuntu-latest'
+
+    - name: Push to GitHub Container Registry  
+      run: |  
+        ORG_NAME=$(echo "${{ github.repository_owner }}" | awk '{print tolower($0)}')
+        docker tag azbridge:${{ env.PRODVERSION }} ghcr.io/$ORG_NAME/azure-relay-bridge:${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
+        docker push ghcr.io/$ORG_NAME/azure-relay-bridge:${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}
+      if: matrix.os == 'ubuntu-latest'
