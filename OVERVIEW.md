@@ -225,7 +225,7 @@ The package install will put the tool into `/usr/share/azbridge`.
 
 You can also install the tool from respective platform *.tar.gz archive. For
 Linux, you need to [explicitly install Linux prerequisites for .NET
-6.0](https://docs.microsoft.com/en-us/dotnet/core/install/linux) for your
+8.0](https://docs.microsoft.com/en-us/dotnet/core/install/linux) for your
 respective distribution. For macOS, you need to [install prerequisites from this
 list](https://docs.microsoft.com/en-us/dotnet/core/install/macos).
 
@@ -238,12 +238,12 @@ built on Windows. You will at least need the "Build Tools for Visual Studio
 2022", and ideally a local install of Visual Studio 2022 with desktop C#
 support.
 
-All other versions are built with the .NET 6.0 SDK. The DEB and
+All other versions are built with the .NET 8.0 SDK. The DEB and
 RPM packages are only created when building on a Unix (i.e. Linux or macOS) host.
 
 The ideal build environment is a Windows host with Docker for Windows installed.
 The `package-all.cmd` script will first build and package all Windows targets,
-and then launch a docker-based build with the official Microsoft .NET Core 6.0
+and then launch a docker-based build with the official Microsoft .NET Core 8.0
 SDK image for the remaining targets. The `package.sh` script will only build and
 package the Unix targets, the `package.cmd` script only Windows targets. The
 `build.cmd` and `build.sh` scripts only build the project without packaging.

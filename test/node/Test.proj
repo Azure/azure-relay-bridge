@@ -5,8 +5,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">tar.gz</ImageSuffix>
-    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse'))">tar.gz</ImageSuffix>
+    <ImageSuffix Condition="$(RuntimeIdentifier.StartsWith('linux')) OR $(RuntimeIdentifier.StartsWith('osx'))">tar.gz</ImageSuffix>
     <ImageSuffix Condition="'$(ImageSuffix)' == ''">zip</ImageSuffix>
   </PropertyGroup>
 

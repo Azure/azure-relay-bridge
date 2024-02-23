@@ -37,7 +37,7 @@ jobs:
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: 8.0.x
     
     - name: Restore dependencies
       run: dotnet restore
@@ -49,58 +49,43 @@ jobs:
          docker save azbridge:${{ env.PRODVERSION }} > artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}.tar
       if: matrix.os == 'ubuntu-latest'
 
-    - name: Build for Windows 10-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Windows-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
-    - name: Build for Windows 10-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-arm /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Windows-arm64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
-    - name: Build for Windows 10-x86
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win10-x86 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Windows-x86
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
     - name: Build for macOS-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
-    - name: Build for Ubuntu 18-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for macOS-arm64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
-    - name: Build for Ubuntu 18-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.18.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Linux-x64
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
-    - name: Build for Ubuntu 20-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
-    - name: Build for Ubuntu 20-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=ubuntu.20.04-arm64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
-    - name: Build for Debian 10-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=debian.10-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
-    - name: Build for OpenSUSE 15-x64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=opensuse.15.0-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
-    - name: Build for Fedora 30-x64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=fedora.34-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
-    - name: Build for CentOS 9-x64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=centos.9-x64 /p:Configuration=Release /p:TargetFramework=net6.0 /p:VersionSuffix=rel
+    - name: Build for Linux-arm64
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
         
     - name: Unit Test Windows x64
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=win10-x64 /p:Configuration=Debug
+      run: dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=win-x64 /p:Configuration=Debug
       if: matrix.os == 'windows-latest'
-    - name: Unit Test Ubuntu 20.04
+    - name: Unit Test Linux x64
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: dotnet test /p:TargetFramework=net6.0 /p:RuntimeIdentifier=ubuntu.20.04-x64 /p:Configuration=Debug
+      run: dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=linux-x64 /p:Configuration=Debug
       if: matrix.os == 'ubuntu-latest'
 
     - uses: actions/upload-artifact@v2
       with:
         name: XBuild
-        path: artifacts/build/net6.0
+        path: artifacts/build/net8.0
     
     - uses: actions/upload-artifact@v2
       with:
@@ -125,7 +110,7 @@ jobs:
       uses: ncipollo/release-action@v1
       if: startsWith(github.ref, 'refs/tags/v')
       with:
-        artifacts: "artifacts/build/net6.0/*,artifacts/build/images/*"
+        artifacts: "artifacts/build/net8.0/*,artifacts/build/images/*"
         generateReleaseNotes: true
         allowUpdates: true
     

@@ -7,7 +7,7 @@
     <WixPackageVersion>3.11.2</WixPackageVersion>
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
     <MicrosoftDiagnosticsTracingTraceEventPackageVersion>2.0.66</MicrosoftDiagnosticsTracingTraceEventPackageVersion>
-    <MicrosoftNETCoreAppPackageVersion>6.0.0</MicrosoftNETCoreAppPackageVersion>
+    <MicrosoftNETCoreAppPackageVersion>8.0.0</MicrosoftNETCoreAppPackageVersion>
     <MicrosoftNetHttpHeadersPackageVersion>2.2.8</MicrosoftNetHttpHeadersPackageVersion>
     <MicrosoftNETTestSdkPackageVersion>17.3.0</MicrosoftNETTestSdkPackageVersion>
     <SystemNetNetworkInformationPackageVersion>4.3.0</SystemNetNetworkInformationPackageVersion>
@@ -16,7 +16,7 @@
     <SystemIOPackageVersion>4.3.0</SystemIOPackageVersion>
     <SystemMemoryPackageVersion>4.5.5</SystemMemoryPackageVersion>
     <SystemDiagnosticsTracingPackageVersion>4.3.0</SystemDiagnosticsTracingPackageVersion>
-    <SystemDiagnosticsDiagnosticSourcePackageVersion>6.0.0</SystemDiagnosticsDiagnosticSourcePackageVersion>
+    <SystemDiagnosticsDiagnosticSourcePackageVersion>6.0.1</SystemDiagnosticsDiagnosticSourcePackageVersion>
     <SystemNetHttpPackageVersion>4.3.4</SystemNetHttpPackageVersion>
     <SystemNetNameResolutionPackageVersion>4.3.0</SystemNetNameResolutionPackageVersion>
     <YamlDotNetPackageVersion>12.0.0</YamlDotNetPackageVersion>

@@ -25,6 +25,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             FileName = fileName;
         }
 
+        [Obsolete(DiagnosticId = "SYSLIB0051")]
         protected ConfigException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
