@@ -8,11 +8,11 @@ if [ ! -z $5 ]; then VersionSuffix=$5; fi
 if [ ! -z $6 ]; then TargetFramework=$6; fi
 
 if [ -z ${Operation+x} ]; then Operation='build'; fi
-if [ -z ${ImageName+x} ]; then ImageName='ubuntu.20.04-x64'; fi
+if [ -z ${ImageName+x} ]; then ImageName='linux-x64'; fi
 if [ -z ${ImageSuffix+x} ]; then VersionSuffix='deb'; fi
 if [ -z ${VersionSuffix+x} ]; then VersionSuffix='preview'; fi
 if [ -z ${VersionPrefix+x} ]; then VersionPrefix='1.0.0'; fi
-if [ -z ${TargetFramework+x} ]; then TargetFramework='net6.0'; fi
+if [ -z ${TargetFramework+x} ]; then TargetFramework='net8.0'; fi
 
 echo $@
 
@@ -52,8 +52,8 @@ else
         # start the web server
         server_name=$(docker run -v $(pwd):/tests -d -v $(pwd)/my.cnf:/etc/mysqld/conf.d/my.cnf --rm -d -e AZBRIDGE_TEST_CXNSTRING="$_CXNSTRING" -e MYSQL_ROOT_PASSWORD=PaSsWoRd112233 -e MYSQL_PASSWORD=PaSsWoRd112233 -e MYSQL_USER=mysql azbridge-mysql-server:latest)
         # wait for server to start
-        echo waiting 20 seconds
-        sleep 20
+        echo waiting 60 seconds
+        sleep 60
         # run the client
         docker run -v $(pwd):/tests -v $(pwd)/my.cnf:/home/mysql/.my.cnf --rm -i -e AZBRIDGE_TEST_CXNSTRING="$_CXNSTRING" azbridge-mysql-client:latest bash /tests/run_client.sh
         _RESULT=$?

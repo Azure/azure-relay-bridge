@@ -8,7 +8,7 @@ REM
 @echo off
 pushd "%~dp0"
 if not exist ".\.nuget" mkdir ".\.nuget"
-if not exist ".\.nuget\nuget.exe" powershell -Command "Invoke-WebRequest https://www.nuget.org/nuget.exe -OutFile .\.nuget\nuget.exe"
+if not exist ".\.nuget\nuget.exe" powershell -Command "Invoke-WebRequest https://dist.nuget.org/win-x86-commandline/latest/nuget.exe -OutFile .\.nuget\nuget.exe"
 if not exist ".\.nuget\nuget.config" (
     echo ^<?xml version="1.0" encoding="utf-8"?^> > .\.nuget\nuget.config
     echo ^<configuration^>^<packageSources^> >> .\.nuget\nuget.config

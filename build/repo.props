@@ -1,17 +1,17 @@
 ﻿<Project>
 	<PropertyGroup>
 		<WindowsOnly>false</WindowsOnly>
-		<CoreFrameworks>net6.0</CoreFrameworks>
+		<CoreFrameworks>net8.0</CoreFrameworks>
 		<TargetFrameworks>$(CoreFrameworks)</TargetFrameworks>
-		<TargetFramework Condition="'$(TargetFramework)'==''">net6.0</TargetFramework>
-		<WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win10-x64;win10-x86;win10-arm64;</WindowsRuntimeIdentifiers>
-		<UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;debian.10-x64;ubuntu.18.04-x64;ubuntu.18.04-arm64;ubuntu.20.04-x64;ubuntu.20.04-arm64;opensuse.15.0-x64;fedora.34-x64;centos.9-x64</UnixRuntimeIdentifiers>
+		<TargetFramework Condition="'$(TargetFramework)'==''">net8.0</TargetFramework>
+		<WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win-x64;win-x86;win-arm64;</WindowsRuntimeIdentifiers>
+		<UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;osx-arm64;linux-x64;linux-arm64</UnixRuntimeIdentifiers>
 		<RuntimeIdentifiers>$(WindowsRuntimeIdentifiers)$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(OS)' == 'Windows_NT' OR $(RuntimeIdentifier.StartsWith('win'))">
 		<DefineConstants>_WINDOWS</DefineConstants>
 	</PropertyGroup>
-	<PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) ">
+	<PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('linux'))">
 		<DefineConstants>_SYSTEMD</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>

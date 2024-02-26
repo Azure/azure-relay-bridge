@@ -2,7 +2,7 @@
 
 <PropertyGroup>
       <DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
-      <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
+      <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -13,7 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.6.1" />
+    <RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.10.2" />
     <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
     <PackageReference Include="Microsoft.Azure.Relay" Version="$(MicrosoftAzureRelayPackageVersion)" />
     <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
@@ -53,7 +57,7 @@
 
   <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
     <ItemGroup>
-      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net6.0\$(AssemblyName).dll" />
+      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net8.0\$(AssemblyName).dll" />
     </ItemGroup>
   </Target>
 

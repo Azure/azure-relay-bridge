@@ -5,12 +5,13 @@
 		<DisableOutOfProcTaskHost>true</DisableOutOfProcTaskHost>
 		<SelfContained>true</SelfContained>
 		<PublishReadyToRunComposite>false</PublishReadyToRunComposite>
-		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win10-x64</RuntimeIdentifier>
+		<RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
 		<InvariantGlobalization>true</InvariantGlobalization>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<RuntimeHostConfigurationOption Include="System.Globalization.Invariant" Value="true" />
+		<RuntimeHostConfigurationOption Include="System.Runtime.Loader.UseRidGraph" Value="true" />
 	</ItemGroup>
 
 	<PropertyGroup>
@@ -67,7 +68,7 @@
 		</Content>
 		<Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
 			<LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
-			<LinuxFileMode Condition="!($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('centos')))">0555</LinuxFileMode>
+			<LinuxFileMode Condition="$(RuntimeIdentifier.StartsWith('linux'))">0555</LinuxFileMode>
 		</Content>
 		<Content Include="../tools/Powershell/add-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
 		<Content Include="../tools/Powershell/remove-hostname.ps1" CopyToPublishDirectory="PreserveNewest" Condition="$(RuntimeIdentifier.StartsWith('win'))" />
@@ -104,13 +105,9 @@
 		</ProjectReference>
 	</ItemGroup>
 
-	<!-- Debian and Ubuntu -->
-	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('linuxmint'))">
+	<!-- Linux -->
+	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('linux'))">
 		<DebDependency Include="ca-certificates" Version="" />
-	</ItemGroup>
-
-	<ItemGroup Condition="$(RuntimeIdentifier.StartsWith('opensuse'))">
-		<RpmDotNetDependency Include="libopenssl1_0_0" Version="" />
 	</ItemGroup>
 
 	<!-- Linux Daemon install properties -->
@@ -139,20 +136,20 @@
 
 	<Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
 		<ItemGroup>
-			<WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net6.0\$(AssemblyName).exe" />
+			<WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net8.0\$(AssemblyName).exe" />
 		</ItemGroup>
 	</Target>
 
 	<Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget))) AND $(RuntimeIdentifier.StartsWith('win'))">
 		<Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net6.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+	<Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net8.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
 		<Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('ubuntu')) OR $(RuntimeIdentifier.StartsWith('debian')) OR $(RuntimeIdentifier.StartsWith('linuxmint')))">
+	<Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
 		<Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('rhel')) OR $(RuntimeIdentifier.StartsWith('centos')) OR $(RuntimeIdentifier.StartsWith('fedora')) OR $(RuntimeIdentifier.StartsWith('opensuse')) OR $(RuntimeIdentifier.StartsWith('ol')))">
+	<Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
 		<Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
 	<Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
@@ -167,7 +164,7 @@
 		<Exec Command="&quot;$(VS160COMNTOOLS)..\..\MSBuild\Current\Bin\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
 		<Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net6.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+	<Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
 
 	</Target>
 	<Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">

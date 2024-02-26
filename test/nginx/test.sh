@@ -1,18 +1,20 @@
 #!/bin/bash
 
 if [ ! -z $1 ]; then Operation=$1; fi
-if [ ! -z $2 ]; then ImageName=$2; fi
+if [ ! -z $2 ]; then DistroName=$2; fi
 if [ ! -z $3 ]; then ImageSuffix=$3; fi
 if [ ! -z $4 ]; then VersionPrefix=$4; fi
 if [ ! -z $5 ]; then VersionSuffix=$5; fi
 if [ ! -z $6 ]; then TargetFramework=$6; fi
 
 if [ -z ${Operation+x} ]; then Operation='build'; fi
-if [ -z ${ImageName+x} ]; then ImageName='ubuntu.18.04-x64'; fi
+if [ -z ${DistroName+x} ]; then DistroName='debian.10-x64'; fi
 if [ -z ${ImageSuffix+x} ]; then VersionSuffix='deb'; fi
 if [ -z ${VersionSuffix+x} ]; then VersionSuffix='preview'; fi
 if [ -z ${VersionPrefix+x} ]; then VersionPrefix='1.0.0'; fi
-if [ -z ${TargetFramework+x} ]; then TargetFramework='net6.0'; fi
+if [ -z ${TargetFramework+x} ]; then TargetFramework='net8.0'; fi
+
+ImageName='linux-x64'
 
 echo $@
 
@@ -23,14 +25,14 @@ if [ "${Operation}" == "build" ]; then
     if [ ! -d "tmp" ]; then mkdir tmp; fi
   
     cp ../../artifacts/build/$TargetFramework/$PackageName tmp/ > /dev/null
-    docker build -q -f $ImageName.server.dockerfile . --tag azbridge-nginx-server-$ImageName --build-arg package_name=$PackageName
+    docker build -f $DistroName.server.dockerfile . --tag azbridge-nginx-server-$ImageName --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp
        popd
        exit $_RESULT
     fi
-    docker build -q -f $ImageName.client.dockerfile . --tag azbridge-nginx-client-$ImageName --build-arg package_name=$PackageName
+    docker build -q -f $DistroName.client.dockerfile . --tag azbridge-nginx-client-$ImageName --build-arg package_name=$PackageName
     _RESULT=$?
     if [ $_RESULT -ne 0 ]; then
        rm -rf tmp

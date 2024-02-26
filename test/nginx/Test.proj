@@ -2,6 +2,7 @@
     <Import Project="Directory.Build.props" />
   <PropertyGroup>
     <OutputType>None</OutputType>
+    <UnixRuntimeIdentifiers>osx-x64;osx-arm64;debian.10-x64;ubuntu.18.04-x64;ubuntu.18.04-arm64;ubuntu.20.04-x64;ubuntu.20.04-arm64;opensuse.15.0-x64;fedora.34-x64;centos.9-x64</UnixRuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,15 +11,15 @@
     <ImageSuffix Condition="'$(ImageSuffix)' == ''">tar.gz</ImageSuffix>
   </PropertyGroup>
 
-  <Target Name="BuildImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+  <Target Name="BuildImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.StartsWith('opensuse')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
       <Exec Command="test.cmd build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
       <Exec Command="bash ./test.sh build &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
-  <Target Name="VSTestImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+  <Target Name="VSTestImage" Condition=" '$(RuntimeIdentifier)' != '' AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.StartsWith('opensuse')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
       <Exec Command="test.cmd test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;"  Condition="'$(OS)'=='Windows_NT'"/>
       <Exec Command="bash ./test.sh test &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
-  <Target Name="CleanImage" Condition=" '$(RuntimeIdentifier)' != ''  AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
+  <Target Name="CleanImage" Condition=" '$(RuntimeIdentifier)' != ''  AND !$(RuntimeIdentifier.StartsWith('osx')) AND !$(RuntimeIdentifier.StartsWith('opensuse')) AND !$(RuntimeIdentifier.EndsWith('arm64'))">
       <Exec Command="test.cmd clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Windows_NT'"/>
       <Exec Command="bash ./test.sh clean &quot;$(RuntimeIdentifier)&quot; &quot;$(ImageSuffix)&quot; &quot;$(VersionPrefix)&quot; &quot;$(VersionSuffix)&quot; &quot;$(TargetFramework)&quot;" Condition="'$(OS)'=='Unix'"/>
   </Target>
