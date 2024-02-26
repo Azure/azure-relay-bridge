@@ -52,9 +52,9 @@ jobs:
     - name: Build for Windows-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
-    - name: Build for Windows-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
-      if: matrix.os == 'windows-latest'
+    #- name: Build for Windows-arm64
+    #  run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+    #  if: matrix.os == 'windows-latest'
     - name: Build for Windows-x86
       run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'windows-latest'
