@@ -28,7 +28,7 @@ namespace Microsoft.Azure.Relay.Bridge
         private HttpClient httpClient;
         private string relaySubpath;
 
-        internal TcpRemoteForwarder(Config config, string relayName, string portName, string targetServer, int targetPort, string targetPath, bool http)
+        internal TcpRemoteForwarder(Config config, string relayName, string portName, string targetServer, int targetPort, string targetPath, bool http, bool insecure)
         {
             this.config = config;
             this.PortName = portName;
@@ -38,7 +38,12 @@ namespace Microsoft.Azure.Relay.Bridge
             
             if ( http )
             {
-                this.httpClient = new HttpClient();
+                var httpHandler = new HttpClientHandler();
+                if ( insecure )
+                {
+                    httpHandler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+                }
+                this.httpClient = new HttpClient(httpHandler);
                 this.httpClient.BaseAddress = new UriBuilder(portName, targetServer, targetPort, targetPath).Uri;
                 this.httpClient.DefaultRequestHeaders.ExpectContinue = false;
                 this.relaySubpath = "/" + relayName;

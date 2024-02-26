@@ -109,7 +109,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         if (binding.Http)
                         {
                             var tcpRemoteForwarder =
-                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http);
+                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http, binding.Insecure);
                             remoteForwarders.Add(tcpRemoteForwarder.PortName, tcpRemoteForwarder);
                         }
                         else if (!string.IsNullOrEmpty(binding.LocalSocket))
@@ -127,7 +127,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         else if (binding.HostPort > 0)
                         {
                             var tcpRemoteForwarder =
-                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http);
+                                new TcpRemoteForwarder(this.config, remoteForward.RelayName, binding.PortName, binding.Host, binding.HostPort, binding.Path, binding.Http, binding.Insecure);
                             remoteForwarders.Add(tcpRemoteForwarder.PortName, tcpRemoteForwarder);
                         }
                         else if (binding.HostPort < 0)

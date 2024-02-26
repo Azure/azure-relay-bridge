@@ -385,6 +385,7 @@ used on the same entry. For multiple bindings they can be used to form a list.
 * **HostPort** - TCP port on the host to forward to
 * **PortName** - Logical port name
 * **LocalSocket** - named UNIX socket forward to
+* **Insecure** - ignores certificate validation errors for https forwarding
 
 Examples:
 

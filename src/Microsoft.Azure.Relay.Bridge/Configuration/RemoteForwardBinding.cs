@@ -102,7 +102,13 @@
             get; 
             set; 
         }
-        
+
+        public bool Insecure
+        {
+            get;
+            set;
+        }
+
         public string Path 
         { 
             get; 
