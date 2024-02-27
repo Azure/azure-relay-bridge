@@ -488,7 +488,7 @@
              await TaskEx.FromAsync(
                  (c, s) => ((Transaction)s).BeginCommit(c, s),
                  (a) => ((Transaction)a.AsyncState).EndCommit(a),
-                 transaction);
+                 transaction).ConfigureAwait(false);
             </param>
         </member>
         <member name="M:Microsoft.Azure.Relay.Bridge.TaskEx.FromAsync``1(System.Func{``0,System.AsyncCallback,System.Object,System.IAsyncResult},System.Action{System.IAsyncResult},``0,System.Object)">
