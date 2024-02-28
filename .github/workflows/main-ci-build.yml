@@ -88,7 +88,9 @@ jobs:
     - name: Unit Test macOS x64
       env:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+      # W/A for Dns.GetHostEntry(Dns.GetHostName()) exception https://github.com/actions/runner-images/issues/8649
       run: |
+         echo -e "$(ipconfig getifaddr en0) $(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts 
          ./test/unit/macos_unblock_testip.sh
          dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=osx-x64 /p:Configuration=Debug
       if: matrix.os == 'macos-latest'
