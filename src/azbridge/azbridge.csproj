@@ -66,6 +66,9 @@
 		<Content Include="azbridge.service" CopyToPublishDirectory="PreserveNewest" Condition="$(DefineConstants.Contains('_SYSTEMD'))">
 			<LinuxPath>/etc/systemd/system/azbridge.service</LinuxPath>
 		</Content>
+		<Content Include="azbridge.plist" CopyToPublishDirectory="PreserveNewest" Condition="$(DefineConstants.Contains('_LAUNCHD'))">
+			<LinuxPath>/Library/LaunchDaemons/com.azure.relay.bridge.plist</LinuxPath>
+		</Content>
 		<Content Include="azbridge.sh" CopyToPublishDirectory="PreserveNewest" Condition="! $(RuntimeIdentifier.StartsWith('win'))" RemoveOnUninstall="true">
 			<LinuxPath>/etc/profile.d/azbridge.sh</LinuxPath>
 			<LinuxFileMode Condition="$(RuntimeIdentifier.StartsWith('linux'))">0555</LinuxFileMode>
