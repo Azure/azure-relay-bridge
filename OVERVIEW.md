@@ -146,6 +146,18 @@ which is described in [CONFIG.md](CONFIG.md#configuration-file).
 
 The file requires administrative permissions to change.
 
+### MacOS Launchd daemon
+
+On MacOS, the service is registered with Launchd as "com.azure.relay.bridge" and can
+be managed with `launchctl`.
+
+To run either the client or the server side in that daemon, merge the
+configuration file snippets above into the
+`/etc/azbridge/azbridge_config.svc.yml`  file, which is described in
+[CONFIG.md](CONFIG.md#configuration-file).
+
+The file requires administrative permissions to change.
+
 ## Downloads
 
 Unsigned (!) binaries are available for direct download from the [Github
