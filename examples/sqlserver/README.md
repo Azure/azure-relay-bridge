@@ -193,3 +193,18 @@ The file requires administrative permissions to change.
 
 As with Windows above, you can also override connection strings at the forwarder
 level on Linux.
+
+### MacOS Launchd daemon
+
+On MacOS, the service is registered with Launchd as "com.azure.relay.bridge" and can
+be managed with `launchctl`.
+
+To run either the client or the server side in that daemon, merge the
+configuration file snippets above into the
+`/etc/azbridge/azbridge_config.svc.yml`  file, which is described in
+[CONFIG.md](CONFIG.md#configuration-file).
+
+The file requires administrative permissions to change.
+
+As with Windows and Linux above, you can also override connection strings at the forwarder
+level on macOS.

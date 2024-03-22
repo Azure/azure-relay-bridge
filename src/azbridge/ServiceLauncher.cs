@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-#if _WINDOWS || _SYSTEMD
+#if _WINDOWS || _SYSTEMD || _LAUNCHD
 namespace azbridge
 {
     using Microsoft.Azure.Relay.Bridge.Configuration;
@@ -9,6 +9,7 @@ namespace azbridge
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Logging.Configuration;
+    using Microsoft.Extensions.Logging.Console;
     using Microsoft.Extensions.Logging.EventLog;
     using System;
     using System.Collections;
@@ -95,6 +96,8 @@ namespace azbridge
                 })
 #elif _SYSTEMD
                 .UseSystemd()
+#elif _LAUNCHD
+                .UseLaunchd()
 #endif
 
                 .ConfigureServices(services =>
@@ -182,6 +185,23 @@ namespace azbridge
 #else
              return true;
 #endif
+        }
+
+        private static IHostBuilder UseLaunchd(this IHostBuilder hostBuilder)
+        {
+            hostBuilder.ConfigureServices(services =>
+            {
+                services.Configure<ConsoleLoggerOptions>(options =>
+                {
+                    options.FormatterName = ConsoleFormatterNames.Simple;
+                });
+                services.Configure<SimpleConsoleFormatterOptions>(options =>
+                {
+                    options.SingleLine = true;
+                });
+            });
+
+            return hostBuilder;
         }
     }
 }

@@ -54,7 +54,7 @@ namespace azbridge
                     return 0;
                 }
 #endif
-#if _WINDOWS || _SYSTEMD
+#if _WINDOWS || _SYSTEMD || _LAUNCHD
                 if (settings.ServiceRun.HasValue && settings.ServiceRun.Value)
                 {
                     ServiceLauncher.RunAsync(settings).GetAwaiter().GetResult();

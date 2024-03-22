@@ -1,4 +1,4 @@
-﻿#if _WINDOWS || _SYSTEMD
+﻿#if _WINDOWS || _SYSTEMD || _LAUNCHD
 using Microsoft.Azure.Relay.Bridge.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
