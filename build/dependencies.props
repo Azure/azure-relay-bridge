@@ -28,7 +28,7 @@
     <XunitRunnerVisualStudioPackageVersion>2.4.5</XunitRunnerVisualStudioPackageVersion>
     <XunitRunnerMsBuildPackageVersion>2.4.1</XunitRunnerMsBuildPackageVersion>
     <NewtonsoftJsonPackageVersion>13.0.1</NewtonsoftJsonPackageVersion>
-    <MicrosoftAzureRelayPackageVersion>3.0.0-preview</MicrosoftAzureRelayPackageVersion>
+    <MicrosoftAzureRelayPackageVersion>3.0.1</MicrosoftAzureRelayPackageVersion>
     <McMasterExtensionsCommandLineUtilsPackageVersion>4.0.1</McMasterExtensionsCommandLineUtilsPackageVersion>
     <SerilogExtensionsLoggingFilePackageVersion>3.0.0</SerilogExtensionsLoggingFilePackageVersion>
   </PropertyGroup>
