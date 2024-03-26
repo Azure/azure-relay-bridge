@@ -21,6 +21,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+    - run: |
+        mkdir artifacts
+        mkdir artifacts/build
+
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0 # Mandatory to use the extract version from tag action
