@@ -48,7 +48,7 @@ else
             echo AZBRIDGE_TEST_CXNSTRING environment variable must be set to valid relay connection string
             exit 2
         fi
-        
+
         # start the web server
         server_name=$(docker run -v $(pwd):/tests -d -v $(pwd)/my.cnf:/etc/mysqld/conf.d/my.cnf --rm -d -e AZBRIDGE_TEST_CXNSTRING="$_CXNSTRING" -e MYSQL_ROOT_PASSWORD=PaSsWoRd112233 -e MYSQL_PASSWORD=PaSsWoRd112233 -e MYSQL_USER=mysql azbridge-mysql-server:latest)
         # wait for server to start
