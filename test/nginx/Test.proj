@@ -2,7 +2,7 @@
     <Import Project="Directory.Build.props" />
   <PropertyGroup>
     <OutputType>None</OutputType>
-    <UnixRuntimeIdentifiers>osx-x64;osx-arm64;debian.10-x64;ubuntu.18.04-x64;ubuntu.18.04-arm64;ubuntu.20.04-x64;ubuntu.20.04-arm64;ubuntu.22.04-x64;ubuntu.22.04-arm64;opensuse.15.0-x64;fedora.34-x64;centos.9-x64</UnixRuntimeIdentifiers>
+    <UnixRuntimeIdentifiers>osx-x64;osx-arm64;debian.10-x64;ubuntu.18.04-x64;ubuntu.18.04-arm64;ubuntu.20.04-x64;ubuntu.20.04-arm64;ubuntu.22.04-x64;ubuntu.22.04-arm64;ubuntu.24.04-x64;ubuntu.24.04-arm64;opensuse.15.0-x64;fedora.34-x64;centos.9-x64</UnixRuntimeIdentifiers>
   </PropertyGroup>
 
   <PropertyGroup>
