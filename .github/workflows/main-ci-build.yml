@@ -14,7 +14,7 @@ jobs:
   build:
     strategy:
        matrix:
-         os: [ubuntu-latest, windows-latest]
+         os: [ubuntu-latest, windows-latest, macos-latest]
          include:
           - os: windows-latest
             windows: true
@@ -64,10 +64,10 @@ jobs:
       if: matrix.os == 'windows-latest'
     - name: Build for macOS-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'macos-latest'
     - name: Build for macOS-arm64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
-      if: matrix.os == 'ubuntu-latest'
+      if: matrix.os == 'macos-latest'
     - name: Build for Linux-x64
       run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
       if: matrix.os == 'ubuntu-latest'
@@ -85,6 +85,15 @@ jobs:
          AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
       run: dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=linux-x64 /p:Configuration=Debug
       if: matrix.os == 'ubuntu-latest'
+    - name: Unit Test macOS x64
+      env:
+         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+      # W/A for Dns.GetHostEntry(Dns.GetHostName()) exception https://github.com/actions/runner-images/issues/8649
+      run: |
+         echo -e "$(ipconfig getifaddr en0) $(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts 
+         ./test/unit/macos_unblock_testip.sh
+         dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=osx-x64 /p:Configuration=Debug
+      if: matrix.os == 'macos-latest'
 
     - uses: actions/upload-artifact@v2
       with:
