@@ -245,7 +245,7 @@ To multiplex connections to multiple targets, you can use "logical ports" with
 `azbridge`. Logical ports are used to distinguish connections through the Relay
 tunnel and they are specified on the command line. 
 
-The command `azbridge -L "127.0.0.8:16161/sql1;127.0.0.8:16161/sql2:db" -e
+The command `azbridge -L "127.0.0.8:16161/sql1;127.0.0.9:16161/sql2:db" -e
 [...]` binds a listener on 127.0.0.8:16161 to logical port "sql1" and a listener
 on 127.0.0.9:16161 to logical port "sql2"; both listeners are bound to the
 *Hybrid Connection* `db` specified after the last `:`.
