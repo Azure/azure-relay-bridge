@@ -34,7 +34,7 @@ namespace Microsoft.Azure.Relay.Bridge
         ///  await TaskEx.FromAsync(
         ///      (c, s) => ((Transaction)s).BeginCommit(c, s),
         ///      (a) => ((Transaction)a.AsyncState).EndCommit(a),
-        ///      transaction);
+        ///      transaction).ConfigureAwait(false).ConfigureAwait(false);
         /// </param>
         public static Task FromAsync(Func<AsyncCallback, object, IAsyncResult> begin, Action<IAsyncResult> end, object state = null)
         {
