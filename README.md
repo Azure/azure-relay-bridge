@@ -6,7 +6,7 @@ The Azure Relay Bridge (`azbridge`) is a simple command line tool that allows
 creating TCP, UDP, HTTP, and Unix Socket tunnels between any pair of hosts,
 allowing to traverse NATs and Firewalls without requiring VPNs, only using
 outbound HTTPS (443) Internet connectivity from either host. Neither of those
-hosts must be running in Azure; the Azure Relay helps facilitating the
+needs to be running in Azure; the Azure Relay helps facilitating the
 connection. 
 
 Using this tool requires a [Microsoft Azure subscription](https://azure.com) and
