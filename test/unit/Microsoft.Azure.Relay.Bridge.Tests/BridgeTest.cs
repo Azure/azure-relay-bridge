@@ -6,7 +6,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System;
     using System.IO;
     using System.Net;
+    using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Net.Sockets;
+    using System.Threading.Tasks;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Microsoft.Azure.Relay.Bridge.Tests;
     using Xunit;
@@ -285,6 +288,86 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 }
 
                 s.Dispose();
+            }
+            finally
+            {
+                host.Stop();
+            }
+        }
+
+
+        [Fact]
+        public void HttpBridge()
+        {
+            // set up the bridge first
+            Config cfg = new Config
+            {
+                AzureRelayConnectionString = Utilities.GetConnectionString()
+            };
+            cfg.RemoteForward.Add(new RemoteForward
+            {
+                Host = "127.0.97.2",
+                HostPort = 29877,
+                PortName = "http",
+                RelayName = "http",
+                Http = true
+            });
+            Host host = new Host(cfg);
+            host.Start();
+
+            try
+            {
+                RelayConnectionStringBuilder csb = new RelayConnectionStringBuilder(Utilities.GetConnectionString());
+                var httpEndpoint = new UriBuilder(csb.Endpoint) { Scheme = "https", Port = 443, Path="http" }.Uri;
+                var httpSasToken = TokenProvider.CreateSharedAccessSignatureTokenProvider(csb.SharedAccessKeyName, csb.SharedAccessKey).GetTokenAsync(httpEndpoint.AbsoluteUri, TimeSpan.FromHours(1)).Result.TokenString;
+
+                using (var l = new HttpListener())
+                {
+                    l.Prefixes.Add("http://127.0.97.2:29877/");
+                    l.Start();
+
+                    var handler = (Task<HttpListenerContext> t) =>
+                    {
+                        var c = t.Result;
+                        using (var b = new StreamReader(c.Request.InputStream))
+                        {
+                            var text = b.ReadLine();
+                            using (var w = new StreamWriter(c.Response.OutputStream))
+                            {
+                                w.WriteLine(text);
+                                w.Flush();
+                            }
+                            c.Response.Close();
+                        }
+                    };
+
+                    var testMessage = "Hello!";
+
+
+                    using (var c = new HttpClient())
+                    {
+                        c.DefaultRequestHeaders.Add("Authorization", httpSasToken);
+
+                        // listen for exactly one request
+                        l.GetContextAsync().ContinueWith(handler);
+
+                        var r = c.PostAsync(httpEndpoint, new StringContent(testMessage)).GetAwaiter().GetResult();
+                        Assert.True(r.IsSuccessStatusCode);
+                        var result = r.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        Assert.Equal(testMessage, result.Trim());
+                        r.Dispose();
+
+                        // listen for exactly one request
+                        l.GetContextAsync().ContinueWith(handler);
+
+                        var mtv = MediaTypeHeaderValue.Parse("application/cloudevents+json;charset=utf-8;foo=bar");
+                        var r2 = c.PostAsync(httpEndpoint, new StringContent(testMessage, mtv)).GetAwaiter().GetResult();
+                        Assert.True(r2.IsSuccessStatusCode);
+                        var result2 = r2.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        Assert.Equal(testMessage, result2.Trim());
+                        r2.Dispose();
+                    }
+                }
             }
             finally
             {
