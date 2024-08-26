@@ -138,7 +138,14 @@ namespace Microsoft.Azure.Relay.Bridge
                 string contentType = context.Request.Headers[HttpRequestHeader.ContentType];
                 if (!string.IsNullOrEmpty(contentType))
                 {
-                    requestMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(contentType);
+                    if (MediaTypeHeaderValue.TryParse(contentType, out var mediaTypeHeaderValue))
+                    {
+                        requestMessage.Content.Headers.ContentType = mediaTypeHeaderValue;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Invalid Content-Type header value: {contentType}");
+                    }
                 }
             }
 

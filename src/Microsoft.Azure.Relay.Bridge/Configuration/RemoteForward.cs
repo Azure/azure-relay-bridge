@@ -148,7 +148,28 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
         public bool Http
         {
-            get; set;
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].Http;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new RemoteForwardBinding { Http = value });
+                }
+                else
+                {
+                    bindings[0].Http = value;
+                }
+            }
         }
 
 

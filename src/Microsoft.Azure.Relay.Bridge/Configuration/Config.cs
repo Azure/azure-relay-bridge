@@ -913,7 +913,9 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             RemoteForward remoteForward;
             try
             {
-                remoteForward = new RemoteForward { RelayName = rf.Substring(0, firstColon), Http = true };
+                // we're not setting the Http flag here but only at the end of the method
+                // since we don't want a default binding to be created.
+                remoteForward = new RemoteForward { RelayName = rf.Substring(0, firstColon) };
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -1028,6 +1030,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     }
                 }
             }
+            remoteForward.Http = true;
         }
 
         private static void CheckHttpPortName(Config config, string rf, string portName)
