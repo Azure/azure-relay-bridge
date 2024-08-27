@@ -4,7 +4,7 @@
   </PropertyGroup>
   <PropertyGroup Label="Package Versions">
     <PackagingTargetsPackageVersion>0.1.220</PackagingTargetsPackageVersion>
-    <WixPackageVersion>3.14.0</WixPackageVersion>
+    <WixPackageVersion>3.14.1</WixPackageVersion>
     <MicrosoftDiagnosticsTracingEventSourcePackageVersion>1.1.28</MicrosoftDiagnosticsTracingEventSourcePackageVersion>
     <MicrosoftDiagnosticsTracingTraceEventPackageVersion>2.0.66</MicrosoftDiagnosticsTracingTraceEventPackageVersion>
     <MicrosoftNETCoreAppPackageVersion>8.0.0</MicrosoftNETCoreAppPackageVersion>

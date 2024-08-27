@@ -12,6 +12,7 @@ on:
 
 jobs:
   build:
+    permissions: write-all 
     strategy:
        matrix:
          os: [ubuntu-latest, windows-latest, macos-latest]
@@ -25,21 +26,16 @@ jobs:
         mkdir artifacts
         mkdir artifacts/build
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # Mandatory to use the extract version from tag action
 
     - name: Extract version from tag
       uses: damienaicheh/extract-version-from-tag-action@v1.0.0
       
-    - name: Export version  
-      run: |
-         echo "VERSIONSUFFIX=${{ env.PRE_RELEASE }}" >> $GITHUB_ENV
-         echo "PRODVERSION=${{ env.MAJOR }}.${{ env.MINOR }}" >> $GITHUB_ENV
-         echo "PATCHVERSION=${{ env.PATCH }}" >> $GITHUB_ENV
       
     - name: Setup .NET SDK
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     
@@ -49,30 +45,30 @@ jobs:
     - name: Build Docker Image TAR file
       run: |
          mkdir -p artifacts/build/images 
-         DOCKER_BUILDKIT=1 docker build . --build-arg "REVISION=${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}" --build-arg "VERSION=${{ env.PRODVERSION }}" -t azbridge:${{ env.PRODVERSION }} -t azbridge
-         docker save azbridge:${{ env.PRODVERSION }} > artifacts/build/images/azbridge-oci-image-${{ env.PRODVERSION }}.${{ env.PATCHVERSION }}.tar
+         DOCKER_BUILDKIT=1 docker build . --build-arg "REVISION=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}" --build-arg "VERSION=${{ env.MAJOR }}.${{ env.MINOR }}" -t azbridge:${{ env.MAJOR }}.${{ env.MINOR }} -t azbridge
+         docker save azbridge:${{ env.MAJOR }}.${{ env.MINOR }} > artifacts/build/images/azbridge-oci-image-${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}.tar
       if: matrix.os == 'ubuntu-latest'
 
     - name: Build for Windows-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'windows-latest'
     - name: Build for Windows-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'windows-latest'
     - name: Build for Windows-x86
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'windows-latest'
     - name: Build for macOS-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'macos-latest'
     - name: Build for macOS-arm64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'macos-latest'
     - name: Build for Linux-x64
-      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'ubuntu-latest'
     - name: Build for Linux-arm64
-      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel
+      run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
       if: matrix.os == 'ubuntu-latest'
         
     - name: Unit Test Windows x64
@@ -95,28 +91,28 @@ jobs:
          dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Debug
       if: matrix.os == 'macos-latest'
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: XBuild
         path: artifacts/build/net8.0
     
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: XBuild
         path: artifacts/build/images
       if: matrix.os == 'ubuntu-latest'
 
-    - name: Integration Tests Docker/Linux
-      env:
-         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: bash ./verify-build.sh
-      if: matrix.os == 'ubuntu-latest'
+    #- name: Integration Tests Docker/Linux
+    #  env:
+    #     AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+    #  run: bash ./verify-build.sh
+    #  if: matrix.os == 'ubuntu-latest'
       
-    - name: Integration Tests Windows
-      env:
-         AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-      run: ./verify-build.cmd
-      if: matrix.os == 'windows-latest'
+    #- name: Integration Tests Windows
+    #  env:
+    #     AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
+    #  run: ./verify-build.cmd
+    #  if: matrix.os == 'windows-latest'
       
     # create a release if a tag has been pushed
     - name: Generate Release

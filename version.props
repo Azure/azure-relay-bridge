@@ -7,5 +7,6 @@
   <VersionPrefix Condition="'$(PRODVERSION)'!=''">$(PRODVERSION).$(RunNumber)</VersionPrefix>
   <VersionSuffix>rel</VersionSuffix>
   <VersionSuffix Condition="'$(VERSIONSUFFIX)'!=''">$(VERSIONSUFFIX)</VersionSuffix>
+  <PackageVersion>$(VERSIONPREFIX)</PackageVersion>
   </PropertyGroup>
 </Project>
