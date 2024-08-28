@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="McMaster.Extensions.CommandLineUtils" Version="$(McMasterExtensionsCommandLineUtilsPackageVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonPackageVersion)" />
-    <PackageReference Include="System.Net.Http" Version="$(SystemNetHttpPackageVersion)" />
-    <PackageReference Include="System.Memory" Version="$(SystemMemoryPackageVersion)" />
-    <PackageReference Include="System.Net.NameResolution" Version="$(SystemNetNameResolutionPackageVersion)" />
-    <PackageReference Include="YamlDotNet" Version="$(YamlDotNetPackageVersion)" />
+    <PackageReference Include="McMaster.Extensions.CommandLineUtils"  />
+    <PackageReference Include="Newtonsoft.Json"  />
+    <PackageReference Include="System.Net.Http"  />
+    <PackageReference Include="System.Memory"  />
+    <PackageReference Include="System.Net.NameResolution"  />
+    <PackageReference Include="YamlDotNet"  />
   </ItemGroup>
 
   <PropertyGroup>

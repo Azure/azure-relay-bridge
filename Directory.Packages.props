@@ -1,0 +1,39 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Package versions defined here are applied to all projects in the directory -->
+    <PackageVersion Include="Packaging.Targets" Version="0.1.226" />
+    <PackageVersion Include="Wix" Version="3.14.1" />
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.EventSource" Version="1.1.28" />
+    <PackageVersion Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.66" />
+    <PackageVersion Include="Microsoft.Net.Http.Headers" Version="8.0.8" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
+    <PackageVersion Include="System.Net.NetworkInformation" Version="4.3.0" />
+    <PackageVersion Include="System.Threading.Tasks.Dataflow" Version="8.0.1" />
+    <PackageVersion Include="System.Console" Version="4.3.1" />
+    <PackageVersion Include="System.IO" Version="4.3.0" />
+    <PackageVersion Include="System.Memory" Version="4.5.5" />
+    <PackageVersion Include="System.Diagnostics.Tracing" Version="4.3.0" />
+    <PackageVersion Include="System.Diagnostics.DiagnosticSource" Version="8.0.1" />
+    <PackageVersion Include="System.Net.Http" Version="4.3.4" />
+    <PackageVersion Include="System.Net.NameResolution" Version="4.3.0" />
+    <PackageVersion Include="YamlDotNet" Version="16.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
+    <PackageVersion Include="xunit" Version="2.9.0" />
+    <PackageVersion Include="NuGet.Versioning" Version="6.11.0" />
+    <PackageVersion Include="dotnet-xunit" Version="2.3.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="xunit.runner.msbuild" Version="2.4.1" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Microsoft.Azure.Relay" Version="3.0.1" />
+    <PackageVersion Include="McMaster.Extensions.CommandLineUtils" Version="4.1.1" />
+    <PackageVersion Include="Serilog.Extensions.Logging.File" Version="3.0.0" />
+    <PackageVersion Include="Azure.Identity" Version="1.12.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="8.0.0" />
+  </ItemGroup>
+</Project>

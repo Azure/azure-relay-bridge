@@ -297,7 +297,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
 
         [Fact]
-        public void HttpBridge()
+        public async Task HttpBridge()
         {
             // set up the bridge first
             Config cfg = new Config
@@ -319,7 +319,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             {
                 RelayConnectionStringBuilder csb = new RelayConnectionStringBuilder(Utilities.GetConnectionString());
                 var httpEndpoint = new UriBuilder(csb.Endpoint) { Scheme = "https", Port = 443, Path="http" }.Uri;
-                var httpSasToken = TokenProvider.CreateSharedAccessSignatureTokenProvider(csb.SharedAccessKeyName, csb.SharedAccessKey).GetTokenAsync(httpEndpoint.AbsoluteUri, TimeSpan.FromHours(1)).Result.TokenString;
+                var httpSasToken = (await TokenProvider.CreateSharedAccessSignatureTokenProvider(csb.SharedAccessKeyName, csb.SharedAccessKey).GetTokenAsync(httpEndpoint.AbsoluteUri, TimeSpan.FromHours(1))).TokenString;
 
                 using (var l = new HttpListener())
                 {
@@ -371,21 +371,21 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         c.DefaultRequestHeaders.Add("Authorization", httpSasToken);
 
                         // listen for exactly one request
-                        l.GetContextAsync().ContinueWith(plainHandler);
+                        _ = l.GetContextAsync().ContinueWith(plainHandler);
 
-                        var r = c.PostAsync(httpEndpoint, new StringContent(testMessage)).GetAwaiter().GetResult();
+                        var r = await c.PostAsync(httpEndpoint, new StringContent(testMessage));
                         Assert.True(r.IsSuccessStatusCode);
-                        var result = r.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        var result = await r.Content.ReadAsStringAsync();
                         Assert.Equal(testMessage, result.Trim());
                         r.Dispose();
 
                         // listen for exactly one request
-                        l.GetContextAsync().ContinueWith(plainHandler);
+                        _ = l.GetContextAsync().ContinueWith(plainHandler);
 
                         var mtv = MediaTypeHeaderValue.Parse("application/cloudevents+json;charset=utf-8;foo=bar");
-                        var r2 = c.PostAsync(httpEndpoint, new StringContent(testMessage, mtv)).GetAwaiter().GetResult();
+                        var r2 = await c.PostAsync(httpEndpoint, new StringContent(testMessage, mtv));
                         Assert.True(r2.IsSuccessStatusCode);
-                        var result2 = r2.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        var result2 = await r2.Content.ReadAsStringAsync();
                         Assert.Equal(testMessage, result2.Trim());
                         r2.Dispose();
                     }
@@ -396,21 +396,21 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         c.DefaultRequestHeaders.Add("Authorization", "Bearer bearbear");
 
                         // listen for exactly one request
-                        l.GetContextAsync().ContinueWith(localAuthHandler);
+                        _ = l.GetContextAsync().ContinueWith(localAuthHandler);
 
-                        var r = c.PostAsync(httpEndpoint, new StringContent(testMessage)).GetAwaiter().GetResult();
+                        var r = await c.PostAsync(httpEndpoint, new StringContent(testMessage));
                         Assert.True(r.IsSuccessStatusCode);
-                        var result = r.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        var result = await r.Content.ReadAsStringAsync();
                         Assert.Equal(testMessage, result.Trim());
                         r.Dispose();
 
                         // listen for exactly one request
-                        l.GetContextAsync().ContinueWith(localAuthHandler);
+                        _ = l.GetContextAsync().ContinueWith(localAuthHandler);
 
                         var mtv = MediaTypeHeaderValue.Parse("application/cloudevents+json;charset=utf-8;foo=bar");
-                        var r2 = c.PostAsync(httpEndpoint, new StringContent(testMessage, mtv)).GetAwaiter().GetResult();
+                        var r2 = await c.PostAsync(httpEndpoint, new StringContent(testMessage, mtv));
                         Assert.True(r2.IsSuccessStatusCode);
-                        var result2 = r2.Content.ReadAsStringAsync().GetAwaiter().GetResult();
+                        var result2 = await r2.Content.ReadAsStringAsync();
                         Assert.Equal(testMessage, result2.Trim());
                         r2.Dispose();
                     }

@@ -6,7 +6,6 @@
   <Import Project="version.props" />
   <Import Project="build\sources.props" />
   <Import Project="build\repo.props" />
-  <Import Project="build\dependencies.props" />
   
   <PropertyGroup>
     <Product>Microsoft Azure Relay Bridge</Product>

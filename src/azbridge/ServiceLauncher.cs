@@ -102,11 +102,18 @@ namespace azbridge
 
                 .ConfigureServices(services =>
                 {
-                    LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(services);
-                    services.Configure<EventLogSettings>(settings =>
+                    if (OperatingSystem.IsWindows())
                     {
-                        settings.SourceName = ServiceName;
-                    });
+                        LoggerProviderOptions.RegisterProviderOptions<EventLogSettings, EventLogLoggerProvider>(services);
+                        services.Configure<EventLogSettings>(settings =>
+                        {
+                            if (OperatingSystem.IsWindows())
+                            {
+                                settings.SourceName = ServiceName;
+                            }
+                        });
+                    }
+
                     services.AddSingleton(config);
                     services.AddHostedService<RelayBridgeService>();
                 })
