@@ -14,8 +14,23 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using Microsoft.Azure.Relay.Bridge.Tests;
     using Xunit;
 
+
     public class BridgeTest : IClassFixture<LaunchSettingsFixture>
     {
+#if _WINDOWS
+        private const string relayA1 = "a1.win";
+        private const string relayA2 = "a2.win";
+        private const string relayHttp = "http.win";
+#elif _LINUX
+        private const string relayA1 = "a1.linux";
+        private const string relayA2 = "a2.linux";
+        private const string relayHttp = "http.linux";
+#elif _OSX
+        private const string relayA1 = "a1.osx";
+        private const string relayA2 = "a2.osx";
+        private const string relayHttp = "http.osx";
+#endif
+
         readonly LaunchSettingsFixture launchSettingsFixture;
 
         public BridgeTest(LaunchSettingsFixture launchSettingsFixture)
@@ -36,14 +51,14 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 BindAddress = "127.0.97.1",
                 BindPort = 29876,
                 PortName = "test",
-                RelayName = "a1"
+                RelayName = relayA1
             });
             cfg.RemoteForward.Add(new RemoteForward
             {
                 Host = "127.0.97.2",
                 HostPort = 29877,
                 PortName = "test",
-                RelayName = "a1"
+                RelayName = relayA1
             });
             Host host = new Host(cfg);
             host.Start();
@@ -104,14 +119,14 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 BindAddress = "127.0.97.1",
                 BindPort = -29876,
                 PortName = "testu",
-                RelayName = "a2"
+                RelayName = relayA2
             });
             cfg.RemoteForward.Add(new RemoteForward
             {
                 Host = "127.0.97.2",
                 HostPort = -29877,
                 PortName = "testu",
-                RelayName = "a2"
+                RelayName = relayA2
             });
             Host host = new Host(cfg);
             host.Start();
@@ -174,7 +189,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-#if !_WINDOWS
+#if _SYSTEMD
         [Fact(Skip="Unreliable")]
         public void SocketBridge()
         {
@@ -191,13 +206,13 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             var lf = new LocalForward
             {
                 BindLocalSocket = Path.Combine(Path.GetTempPath(),Path.GetRandomFileName()),
-                RelayName = "a2",
+                RelayName = relayA2,
                 PortName = "test"
             };
             var rf = new RemoteForward
             {
                 LocalSocket = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()),
-                RelayName = "a2",
+                RelayName = relayA2,
                 PortName = "test"
             };
             cfg.LocalForward.Add(lf);
@@ -267,13 +282,13 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             {
                 BindAddress = "127.0.97.1",
                 BindPort = 29876,
-                RelayName = "a1"
+                RelayName = relayA1
             });
             cfg.RemoteForward.Add(new RemoteForward
             {
                 Host = "127.0.97.2",
                 HostPort = 29877,
-                RelayName = "a1"
+                RelayName = relayA1
             });
             Host host = new Host(cfg);
             host.Start();
@@ -327,7 +342,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 Host = "127.0.97.2",
                 HostPort = 29877,
                 PortName = "http",
-                RelayName = "http",
+                RelayName = relayHttp,
                 Http = true
             });
             Host host = new Host(cfg);
@@ -336,7 +351,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 RelayConnectionStringBuilder csb = new RelayConnectionStringBuilder(Utilities.GetConnectionString());
-                var httpEndpoint = new UriBuilder(csb.Endpoint) { Scheme = "https", Port = 443, Path="http" }.Uri;
+                var httpEndpoint = new UriBuilder(csb.Endpoint) { Scheme = "https", Port = 443, Path=relayHttp }.Uri;
                 var httpSasToken = (await TokenProvider.CreateSharedAccessSignatureTokenProvider(csb.SharedAccessKeyName, csb.SharedAccessKey).GetTokenAsync(httpEndpoint.AbsoluteUri, TimeSpan.FromHours(1))).TokenString;
 
                 using (var l = new HttpListener())

@@ -269,7 +269,11 @@ namespace to be available for use and configured. Before running any of the test
 scenarios, the environment variable `AZBRIDGE_TEST_CXNSTRING` must be set to the
 Relay namespace connection string (enclosed in quotes) on the build platform.
 The given Relay namespace must be preconfigured with hybrid connections named
-"a1", "a2", and "a3".
+"a1.win", "a2.win", and "a3.win", and an HTTP connection named "http.win" for 
+the Windows tests, and with hybrid connections named "a1.linux", "a2.linux", and
+"a3.linux", and an HTTP connection named "http.linux" for the Linux tests, and 
+with hybrid connections named "a1.osx", "a2.osx", and "a3.osx", and an HTTP
+connection named "http.osx" for the macOS tests.
 
 An [Azure Resource Manager
 template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/resource-group-template-deploy-cli)
