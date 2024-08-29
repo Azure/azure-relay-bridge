@@ -6,14 +6,14 @@
 local listener address or socket to a relay name. The "remote" mode binds a relay 
 name to a remote listener address.
 
-Since azbridge helps with scenarios not dissimilar to SSH tunnels, albeit without 
-requiring peer-to-peer connectivity, the command line syntax of 'azbridge' uses 
-elements that resemble SSH's equivalent tunnel functionality, especially the -L 
-and -T arguments. The key difference to SSH is that azbridge always binds sockets
-to an Azure Relay name, and that Azure Relay acts as the identifier for the 
-tunnel and as network rendezvous point. In other words, you **always** need to 
-pair an azbridge instance running as local forwarder with an azbridge running
-as a remote forwarder on the other end.
+Since azbridge helps with scenarios not dissimilar to SSH tunnels, but
+without requiring peer-to-peer connectivity. The command line syntax of
+'azbridge' uses elements that resemble SSH's equivalent tunnel functionality,
+especially the -L and -T arguments. The key difference to SSH is that azbridge
+always binds sockets to an Azure Relay name, and that Azure Relay acts as the
+identifier for the tunnel and as network rendezvous point. In other words, you
+**always** need to pair an azbridge instance running as local forwarder with an
+azbridge running as a remote forwarder on the other end.
 
 SSH's dynamic SOCKS proxy functionality (SSH's -D option) is not supported since
 it puts clients in control of selecting remote hosts after they've been bridged
@@ -31,31 +31,34 @@ inadvertently enable undesired access to resources on that foreign network.
 A single instance of azbridge can support multiple concurrent "local" listeners
 and multiple "remote" forwarders concurrently, also in a mixed configuration.
 
-The required Azure Relay connection string can either be supplied on the command
+The endpoint URI or connection string can either be supplied on the command
 line, can be picked from an environment variable, or from a configuration file.
 
-The connection string's embedded authentication/authorization information must
-confer sufficient permissions for the desired operation(s) to be executed, e.g. 
-for the "local" mode, the connection string must enable the bridge to send to 
-the configured relay entity.
+The client's permissions must be sufficient for the desired operation(s) to be
+executed, e.g. for the "local" mode, the connection string or RBAC permissions
+must enable the bridge to send to the configured relay entity.
+
+When no shared access policy is specified either in the connection string or via
+the `-K` and `-k` options, the tool will use the "default Azure credentials"
+method just like the `az` CLI tool, meaning that it will automatically pick up
+the current user's Azure CLI login context. That is the preferred way to use the
+tool, as it allows for seamless integration with Entra ID and is the most secure
+way to authenticate with Azure Relay.The examples in this document show that
+usage, only referring to the Relay service with the `-e` option.
 
 Arguments:
 
-**-b bind_address**
+### **-b bind_address**
 
 Use bind_address on the local machine as the source address of
 forwarding connections.  Only useful on systems with more than one
 address.
 
-**-D**   
-
-Reserved. Not presently supported
-
-**-e endpoint_uri**
+### **-e endpoint_uri**
 
 Azure Relay endpoint URI (see -x).
 
-**-f configfile**
+### **-f configfile**
 
 Specifies an alternative per-user configuration file.  If a configuration 
 file is given on the command line, the system-wide configuration file 
@@ -66,21 +69,7 @@ ignored.
 The default for the per-user configuration file is ~/.azurebridge/config
 on Linux and %USERPROFILE%\.azurebridge\config on Windows.
 
-**-l logfile**
-
-Specifices a log file.
-
-**-g**    
-
-Allows remote hosts to connect to local forwarded ports.
- 
-**-K policy_name**
-
-Azure Relay shared access policy name to use (see -x).
-
-**-k policy_key**
-
-Azure Relay shared access policy key to use (see -x).
+### -L
 
 **-L [bind_address:]port[/port_name]{;...}:relay_name**<br/>
 **-L local_socket[/port_name]{;...}:relay_name**<br/>
@@ -140,16 +129,7 @@ cates that the port should be available from all interfaces.
 The -L option can be used multiple times on a single command line,
 but only once per `relay_name`. 
 
-**-o option**
-
-Can be used to give options in the format used in the configura-
-tion file.  This is useful for specifying options for which there
-is no separate command-line flag.
-
-**-q**    
-
-Quiet mode.  Causes most warning and diagnostic messages to be
-suppressed.
+### -H
 
 **-H relay_name:http/hostport{;...}**<br/>
 **-H relay_name:http/host[/path]:hostport{;...}**<br/>
@@ -169,6 +149,8 @@ shall be used when forwarding requests to the target.
    is stripped.
 - `hostport`: TCP port number. (defaults to 443 for https and 80 for http)
 
+
+### -T
 
 **-T relay_name:[port_name/]hostport{;...}**<br/>
 **-T relay_name:[port_name/]host:hostport{;...}**<br/>
@@ -208,6 +190,8 @@ brackets.
 The -T option can be used multiple times on a single command line,
 but only once for each `relay_name`.
 
+### -R
+
 **-R relay_name:[port_name/]hostport{;...}**<br/>
 **-R relay_name:host:[port_name/]hostport{;...}**<br/>
 **-R relay_name:[port_name/]local_socket{;...}**
@@ -215,19 +199,47 @@ but only once for each `relay_name`.
 Backwards compatibility option for -T with outdated (because confusing)
 placement of the host name.
 
-**-s signature**
+### **-l logfile**
+
+Specifices a log file.
+
+### **-g**    
+
+Allows remote hosts to connect to local forwarded ports.
+ 
+### **-K policy_name**
+
+Azure Relay shared access policy name to use (see -x).
+
+### **-k policy_key**
+
+Azure Relay shared access policy key to use (see -x).
+
+### **-o option**
+
+Can be used to give options in the format used in the configura-
+tion file.  This is useful for specifying options for which there
+is no separate command-line flag.
+
+### **-q**
+
+Quiet mode.  Causes most warning and diagnostic messages to be
+suppressed.
+
+
+### **-s signature**
 
 Azure Relay shared access signature (previously issued access token)
 to use (see -x)
 
-**-v** 
+### **-v** 
 
 Verbose mode.  Causes ssh to print debugging messages about its
 progress. This is helpful in debugging connection, authentica-
 tion, and configuration problems. Multiple -v options increase
 the verbosity.  The maximum is 3.
 
-**-x connection_string**
+### **-x connection_string**
 
 Connection String. Azure Relay connection string for the namespace
 or for a specific Azure Relay. The Connection String properties
@@ -242,6 +254,8 @@ file.
 The connection string can be set via the AZURE_BRIDGE_CONNECTIONSTRING
 environment variable. 
 
+### -h
+
 **-?**
 **-h**
 
@@ -249,9 +263,9 @@ Show help information.
 
 ## Configuration File
 
-The configuration file is a YAML file that specifies options that apply 
-to the machine or user. The machine level options are always read and 
-then complemented by or overridden by the user-level options.
+The configuration file is a YAML (or JSON) file that specifies options that apply
+to the machine or user. The machine level options are always read and then
+complemented by or overridden by the user-level options.
 
 The configuration file can exist in three locations:
 
@@ -352,10 +366,10 @@ Examples:
 - Multiple listener binding:
   ``` YAML
      - RelayName: myrelay
-       Bindings:          
+       Bindings:
         - BindAddress: 127.0.8.1
           BindPort: 5671
-          PortName: amqps 
+          PortName: amqps
         - BindAddress: 127.0.8.1
           BindPort: 5672    
           PortName: amqp
