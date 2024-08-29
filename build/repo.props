@@ -13,9 +13,11 @@
 	</PropertyGroup>
 	<PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('linux'))">
 		<DefineConstants>_SYSTEMD</DefineConstants>
+        <DefineConstants>_LINUX</DefineConstants>
 	</PropertyGroup>
 	<PropertyGroup Condition="$(RuntimeIdentifier.StartsWith('osx'))">
 		<DefineConstants>_LAUNCHD</DefineConstants>
+        <DefineConstants>_OSX</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
 		<DotNetCoreRuntime Include="$(MicrosoftNETCoreAppPackageVersion)" />
