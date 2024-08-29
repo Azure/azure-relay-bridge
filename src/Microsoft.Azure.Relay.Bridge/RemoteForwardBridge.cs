@@ -72,7 +72,7 @@ namespace Microsoft.Azure.Relay.Bridge
         /// <exception cref="System.Security.SecurityException">Throws a SecurityException if Group Policy prohibits Resource Publishing.</exception>
         public async Task Open()
         {
-            
+
             if (this.IsOpen)
             {
                 throw new InvalidOperationException();
@@ -138,7 +138,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     hybridConnectionStream.WriteTimeout = 60000;
 
                     // read and write 4-byte header
-                    // we don't do anything with this version preamble just yet; it really 
+                    // we don't do anything with this version preamble just yet; it really
                     // is insurance for when we might have to break protocol.
                     var versionPreamble = new byte[3];
                     for (int read = 0; read < versionPreamble.Length;)
@@ -158,7 +158,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     if (versionPreamble[0] == 1 && versionPreamble[1] == 0 &&
                         (versionPreamble[2] == 0 || versionPreamble[2] == 1))
                     {
-                        // For version 1.0, the version preamble is followed by a single byte 
+                        // For version 1.0, the version preamble is followed by a single byte
                         // length indicator and then that number of bytes with of UTF-8 encoded
                         // port-name string.
                         var portNameBuffer = new byte[256];
@@ -193,7 +193,7 @@ namespace Microsoft.Azure.Relay.Bridge
                         return;
                     }
 
-                    IRemoteForwarder forwarder = null;                    
+                    IRemoteForwarder forwarder = null;
                     if (remoteForwarders.Count == 1 && int.TryParse(portName, out var port))
                     {
                         forwarder = remoteForwarders.Values.First();
