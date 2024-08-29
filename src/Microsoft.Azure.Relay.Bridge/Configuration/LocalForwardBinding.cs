@@ -160,7 +160,7 @@
             {
                 var val = value != null ? value.Trim('\'', '\"') : value;
                 if (val != null &&
-                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
+                    !Constants.RelayNameRegex.Match(val).Success)
                 {
                     throw BridgeEventSource.Log.ArgumentOutOfRange(
                         nameof(PortName),
@@ -180,7 +180,7 @@
                 Uri path;
                 if (val != null &&
                     !Uri.TryCreate(val, UriKind.Absolute, out path) &&
-                    !new Regex("^[0-9A-Za-z_-]+$").Match(val).Success)
+                    !Constants.RelayNameRegex.Match(val).Success)
                 {
                     throw BridgeEventSource.Log.ArgumentOutOfRange(
                         nameof(BindLocalSocket),

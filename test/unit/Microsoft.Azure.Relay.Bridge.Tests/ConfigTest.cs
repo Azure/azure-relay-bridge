@@ -280,6 +280,56 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 
         [Fact]
+        public void CommandLineGoodRemoteForwardTest()
+        {
+            CommandLineSettings.Run(new string[] { "-R", "foobar:3000" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
+            CommandLineSettings.Run(new string[] { "-R", "foobar_foobar:3000" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar_foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
+            CommandLineSettings.Run(new string[] { "-R", "foobar/foobar:3000" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar/foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
+            CommandLineSettings.Run(new string[] { "-R", "foobar.foobar:3000" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar.foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
+            CommandLineSettings.Run(new string[] { "-R", "foobar-foobar:3000" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar-foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
+        }
+
+        [Fact]
         public void CommandLineBadRemoteForwardTest()
         {
             var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
