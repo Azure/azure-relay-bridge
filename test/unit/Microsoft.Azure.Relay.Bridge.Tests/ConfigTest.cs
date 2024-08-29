@@ -291,6 +291,15 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 Assert.Equal(3000, cfg.RemoteForward[0].HostPort);
                 return 0;
             });
+            CommandLineSettings.Run(new string[] { "-R", "foobar:3000U" },
+            (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.RemoteForward);
+                Assert.Equal("foobar", cfg.RemoteForward[0].RelayName);
+                Assert.Equal(-3000, cfg.RemoteForward[0].HostPort);
+                return 0;
+            });
             CommandLineSettings.Run(new string[] { "-R", "foobar_foobar:3000" },
             (settings) =>
             {
@@ -328,6 +337,30 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 return 0;
             });
         }
+
+        [Fact]
+        public void CommandLineGoodLocalForwardTest()
+        {
+            CommandLineSettings.Run(new string[] { "-L", "3000U:foobar" },
+                (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.LocalForward);
+                Assert.Equal(-3000, cfg.LocalForward[0].BindPort);
+                Assert.Equal("foobar", cfg.LocalForward[0].RelayName);
+                return 0;
+            });
+            CommandLineSettings.Run(new string[] { "-L", "3000:foobar" },
+                (settings) =>
+            {
+                var cfg = Config.LoadConfig(settings);
+                Assert.Single(cfg.LocalForward);
+                Assert.Equal(3000, cfg.LocalForward[0].BindPort);
+                Assert.Equal("foobar", cfg.LocalForward[0].RelayName);
+                return 0;
+            });
+        }
+
 
         [Fact]
         public void CommandLineBadRemoteForwardTest()

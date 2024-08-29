@@ -616,7 +616,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                             if (new Regex("^[0-9]+U$").Match(portString).Success)
                             {
                                 // UDP ports are just negative port numbers
-                                portString = "-" + portString.Substring(0, portString.Length - 2);
+                                portString = "-" + portString.Substring(0, portString.Length - 1);
                             }
                             // this is either -L local_socket:relay_name or -L port:relay_name
                             if (int.TryParse(portString, out var port))
@@ -668,7 +668,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                             if (new Regex("^[0-9]+U$").Match(portString).Success)
                             {
                                 // UDP ports are just negative port numbers
-                                portString = "-" + portString.Substring(0, portString.Length - 2);
+                                portString = "-" + portString.Substring(0, portString.Length - 1);
                             }
 
                             // this is -L host:port:relay_name
@@ -778,7 +778,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     if (new Regex("^[0-9]+U$").Match(portString).Success)
                     {
                         // UDP ports are just negative port numbers
-                        portString = "-" + portString.Substring(0, portString.Length - 2);
+                        portString = "-" + portString.Substring(0, portString.Length - 1);
                     }
 
                     if (int.TryParse(portString, out var port))
@@ -846,7 +846,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         if (new Regex("^[0-9]+U$").Match(portString).Success)
                         {
                             // UDP ports are just negative port numbers
-                            portString = "-" + portString.Substring(0, portString.Length - 2);
+                            portString = "-" + portString.Substring(0, portString.Length - 1);
                         }
                     }
                     else
@@ -867,7 +867,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                         if (new Regex("^[0-9]+U$").Match(portString).Success)
                         {
                             // UDP ports are just negative port numbers
-                            portString = "-" + portString.Substring(0, portString.Length - 2);
+                            portString = "-" + portString.Substring(0, portString.Length - 1);
                         }
                     }
 
