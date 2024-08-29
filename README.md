@@ -70,7 +70,7 @@ usage, only referring to the Relay service with the `-e` option.
 | Option                                                | Description                                                 |
 | ----------------------------------------------------- | ----------------------------------------------------------- |
 | -f, --config-file <CONFIG_FILE>                       | Configuration file to use. See [Configuration File](CONFIG.md#configuration-file) |
-| -e, --endpoint-uri <ENDPOINT_URI>                     | Relay endpoint URI, formed as `sb://{namespace-name}.servicebus.windows.net/{hybrid-connection-name}`. |
+| -e, --endpoint-uri <ENDPOINT_URI>                     | Relay endpoint base URI, formed as `sb://{namespace-name}.servicebus.windows.net/`. |
 | -x, --connection-string <CONNECTION_STRING>           | Azure Relay connection string (overridden with -s -K -k -e) |
 | -K, --shared-access-key-name <SHARED_ACCESS_KEY_NAME> | Shared access policy name (optional) |
 | -k, --shared-access-key <SHARED_ACCESS_KEY>           | Shared access policy key (optional) |
