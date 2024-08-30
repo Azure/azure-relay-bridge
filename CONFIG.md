@@ -345,6 +345,7 @@ and multiple entries are permitted.
 
 * **RelayName** - name of the Azure Relay name to bind to
 * **ConnectionString** - optional Azure Relay connection string to use just for this forwarder, overriding the global **AzureRelayConnectionString** property.
+* **NoAuthentication** - optional, if set to true, the connection is made without authentication with the assumption that the hybrid connection is configured to not require it.
 
 For a single port binding on the Relay name, the following properties can be 
 used on the same entry. For multiple bindings they can be used to form a list.
@@ -359,20 +360,32 @@ Examples:
 
 - Single listener binding:
   ``` YAML
-     - RelayName: myrelay
-       BindAddress: 127.0.8.1
-       BindPort: 8888    
+    LocalForward:
+        - RelayName: myrelay
+          BindAddress: 127.0.8.1
+          BindPort: 8888    
   ```
+
+- Single listener binding (no client authentication):
+  ``` YAML
+    LocalForward:
+        - RelayName: myrelay
+          BindAddress: 127.0.8.1
+          BindPort: 8888
+          NoAuthentication: true
+  ```
+
 - Multiple listener binding:
   ``` YAML
-     - RelayName: myrelay
-       Bindings:
-        - BindAddress: 127.0.8.1
-          BindPort: 5671
-          PortName: amqps
-        - BindAddress: 127.0.8.1
-          BindPort: 5672    
-          PortName: amqp
+     LocalForward:  
+         - RelayName: myrelay
+           Bindings:
+            - BindAddress: 127.0.8.1
+              BindPort: 5671
+              PortName: amqps
+            - BindAddress: 127.0.8.1
+              BindPort: 5672    
+              PortName: amqp
   ```
 
 
@@ -410,12 +423,15 @@ Examples:
 
 - Single listener binding:
   ``` YAML
+  RemoteForward:
      - RelayName: myrelay
        Host: localhost
        HostPort: 8888    
   ```
+
 - Multiple listener binding:
   ``` YAML
+  RemoteForward:
      - RelayName: myrelay
        Bindings:
         - Host: broker.corp.example.com
