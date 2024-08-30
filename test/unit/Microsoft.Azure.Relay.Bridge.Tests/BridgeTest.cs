@@ -9,6 +9,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Net.Sockets;
+    using System.Threading;
     using System.Threading.Tasks;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Microsoft.Azure.Relay.Bridge.Tests;
@@ -89,20 +90,22 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
-                _output.WriteLine("Starting TCP Bridge");
+                
                 var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+                _output.WriteLine($"Starting TCP Listener, at {l.LocalEndpoint}");
                 l.Start();
                 l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
-                    _output.WriteLine("Accepting TCP Client");
                     var c = t.Result;
+                    _output.WriteLine($"Accepted TCP client {c.Client.RemoteEndPoint}");
                     var stream = c.GetStream();
                     using (var b = new StreamReader(stream))
                     {
                         var text = b.ReadLine();
+                        _output.WriteLine($"Read from client stream: {text}");
                         using (var w = new StreamWriter(stream))
                         {
-                            _output.WriteLine("Writing back to stream: " + text);
+                            _output.WriteLine("Writing back to client stream: " + text);
                             w.WriteLine(text);
                             w.Flush();
                         }
@@ -116,13 +119,16 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     var sstream = s.GetStream();
                     using (var w = new StreamWriter(sstream))
                     {
-                        _output.WriteLine("Writing to stream");
-                        w.WriteLine("Hello!");
+                        var text = "Hello!";
+                        _output.WriteLine("Writing to stream " + text);
+                        w.WriteLine(text);
                         w.Flush();
+                        Thread.Sleep(1000);
                         using (var b = new StreamReader(sstream))
                         {
-                            _output.WriteLine("Reading from stream");
-                            Assert.Equal("Hello!", b.ReadLine());
+                            text = b.ReadLine();
+                            _output.WriteLine($"Read from stream: {text}");
+                            Assert.Equal("Hello!", text);
                         }
                     }
                 }
