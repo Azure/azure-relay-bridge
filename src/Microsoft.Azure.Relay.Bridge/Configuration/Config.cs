@@ -480,9 +480,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             if (string.IsNullOrEmpty(commandLineSettings.ConfigFile))
             {
+                string homeDir = Environment.GetEnvironmentVariable("HOME");
                 string userConfigFileName =
-                    (Environment.OSVersion.Platform == PlatformID.Unix) ?
-                    Path.Combine(Environment.GetEnvironmentVariable("HOME"), $".{azbridge}/{azbridge}_config.yml") :
+                    (Environment.OSVersion.Platform == PlatformID.Unix && !string.IsNullOrEmpty(homeDir)) ?
+                    Path.Combine(homeDir, $".{azbridge}/{azbridge}_config.yml") :
                     Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), $"{azbridge}\\{azbridge}_config.yml");
 
                 Config userConfig = LoadConfigFile(userConfigFileName);
