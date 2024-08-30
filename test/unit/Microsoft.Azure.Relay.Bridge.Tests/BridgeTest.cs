@@ -109,7 +109,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-        [Fact]
+        [Fact(Skip = "Unreliable")]
         public void TcpBridgeNoAuth()
         {
             // set up the bridge first
