@@ -115,13 +115,13 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             _output.WriteLine("OS: " + Environment.OSVersion.Platform);
             _output.WriteLine("OS Version: " + Environment.OSVersion.VersionString);
             
-            _output.WriteLine("Starting TCP Bridge");
+            _output.WriteLine("Starting TcpBridge");
             TcpBridge();
-            _output.WriteLine("Starting TCP Bridge with no authentication");
+            _output.WriteLine("Starting TcpBridgeNoAuth");
             TcpBridgeNoAuth();
-            _output.WriteLine("Starting UDP Bridge");
+            _output.WriteLine("Starting UdpBridge");
             UdpBridge();
-            _output.WriteLine("Starting HTTP Bridge");
+            _output.WriteLine("Starting HttpBridgeAsync");
             await HttpBridgeAsync();
         }
 
@@ -156,20 +156,20 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 // now try to use it
                 
                 var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
-                _output.WriteLine($"Starting TCP Listener, at {l.LocalEndpoint}");
+                _output.WriteLine($"TcpBridge: Starting TCP Listener, at {l.LocalEndpoint}");
                 l.Start();
                 l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
                     var c = t.Result;
-                    _output.WriteLine($"Accepted TCP client {c.Client.RemoteEndPoint}");
+                    _output.WriteLine($"TcpBridge: Accepted TCP client {c.Client.RemoteEndPoint}");
                     var stream = c.GetStream();
                     using (var b = new StreamReader(stream))
                     {
                         var text = b.ReadLine();
-                        _output.WriteLine($"Read from client stream: {text}");
+                        _output.WriteLine($"TcpBridge: Read from client stream: {text}");
                         using (var w = new StreamWriter(stream))
                         {
-                            _output.WriteLine("Writing back to client stream: " + text);
+                            _output.WriteLine("TcpBridge: Writing back to client stream: " + text);
                             w.WriteLine(text);
                             w.Flush();
                         }
@@ -178,20 +178,20 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                 using (var s = new TcpClient())
                 {
-                    _output.WriteLine("Connecting to TCP server");
+                    _output.WriteLine("TcpBridge: Connecting to TCP server");
                     s.Connect("127.0.97.1", 29876);
                     var sstream = s.GetStream();
                     using (var w = new StreamWriter(sstream))
                     {
                         var text = "Hello!";
-                        _output.WriteLine("Writing to stream " + text);
+                        _output.WriteLine("TcpBridge: Writing to stream " + text);
                         w.WriteLine(text);
                         w.Flush();
                         Thread.Sleep(1000);
                         using (var b = new StreamReader(sstream))
                         {
                             text = b.ReadLine();
-                            _output.WriteLine($"Read from stream: {text}");
+                            _output.WriteLine($"TcpBridge: Read from stream: {text}");
                             Assert.Equal("Hello!", text);
                         }
                     }
@@ -307,12 +307,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
-                _output.WriteLine("Starting UDP Bridge");
+                _output.WriteLine("UdpBridge: Starting UDP Bridge");
                 using (var l = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.97.2"), 29877)))
                 {
                     l.ReceiveAsync().ContinueWith(async (t) =>
                     {
-                        _output.WriteLine("Read UDP message");
+                        _output.WriteLine("UdpBridge: Read UDP message");
                         var c = t.Result;
                         var stream = c.Buffer;
                         using (var mr = new MemoryStream(stream))
@@ -324,7 +324,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                                 {
                                     using (var w = new StreamWriter(mw))
                                     {
-                                        _output.WriteLine("Writing back to sender: " + text);
+                                        _output.WriteLine("UdpBridge: Writing back to sender: " + text);
                                         w.WriteLine(text);
                                         w.Flush();
                                         await l.SendAsync(mw.GetBuffer(), (int)mw.Length, c.RemoteEndPoint);
@@ -336,7 +336,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                     using (var s = new UdpClient())
                     {
-                        _output.WriteLine("Sending UDP message");
+                        _output.WriteLine("UdpBridge: Sending UDP message");
                         s.Connect("127.0.97.1", 29876);
                         using (MemoryStream mw = new MemoryStream())
                         {
@@ -352,7 +352,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                                 {
                                     using (var b = new StreamReader(mr))
                                     {
-                                        _output.WriteLine("Reading from sender");
+                                        _output.WriteLine("UdpBridge: Reading from sender");
                                         Assert.Equal("Hello!", b.ReadLine());
                                     }
                                 }
