@@ -4,6 +4,9 @@
 namespace Microsoft.Azure.Relay.Bridge.Test
 {
     using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Diagnostics.Tracing;
     using System.IO;
     using System.Net;
     using System.Net.Http;
@@ -13,6 +16,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Threading.Tasks;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Microsoft.Azure.Relay.Bridge.Tests;
+    using Microsoft.Extensions.Logging;
     using Microsoft.VisualStudio.TestPlatform.Utilities;
     using Xunit;
     using Xunit.Abstractions;
@@ -39,6 +43,62 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         readonly LaunchSettingsFixture launchSettingsFixture;
         readonly ITestOutputHelper _output;
 
+        class SubscriberObserver : IObserver<DiagnosticListener>
+        {
+            private ITestOutputHelper logger;
+
+            public SubscriberObserver(ITestOutputHelper logger)
+            {
+                this.logger = logger;
+            }
+
+            public void OnCompleted()
+            {
+
+            }
+
+            public void OnError(Exception error)
+            {
+
+            }
+
+            public void OnNext(DiagnosticListener value)
+            {
+                if (value.Name == "Microsoft.Azure.Relay.Bridge")
+                {
+                    value.Subscribe(new TraceObserver(logger));
+                }
+            }
+        }
+        class TraceObserver : IObserver<KeyValuePair<string, object>>
+        {
+            private ITestOutputHelper logger;
+
+            public TraceObserver(ITestOutputHelper logger)
+            {
+                this.logger = logger;
+            }
+
+            public void OnCompleted()
+            {
+
+            }
+
+            public void OnError(Exception error)
+            {
+
+            }
+
+            public void OnNext(KeyValuePair<string, object> value)
+            {
+                DiagnosticsRecord record = (DiagnosticsRecord)value.Value;
+
+                string message = $"[{DateTime.UtcNow}], {value.Key}, {record.Activity}, {record.Info}";
+                logger.WriteLine(message);
+           }
+        }
+
+
         public BridgeTest(LaunchSettingsFixture launchSettingsFixture, ITestOutputHelper testOutputHelper)
         {
             this.launchSettingsFixture = launchSettingsFixture;
@@ -48,6 +108,9 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         [Fact]
         public async Task RunScenarios()
         {
+
+            DiagnosticListener.AllListeners.Subscribe(new SubscriberObserver(_output));
+
             _output.WriteLine("Starting BridgeTest.RunScenarios");
             _output.WriteLine("OS: " + Environment.OSVersion.Platform);
             _output.WriteLine("OS Version: " + Environment.OSVersion.VersionString);
