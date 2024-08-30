@@ -30,11 +30,15 @@ namespace Microsoft.Azure.Relay.Bridge
         UdpClient udpClient;
         string localEndpoint;
 
-        public UdpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
+        public UdpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName, bool noAuth)
         {
             PortName = portName;
             this.config = config;
-            if (connectionString.SharedAccessKeyName == null && connectionString.SharedAccessSignature == null)
+            if (noAuth)
+            {
+                this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath));
+            }
+            else if (string.IsNullOrEmpty(connectionString.SharedAccessKeyName) && string.IsNullOrEmpty(connectionString.SharedAccessSignature))
             {
                 this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
             }
@@ -55,9 +59,9 @@ namespace Microsoft.Azure.Relay.Bridge
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
         public static UdpLocalForwardBridge FromConnectionString(Config config,
-            RelayConnectionStringBuilder connectionString, string portName)
+            RelayConnectionStringBuilder connectionString, string portName, bool noAuth)
         {
-            return new UdpLocalForwardBridge(config, connectionString, portName);
+            return new UdpLocalForwardBridge(config, connectionString, portName, noAuth);
         }
 
         public void Close()

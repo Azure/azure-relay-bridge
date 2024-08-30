@@ -79,6 +79,11 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         "    BindPort : 8008" + textWriter.NewLine +
                         "    RelayName : bar" + textWriter.NewLine +
                         "    HostName : bar.example.com" + textWriter.NewLine +
+                        "  - BindAddress : 127.0.100.3" + textWriter.NewLine +
+                        "    BindPort : 8008" + textWriter.NewLine +
+                        "    RelayName : bam" + textWriter.NewLine +
+                        "    HostName : bam.example.com" + textWriter.NewLine +
+                        "    NoAuthentication: true" + textWriter.NewLine +
 #if !NETFRAMEWORK                        
                         "  - BindLocalSocket : test" + textWriter.NewLine +
                         "    RelayName : baz" + textWriter.NewLine +
@@ -786,27 +791,33 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.True(config.ExitOnForwardFailure);
 
 #if !NETFRAMEWORK
-            Assert.Equal(3, config.LocalForward.Count);
+            Assert.Equal(4, config.LocalForward.Count);
 #else
-            Assert.Equal(2, config.LocalForward.Count);
+            Assert.Equal(3, config.LocalForward.Count);
 #endif
             Assert.Equal("127.0.100.1", config.LocalForward[0].BindAddress);
             Assert.Equal(8008, config.LocalForward[0].BindPort);
             Assert.Equal("foo", config.LocalForward[0].RelayName);
             Assert.Equal("foo.example.com", config.LocalForward[0].HostName);
+            Assert.False(config.LocalForward[0].NoAuthentication);
             Assert.Equal("127.0.100.2", config.LocalForward[1].BindAddress);
             Assert.Equal(8008, config.LocalForward[1].BindPort);
             Assert.Equal("bar", config.LocalForward[1].RelayName);
             Assert.Equal("bar.example.com", config.LocalForward[1].HostName);
+            Assert.False(config.LocalForward[1].NoAuthentication);
+            Assert.Equal("127.0.100.3", config.LocalForward[2].BindAddress);
+            Assert.Equal(8008, config.LocalForward[2].BindPort);
+            Assert.Equal("bam", config.LocalForward[2].RelayName);
+            Assert.True(config.LocalForward[2].NoAuthentication);
 #if !NETFRAMEWORK
-            Assert.Equal("test", config.LocalForward[2].BindLocalSocket);
-            Assert.Equal("baz", config.LocalForward[2].RelayName);
+            Assert.Equal("test", config.LocalForward[3].BindLocalSocket);
+            Assert.Equal("baz", config.LocalForward[3].RelayName);
 #endif
 
 #if !NETFRAMEWORK
             Assert.Equal(3, config.RemoteForward.Count);
 #else
-            Assert.Equal(2, config.RemoteForward.Count);
+            Assert.Equal(4, config.RemoteForward.Count);
 #endif
             Assert.Equal("foo", config.RemoteForward[0].RelayName);
             Assert.Equal(123, config.RemoteForward[0].HostPort);
@@ -830,7 +841,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 Config config = Config.LoadConfig(settings);
 
                 config.SaveConfigFile(configFileName, false);
-
+                
                 config = Config.LoadConfigFile(configFileName);
 
                 CheckMaxConfig(config);
