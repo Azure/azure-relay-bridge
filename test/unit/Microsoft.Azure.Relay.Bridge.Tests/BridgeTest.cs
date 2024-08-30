@@ -128,6 +128,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
         internal void TcpBridge()
         {
+            _output.WriteLine("------- Starting TCP Bridge -------------");
             // set up the bridge first
             Config cfg = new Config
             {
@@ -206,6 +207,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
         internal void TcpBridgeNoAuth()
         {
+            _output.WriteLine("------- Starting TcpBridgeNoAuth() -------------");
             // set up the bridge first
             Config cfg = new Config
             {
@@ -233,6 +235,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             {
                 // now try to use it
                 var l = new TcpListener(IPAddress.Parse("127.0.97.4"), 29877);
+                _output.WriteLine($"TcpBridgeNoAuth: Starting TCP Listener, at {l.LocalEndpoint}");
                 l.Start();
                 l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
@@ -241,8 +244,10 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                     using (var b = new StreamReader(stream))
                     {
                         var text = b.ReadLine();
+                        _output.WriteLine($"TcpBridgeNoAuth: Read from client stream: {text}");
                         using (var w = new StreamWriter(stream))
                         {
+                            _output.WriteLine("TcpBridgeNoAuth: Writing back to client stream: " + text);
                             w.WriteLine(text);
                             w.Flush();
                         }
@@ -251,14 +256,17 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                 using (var s = new TcpClient())
                 {
+                    _output.WriteLine("TcpBridgeNoAuth: Connecting to TCP server");
                     s.Connect("127.0.97.3", 29876);
                     var sstream = s.GetStream();
                     using (var w = new StreamWriter(sstream))
                     {
+                        _output.WriteLine("TcpBridgeNoAuth: Writing to stream Hello!");
                         w.WriteLine("Hello!");
                         w.Flush();
                         using (var b = new StreamReader(sstream))
                         {
+                            _output.WriteLine("TcpBridgeNoAuth: Reading from stream");
                             Assert.Equal("Hello!", b.ReadLine());
                         }
                     }

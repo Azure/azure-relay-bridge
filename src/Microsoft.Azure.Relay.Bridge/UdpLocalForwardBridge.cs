@@ -38,7 +38,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath));
             }
-            else if (string.IsNullOrEmpty(connectionString.SharedAccessKeyName) || string.IsNullOrEmpty(connectionString.SharedAccessSignature))
+            else if (string.IsNullOrEmpty(connectionString.SharedAccessKeyName) && string.IsNullOrEmpty(connectionString.SharedAccessSignature))
             {
                 this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
             }
