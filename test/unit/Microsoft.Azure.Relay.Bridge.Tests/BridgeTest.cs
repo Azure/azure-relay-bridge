@@ -12,8 +12,9 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Threading.Tasks;
     using Microsoft.Azure.Relay.Bridge.Configuration;
     using Microsoft.Azure.Relay.Bridge.Tests;
+    using Microsoft.VisualStudio.TestPlatform.Utilities;
     using Xunit;
-
+    using Xunit.Abstractions;
 
     public class BridgeTest : IClassFixture<LaunchSettingsFixture>
     {
@@ -35,14 +36,33 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 #endif
 
         readonly LaunchSettingsFixture launchSettingsFixture;
+        readonly ITestOutputHelper _output;
 
-        public BridgeTest(LaunchSettingsFixture launchSettingsFixture)
+        public BridgeTest(LaunchSettingsFixture launchSettingsFixture, ITestOutputHelper testOutputHelper)
         {
             this.launchSettingsFixture = launchSettingsFixture;
+            this._output = testOutputHelper;
         }
 
         [Fact]
-        public void TcpBridge()
+        public async Task RunScenarios()
+        {
+            _output.WriteLine("Starting BridgeTest.RunScenarios");
+            _output.WriteLine("OS: " + Environment.OSVersion.Platform);
+            _output.WriteLine("OS Version: " + Environment.OSVersion.VersionString);
+            
+            _output.WriteLine("Starting TCP Bridge");
+            TcpBridge();
+            _output.WriteLine("Starting TCP Bridge with no authentication");
+            TcpBridgeNoAuth();
+            _output.WriteLine("Starting UDP Bridge");
+            UdpBridge();
+            _output.WriteLine("Starting HTTP Bridge");
+            await HttpBridgeAsync();
+        }
+
+
+        internal void TcpBridge()
         {
             // set up the bridge first
             Config cfg = new Config
@@ -69,10 +89,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
+                _output.WriteLine("Starting TCP Bridge");
                 var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
                 l.Start();
                 l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
+                    _output.WriteLine("Accepting TCP Client");
                     var c = t.Result;
                     var stream = c.GetStream();
                     using (var b = new StreamReader(stream))
@@ -80,6 +102,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         var text = b.ReadLine();
                         using (var w = new StreamWriter(stream))
                         {
+                            _output.WriteLine("Writing back to stream: " + text);
                             w.WriteLine(text);
                             w.Flush();
                         }
@@ -88,14 +111,17 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                 using (var s = new TcpClient())
                 {
+                    _output.WriteLine("Connecting to TCP server");
                     s.Connect("127.0.97.1", 29876);
                     var sstream = s.GetStream();
                     using (var w = new StreamWriter(sstream))
                     {
+                        _output.WriteLine("Writing to stream");
                         w.WriteLine("Hello!");
                         w.Flush();
                         using (var b = new StreamReader(sstream))
                         {
+                            _output.WriteLine("Reading from stream");
                             Assert.Equal("Hello!", b.ReadLine());
                         }
                     }
@@ -109,8 +135,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-        [Fact(Skip = "Unreliable")]
-        public void TcpBridgeNoAuth()
+        internal void TcpBridgeNoAuth()
         {
             // set up the bridge first
             Config cfg = new Config
@@ -178,8 +203,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-        [Fact]
-        public void UdpBridge()
+        internal void UdpBridge()
         {
             // set up the bridge first
             Config cfg = new Config
@@ -206,10 +230,12 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
+                _output.WriteLine("Starting UDP Bridge");
                 using (var l = new UdpClient(new IPEndPoint(IPAddress.Parse("127.0.97.2"), 29877)))
                 {
                     l.ReceiveAsync().ContinueWith(async (t) =>
                     {
+                        _output.WriteLine("Read UDP message");
                         var c = t.Result;
                         var stream = c.Buffer;
                         using (var mr = new MemoryStream(stream))
@@ -221,6 +247,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                                 {
                                     using (var w = new StreamWriter(mw))
                                     {
+                                        _output.WriteLine("Writing back to sender: " + text);
                                         w.WriteLine(text);
                                         w.Flush();
                                         await l.SendAsync(mw.GetBuffer(), (int)mw.Length, c.RemoteEndPoint);
@@ -232,6 +259,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                     using (var s = new UdpClient())
                     {
+                        _output.WriteLine("Sending UDP message");
                         s.Connect("127.0.97.1", 29876);
                         using (MemoryStream mw = new MemoryStream())
                         {
@@ -247,6 +275,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                                 {
                                     using (var b = new StreamReader(mr))
                                     {
+                                        _output.WriteLine("Reading from sender");
                                         Assert.Equal("Hello!", b.ReadLine());
                                     }
                                 }
@@ -262,8 +291,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 
 #if _LINUX
-        [Fact(Skip="Unreliable")]
-        public void SocketBridge()
+        internal void SocketBridge()
         {
             // not yet supported on Windows.
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
@@ -343,8 +371,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 #endif
 
       
-        [Fact]
-        public async Task HttpBridge()
+        internal async Task HttpBridgeAsync()
         {
             // set up the bridge first
             Config cfg = new Config
