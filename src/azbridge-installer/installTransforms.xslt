@@ -56,6 +56,7 @@
       <xsl:copy>
         <xsl:copy-of select="@*" />
         <xsl:apply-templates select="*|text()" />
+        <xsl:attribute name="PatchIgnore">yes</xsl:attribute>
         <wix:Permission User="[WIX_ACCOUNT_ADMINISTRATORS]" FileAllRights="yes" />
         <wix:Permission User="[WIX_ACCOUNT_USERS]" GenericRead="yes" Read="yes" />
         <wix:Permission User="[WIX_ACCOUNT_NETWORKSERVICE]" GenericRead="yes" Read="yes" />
@@ -69,6 +70,7 @@
       <xsl:copy>
         <xsl:copy-of select="@*" />
         <xsl:apply-templates select="*|text()" />
+        <xsl:attribute name="PatchIgnore">yes</xsl:attribute>
         <wix:Permission User="[WIX_ACCOUNT_ADMINISTRATORS]" FileAllRights="yes" />
         <wix:Permission User="[WIX_ACCOUNT_USERS]" GenericRead="yes" Read="yes" />
         <wix:Permission User="[WIX_ACCOUNT_NETWORKSERVICE]" GenericRead="yes" Read="yes" />
