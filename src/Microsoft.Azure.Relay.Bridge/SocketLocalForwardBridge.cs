@@ -27,11 +27,15 @@ namespace Microsoft.Azure.Relay.Bridge
         Socket socketListener;
         string localEndpoint;
 
-        public SocketLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
+        public SocketLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName, bool noAuth)
         {
             PortName = portName;
             this.config = config;
-            if (connectionString.SharedAccessKeyName == null && connectionString.SharedAccessSignature == null)
+            if (noAuth)
+            {
+                this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath));
+            }
+            else if (string.IsNullOrEmpty(connectionString.SharedAccessKeyName) || string.IsNullOrEmpty(connectionString.SharedAccessSignature))
             {
                 this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
             }
@@ -52,9 +56,9 @@ namespace Microsoft.Azure.Relay.Bridge
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
         public static SocketLocalForwardBridge FromConnectionString(Config config,
-            RelayConnectionStringBuilder connectionString, string bindingPortName)
+            RelayConnectionStringBuilder connectionString, string bindingPortName, bool noAuth)
         {
-            return new SocketLocalForwardBridge(config, connectionString, bindingPortName);
+            return new SocketLocalForwardBridge(config, connectionString, bindingPortName, noAuth);
         }
 
         public void Close()

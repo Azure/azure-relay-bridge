@@ -72,7 +72,7 @@ namespace Microsoft.Azure.Relay.Bridge
                 try
                 {
                     {
-                        socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                        socketListenerBridge = SocketLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName, binding.NoAuthentication);
                         socketListenerBridge.Run(binding.BindLocalSocket);
 
                         this.socketListenerBridges.Add(socketListenerBridge);
@@ -115,7 +115,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     if (bindToAddress != null)
                     {
                         tcpListenerBridge =
-                            TcpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                            TcpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName, binding.NoAuthentication);
                         tcpListenerBridge.Run(new IPEndPoint(bindToAddress, binding.BindPort));
 
                         this.listenerBridges.Add(tcpListenerBridge);
@@ -156,7 +156,7 @@ namespace Microsoft.Azure.Relay.Bridge
                     if (bindToAddress != null)
                     {
                         udpListenerBridge =
-                            UdpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName);
+                            UdpLocalForwardBridge.FromConnectionString(this.config, rcbs, binding.PortName, binding.NoAuthentication);
                         udpListenerBridge.Run(new IPEndPoint(bindToAddress, -binding.BindPort));
 
                         this.udpBridges.Add(udpListenerBridge);

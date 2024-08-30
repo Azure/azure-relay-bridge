@@ -12,6 +12,7 @@
         private string bindAddress;
         private string hostName;
         private int bindPort;
+        private bool noAuthentication = false;
         private string bindLocalSocket = null;
 
         string portName;
@@ -189,6 +190,12 @@
                 }
                 bindLocalSocket = val;
             }
+        }
+
+        public bool NoAuthentication
+        {
+            get => noAuthentication;
+            set => noAuthentication = value;
         }
     }
 }

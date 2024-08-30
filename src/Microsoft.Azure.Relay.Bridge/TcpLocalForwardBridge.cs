@@ -15,7 +15,7 @@ namespace Microsoft.Azure.Relay.Bridge
     sealed class TcpLocalForwardBridge : IDisposable
     {
         public string PortName { get; }
-
+        
         private readonly Config config;
         readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
 
@@ -26,11 +26,15 @@ namespace Microsoft.Azure.Relay.Bridge
         TcpListener tcpListener;
         string localEndpoint;
 
-        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName)
+        public TcpLocalForwardBridge(Config config, RelayConnectionStringBuilder connectionString, string portName, bool noAuth)
         {
             PortName = portName;
             this.config = config;
-            if (connectionString.SharedAccessKeyName == null && connectionString.SharedAccessSignature == null)
+            if (noAuth)
+            {
+                this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath));
+            }
+            else if (string.IsNullOrEmpty(connectionString.SharedAccessKeyName) || string.IsNullOrEmpty(connectionString.SharedAccessSignature))
             {
                 this.hybridConnectionClient = new HybridConnectionClient(new Uri(connectionString.Endpoint, connectionString.EntityPath), Host.DefaultAzureCredentialTokenProvider);
             }
@@ -51,9 +55,9 @@ namespace Microsoft.Azure.Relay.Bridge
         public HybridConnectionClient HybridConnectionClient => hybridConnectionClient;
 
         public static TcpLocalForwardBridge FromConnectionString(Config config,
-            RelayConnectionStringBuilder connectionString, string portName)
+            RelayConnectionStringBuilder connectionString, string portName, bool noAuth)
         {
-            return new TcpLocalForwardBridge(config, connectionString, portName);
+            return new TcpLocalForwardBridge(config, connectionString, portName, noAuth);
         }
 
         public void Close()

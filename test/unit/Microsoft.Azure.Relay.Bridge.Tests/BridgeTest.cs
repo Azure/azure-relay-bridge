@@ -20,14 +20,17 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 #if _WINDOWS
         private const string relayA1 = "a1.win";
         private const string relayA2 = "a2.win";
+        private const string relayA3 = "a3.win";
         private const string relayHttp = "http.win";
 #elif _LINUX
         private const string relayA1 = "a1.linux";
         private const string relayA2 = "a2.linux";
+        private const string relayA3 = "a3.linux";
         private const string relayHttp = "http.linux";
 #elif _OSX
         private const string relayA1 = "a1.osx";
         private const string relayA2 = "a2.osx";
+        private const string relayA3 = "a3.osx";
         private const string relayHttp = "http.osx";
 #endif
 
@@ -59,6 +62,75 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 HostPort = 29877,
                 PortName = "test",
                 RelayName = relayA1
+            });
+            Host host = new Host(cfg);
+            host.Start();
+
+            try
+            {
+                // now try to use it
+                var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+                l.Start();
+                l.AcceptTcpClientAsync().ContinueWith((t) =>
+                {
+                    var c = t.Result;
+                    var stream = c.GetStream();
+                    using (var b = new StreamReader(stream))
+                    {
+                        var text = b.ReadLine();
+                        using (var w = new StreamWriter(stream))
+                        {
+                            w.WriteLine(text);
+                            w.Flush();
+                        }
+                    }
+                });
+
+                using (var s = new TcpClient())
+                {
+                    s.Connect("127.0.97.1", 29876);
+                    var sstream = s.GetStream();
+                    using (var w = new StreamWriter(sstream))
+                    {
+                        w.WriteLine("Hello!");
+                        w.Flush();
+                        using (var b = new StreamReader(sstream))
+                        {
+                            Assert.Equal("Hello!", b.ReadLine());
+                        }
+                    }
+                }
+
+                l.Stop();
+            }
+            finally
+            {
+                host.Stop();
+            }
+        }
+
+        [Fact]
+        public void TcpBridgeNoAuth()
+        {
+            // set up the bridge first
+            Config cfg = new Config
+            {
+                AzureRelayConnectionString = Utilities.GetConnectionString()
+            };
+            cfg.LocalForward.Add(new LocalForward
+            {
+                BindAddress = "127.0.97.1",
+                BindPort = 29876,
+                PortName = "test",
+                RelayName = relayA3,
+                NoAuthentication = true
+            });
+            cfg.RemoteForward.Add(new RemoteForward
+            {
+                Host = "127.0.97.2",
+                HostPort = 29877,
+                PortName = "test",
+                RelayName = relayA3
             });
             Host host = new Host(cfg);
             host.Start();
@@ -189,7 +261,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
-#if _SYSTEMD
+#if _LINUX
         [Fact(Skip="Unreliable")]
         public void SocketBridge()
         {
@@ -270,65 +342,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
 #endif
 
-        [Fact(Skip = "Unreliable")]
-        public void TcpBridgeBadListener()
-        {
-            // set up the bridge first
-            Config cfg = new Config
-            {
-                AzureRelayConnectionString = Utilities.GetConnectionString()
-            };
-            cfg.LocalForward.Add(new LocalForward
-            {
-                BindAddress = "127.0.97.1",
-                BindPort = 29876,
-                RelayName = relayA1
-            });
-            cfg.RemoteForward.Add(new RemoteForward
-            {
-                Host = "127.0.97.2",
-                HostPort = 29877,
-                RelayName = relayA1
-            });
-            Host host = new Host(cfg);
-            host.Start();
-
-            try
-            {
-                // now try to use it
-                var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
-                l.Start();
-                l.AcceptTcpClientAsync().ContinueWith((t) =>
-                {
-                    t.Result.Client.Close(0);
-                    l.Stop();
-                });
-
-                using (var s = new TcpClient())
-                {
-                    s.Connect("127.0.97.1", 29876);
-                    s.NoDelay = true;
-                    s.Client.Blocking = true;
-                    using (var w = s.GetStream())
-                    {
-                        byte[] bytes = new byte[1024 * 1024];
-                        Assert.Throws<IOException>(() =>
-                        {
-                            for (int i = 0; i < 5; i++)
-                            {
-                                w.Write(bytes, 0, bytes.Length);
-                            }
-                        });
-                    }
-                }
-            }
-            finally
-            {
-                host.Stop();
-            }
-        }
-
-
+      
         [Fact]
         public async Task HttpBridge()
         {

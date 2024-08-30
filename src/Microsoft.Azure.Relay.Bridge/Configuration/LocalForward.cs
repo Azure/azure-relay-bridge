@@ -219,5 +219,31 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 }
             }
         }
+
+        public bool NoAuthentication
+        {
+            get
+            {
+                if (bindings.Count == 1)
+                {
+                    return bindings[0].NoAuthentication;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            set
+            {
+                if (bindings.Count == 0)
+                {
+                    bindings.Add(new LocalForwardBinding { NoAuthentication = value });
+                }
+                else
+                {
+                    bindings[0].NoAuthentication = value;
+                }
+            }
+        }
     }
 }
