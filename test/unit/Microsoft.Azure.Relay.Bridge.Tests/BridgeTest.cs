@@ -119,7 +119,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             };
             cfg.LocalForward.Add(new LocalForward
             {
-                BindAddress = "127.0.97.1",
+                BindAddress = "127.0.97.3",
                 BindPort = 29876,
                 PortName = "test",
                 RelayName = relayA3,
@@ -127,7 +127,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             });
             cfg.RemoteForward.Add(new RemoteForward
             {
-                Host = "127.0.97.2",
+                Host = "127.0.97.4",
                 HostPort = 29877,
                 PortName = "test",
                 RelayName = relayA3
@@ -138,7 +138,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             try
             {
                 // now try to use it
-                var l = new TcpListener(IPAddress.Parse("127.0.97.2"), 29877);
+                var l = new TcpListener(IPAddress.Parse("127.0.97.4"), 29877);
                 l.Start();
                 l.AcceptTcpClientAsync().ContinueWith((t) =>
                 {
@@ -157,7 +157,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
                 using (var s = new TcpClient())
                 {
-                    s.Connect("127.0.97.1", 29876);
+                    s.Connect("127.0.97.3", 29876);
                     var sstream = s.GetStream();
                     using (var w = new StreamWriter(sstream))
                     {
