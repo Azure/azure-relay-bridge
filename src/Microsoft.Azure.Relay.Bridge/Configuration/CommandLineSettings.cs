@@ -22,6 +22,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 #endif
         [Option(CommandOptionType.NoValue, LongName = "svc", ShortName = "svc", Description = "Reserved for background service invocation")]
         public bool? ServiceRun { get; set; }
+        [Option(CommandOptionType.SingleValue, ShortName = "a", Description = "Keepalive interval in seconds (default 30)")]
+        public int? KeepAliveInterval { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "b", Description = "Source address of forwarding connections.")]
         public string BindAddress { get; set; }
         [Option(CommandOptionType.SingleValue, ShortName = "e", Description = "Relay endpoint URI")]

@@ -254,6 +254,14 @@ file.
 The connection string can be set via the AZURE_BRIDGE_CONNECTIONSTRING
 environment variable. 
 
+### **-a keepalive_interval**
+
+Specifies the interval (in seconds) between keepalive messages sent on the
+"control connection" through which the listener accepts new connections.
+The default is 30 seconds. The value is the maximum interval during which
+a disconnected listener can go unnoticed by the remote forwarder and the
+automatic reconnection mechanism is triggered.
+
 ### -h
 
 **-?**
@@ -325,6 +333,11 @@ the -L and -T command line options above.
   should bind local port forwardings to the wildcard address, thus allowing remote 
   hosts to connect to forwarded ports. The argument must be "true" or "false".  
   The default is "false". 
+* **KeepAliveInterval** - Specifies the interval (in seconds) between keepalive
+  messages sent on the "control connection" through which the listener accepts
+  new connections.  The default is 30 seconds. The value is the maximum interval
+  during which a disconnected listener can go unnoticed by the remote forwarder and
+  the automatic reconnection mechanism is triggered.
 * **LocalForward** - Specifies that a (set of) TCP ports on the local machine 
   shall be forwarded via the Azure Relay. Each entry can have four properties,
   "BindAddress", "Port", "LocalSocket", and "RelayName". See [below](#localforward-properties) for 

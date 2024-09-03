@@ -52,7 +52,8 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                    " -H baz5:http/service.example.com" +
                    " -H abc/def:http/service.example.com/foo" +
                    " -H ghi/jkl:http/service1.example.com/foo;http/service2.example.com/foo" +
-                   " -v";
+                   " -v" +
+                   " -a 60";
         }
 
         string CreateMaxConfig()
@@ -69,6 +70,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                         "ClearAllForwardings : false " + textWriter.NewLine +
                         "ConnectionAttempts : 1 " + textWriter.NewLine +
                         "ConnectTimeout : 60 " + textWriter.NewLine +
+                        "KeepAliveInterval : 60 " + textWriter.NewLine +
                         "ExitOnForwardFailure : true " + textWriter.NewLine +
                         "LocalForward : " + textWriter.NewLine +
                         "  - BindAddress : 127.0.100.1" + textWriter.NewLine +
@@ -700,6 +702,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         }
         private static void CheckMaxCommandLine(Config config)
         {
+            Assert.Equal(60, config.KeepAliveInterval);
             Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=abcdefgh;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
             Assert.Equal("send", config.AzureRelaySharedAccessKeyName);
@@ -778,6 +781,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
         private static void CheckMaxConfig(Config config)
         {
+            Assert.Equal(60, config.KeepAliveInterval);
             Assert.Equal("inet", config.AddressFamily);
             Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);

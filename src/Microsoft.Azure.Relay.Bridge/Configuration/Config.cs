@@ -433,6 +433,16 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         }
 
         /// <summary>
+        /// Specifies the number of seconds that the control connection to the
+        /// Azure Relay server may be inactive before it is "pinged" and therefore 
+        /// checked. The default is 30 seconds. You can specify a shorter interval 
+        /// if you are using a problematic network that disconnects idle connections 
+        /// frequently. The value is the maximum number of seconds that a disconnected
+        /// listener will go undetected.
+        /// </summary>
+        public int KeepAliveInterval { get; set; } = 30;
+
+        /// <summary>
         /// Specifies that a TCP port on the remote machine be bound to 
         /// a name on the Azure Relay.
         /// </summary>
@@ -572,6 +582,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             if (commandLineSettings.ConnectionString != null)
             {
                 config.AzureRelayConnectionString = commandLineSettings.ConnectionString;
+            }
+            if (commandLineSettings.KeepAliveInterval.HasValue)
+            {
+                config.KeepAliveInterval = commandLineSettings.KeepAliveInterval.Value;
             }
 
             if (commandLineSettings.LocalForward != null)
@@ -1131,6 +1145,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             if (otherConfig.LogLevel != null)
             {
                 this.LogLevel = otherConfig.LogLevel;
+            }
+            if (otherConfig.KeepAliveInterval != 30)
+            {
+                this.KeepAliveInterval = otherConfig.KeepAliveInterval;
             }
 
             if (this.ClearAllForwardings.HasValue && this.ClearAllForwardings.Value)

@@ -86,6 +86,7 @@ namespace Microsoft.Azure.Relay.Bridge
             {
                 this.listener = new HybridConnectionListener(connectionString.ToString());
             }
+            this.listener.KeepAliveInterval = TimeSpan.FromSeconds(config.KeepAliveInterval);
             this.listener.Online += (s, e) => { Online?.Invoke(this, e); };
             this.listener.Offline += (s, e) => { Offline?.Invoke(this, e); };
             this.listener.Connecting += (s, e) => { Connecting?.Invoke(this, e); };
