@@ -17,12 +17,13 @@ namespace Microsoft.Azure.Relay.Bridge
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
 
-    public class Host
+    public class Host : IDisposable
     {
         LocalForwardHost hybridConnectionTcpListenerHost;
         RemoteForwardHost hybridConnectionTcpClientHost;
         private Config config;
         EventTraceActivity hostActivity = BridgeEventSource.NewActivity("Host");
+        private bool disposedValue;
 
         public Host(Config config)
         {
@@ -54,7 +55,6 @@ namespace Microsoft.Azure.Relay.Bridge
         public void Start()
         {
             hostActivity.DiagnosticsActivity.Start();
-            this.config.Changed += ConfigChanged;
             this.hybridConnectionTcpClientHost = new RemoteForwardHost(config);
             this.hybridConnectionTcpListenerHost = new LocalForwardHost(config);
 
@@ -62,12 +62,6 @@ namespace Microsoft.Azure.Relay.Bridge
             this.hybridConnectionTcpListenerHost.Start();
         }
 
-        private void ConfigChanged(object sender, ConfigChangedEventArgs e)
-        {
-            this.config = e.NewConfig;
-            hybridConnectionTcpClientHost.UpdateConfig(config);
-            hybridConnectionTcpListenerHost.UpdateConfig(config);
-        }
 
         public static void SaveConfig(string configFilePath, Config connectionConfig)
         {
@@ -98,9 +92,28 @@ namespace Microsoft.Azure.Relay.Bridge
 
         public void Stop()
         {
+            disposedValue = true;
             this.hybridConnectionTcpClientHost.Stop();
             this.hybridConnectionTcpListenerHost.Stop();
             hostActivity.DiagnosticsActivity.Stop();
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    this.Stop();
+                }
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

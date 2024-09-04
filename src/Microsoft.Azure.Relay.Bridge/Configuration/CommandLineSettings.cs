@@ -54,10 +54,10 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         public string Signature { get; set; }
 
         [Option(CommandOptionType.SingleValue, ShortName = "x", Description = "Azure Relay connection string (overridden with -S -K -k -e)")]
-        public string ConnectionString { get; internal set; }
+        public string ConnectionString { get; set; }
 
         [Option(CommandOptionType.NoValue, ShortName = "v", Description = "Verbose log output")]
-        public bool? Verbose { get; internal set; }
+        public bool? Verbose { get; set; }
 
 
         public static void Run(string[] args, Func<CommandLineSettings, int> callback)
