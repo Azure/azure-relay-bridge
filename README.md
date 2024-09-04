@@ -81,6 +81,7 @@ usage, only referring to the Relay service with the `-e` option.
 | -o, --option <OPTION>                                 | Configuration file option override key:value, see [Configuration File](CONFIG.md#configuration-file) |
 | -g, --gateway-ports                                   | By default, the bridge restricts connections to local listeners (`-L`) to the local machine. This option allows remote hosts to connect to these listeners. |
 | -b, --bind-address <BIND_ADDRESS>                     | Source address of outbound, forwarding connections (`-T`, `-H`). |
+| -a <INTERVAL>                                         | Keep-alive interval, in seconds, for the "control channel" of forwarding connections (`-T`, `-H`). Maximum time to detection of connectivity issues. Defaults to 30 seconds. |
 | -I, --svcinstall                                      | Windows only: Install as Windows Service. Must run as admin. |
 | -U, --svcuninstall                                    | Windows only: Uninstall Windows Service. Must run as admin. |
 | -svc, --svc                                           | Reserved for background service invocation |
