@@ -4,7 +4,9 @@ namespace Microsoft.Azure.Relay.Bridge.Test
     using System.Configuration;
     using System.Globalization;
     using System.IO;
+    using System.Net.Sockets;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using McMaster.Extensions.CommandLineUtils;
     using Microsoft.Azure.Relay.Bridge.Configuration;
@@ -163,6 +165,9 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
             Assert.True(callbackInvoked);
         }
+
+
+
 
         [Fact]
         public void CommandLineROptionTest()
@@ -855,5 +860,6 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 File.Delete(configFileName);
             }
         }
+
     }
 }

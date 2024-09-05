@@ -17,6 +17,8 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     using System.Runtime.Serialization;
     using System.Text;
     using System.Text.RegularExpressions;
+    using System.Threading;
+    using System.Threading.Tasks;
     using YamlDotNet.Core;
 
     /// <summary>
@@ -26,14 +28,12 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
     {
         private const string AzureBridgeName = "azbridge";
         RelayConnectionStringBuilder relayConnectionStringBuilder;
-        readonly List<FileSystemWatcher> fileSystemWatchers;
         List<LocalForward> localForward;
         List<RemoteForward> remoteForward;
 
         public Config()
         {
             relayConnectionStringBuilder = new RelayConnectionStringBuilder();
-            fileSystemWatchers = new List<FileSystemWatcher>();
             localForward = new List<LocalForward>();
             remoteForward = new List<RemoteForward>();
         }
@@ -462,12 +462,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             }
         }
 
-        internal event EventHandler<ConfigChangedEventArgs> Changed;
-        void RaiseChanged(Config newConfig)
-        {
-            Changed?.Invoke(this, new ConfigChangedEventArgs { OldConfig = this, NewConfig = newConfig });
-        }
-
         public static Config LoadConfig(CommandLineSettings commandLineSettings)
         {
             const string azbridge = AzureBridgeName;
@@ -477,16 +471,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                 Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), $"{azbridge}\\{azbridge}_config.machine.yml");
 
             Config config = LoadConfigFile(machineConfigFileName);
-            Action onchange = () => { var cfg = LoadConfig(commandLineSettings); config.RaiseChanged(cfg); };
-
-            if (Directory.Exists(Path.GetDirectoryName(machineConfigFileName)))
-            {
-                var fsw = new FileSystemWatcher(Path.GetDirectoryName(machineConfigFileName), Path.GetFileName(machineConfigFileName));
-                fsw.Created += (o, e) => onchange();
-                fsw.Deleted += (o, e) => onchange();
-                fsw.Changed += (o, e) => onchange();
-                config.fileSystemWatchers.Add(fsw);
-            }
 
             if (string.IsNullOrEmpty(commandLineSettings.ConfigFile))
             {
@@ -498,27 +482,11 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
                 Config userConfig = LoadConfigFile(userConfigFileName);
                 config.Merge(userConfig);
-                if (Directory.Exists(Path.GetDirectoryName(userConfigFileName)))
-                {
-                    var fsw = new FileSystemWatcher(Path.GetDirectoryName(userConfigFileName), Path.GetFileName(userConfigFileName));
-                    fsw.Created += (o, e) => onchange();
-                    fsw.Deleted += (o, e) => onchange();
-                    fsw.Changed += (o, e) => onchange();
-                    config.fileSystemWatchers.Add(fsw);
-                }
             }
             else
             {
                 Config overrideConfig = LoadConfigFile(commandLineSettings.ConfigFile);
                 config.Merge(overrideConfig);
-                if (Directory.Exists(Path.GetDirectoryName(commandLineSettings.ConfigFile)))
-                {
-                    var fsw = new FileSystemWatcher(Path.GetDirectoryName(commandLineSettings.ConfigFile), Path.GetFileName(commandLineSettings.ConfigFile));
-                    fsw.Created += (o, e) => onchange();
-                    fsw.Deleted += (o, e) => onchange();
-                    fsw.Changed += (o, e) => onchange();
-                    config.fileSystemWatchers.Add(fsw);
-                }
             }
 
             if (commandLineSettings.Option != null)
@@ -968,7 +936,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     try
                     {
                         StringBuilder path = new StringBuilder("/");
-                        for(int i = 2; i < portStrings.Length; i++)
+                        for (int i = 2; i < portStrings.Length; i++)
                         {
                             path.Append(portStrings[i]).Append("/");
                         }
@@ -996,7 +964,7 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
                     string portString;
                     string portName;
 
-                    
+
                     var portStrings = rfs[0].Split('/');
                     if (portStrings.Length < 2)
                     {
@@ -1170,18 +1138,47 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
 
             if (File.Exists(fileName))
             {
-
-                using (var reader = new StreamReader(fileName))
+                // test whether the file is locked for reading; if so we'll spin wait
+                // for a bit and then throw an exception
+                for (int i = 0; i < 10; i++)
                 {
                     try
                     {
-                        return yamlDeserializer.Deserialize<Config>(reader);
+                        using (var fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.None))
+                        {
+                            if (fs.CanRead)
+                            {
+                                try
+                                {
+                                    using (var reader = new StreamReader(fs))
+                                    {
+                                        Config cfg = yamlDeserializer.Deserialize<Config>(reader);
+                                        if (cfg == null)
+                                        {
+                                            throw BridgeEventSource.Log.ArgumentOutOfRange(
+                                                nameof(fileName),
+                                                $"Invalid configuration file: {fileName}",
+                                                null);
+                                        }
+                                        return cfg;
+                                    }
+                                }
+                                catch (YamlException e)
+                                {
+                                    throw MapYamlException(fileName, e);
+                                }
+                            }
+                        }
                     }
-                    catch (YamlException e)
+                    catch (IOException)
                     {
-                        throw MapYamlException(fileName, e);
+                        Thread.Sleep(1000);
                     }
                 }
+                throw BridgeEventSource.Log.ArgumentOutOfRange(
+                    nameof(fileName),
+                    $"Configuration file {fileName} is locked for reading",
+                    null);
             }
             else
             {
@@ -1252,13 +1249,6 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
         {
             if (!disposedValue)
             {
-                if (disposing)
-                {
-                    foreach (var w in fileSystemWatchers)
-                    {
-                        w.Dispose();
-                    }
-                }
                 disposedValue = true;
             }
         }
@@ -1268,11 +1258,5 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             Dispose(true);
         }
 
-    }
-
-    class ConfigChangedEventArgs : EventArgs
-    {
-        public Config OldConfig { get; set; }
-        public Config NewConfig { get; set; }
     }
 }
