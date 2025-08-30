@@ -67,7 +67,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
                 {
                     textWriter.Write(
                        @"AddressFamily : inet" + textWriter.NewLine +
-                        "AzureRelayConnectionString: Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=" + textWriter.NewLine +
+                        "AzureRelayConnectionString: Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abcdefgh" + textWriter.NewLine +
                         "BindAddress : 127.0.0.4" + textWriter.NewLine +
                         "ClearAllForwardings : false " + textWriter.NewLine +
                         "ConnectionAttempts : 1 " + textWriter.NewLine +
@@ -788,7 +788,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
         {
             Assert.Equal(60, config.KeepAliveInterval);
             Assert.Equal("inet", config.AddressFamily);
-            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=;", config.AzureRelayConnectionString);
+            Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abcdefgh;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
             Assert.Equal("RootManageSharedAccessKey", config.AzureRelaySharedAccessKeyName);
             Assert.Equal("P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=", config.AzureRelaySharedAccessKey);
