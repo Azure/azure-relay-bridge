@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [master, main]
-  create:
     tags:
       - "v*.*"
   pull_request:
@@ -22,9 +21,11 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - run: |
-          mkdir artifacts
-          mkdir artifacts/build
+      - name: Create artifacts directories
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "artifacts"
+          New-Item -ItemType Directory -Force -Path "artifacts/build"
 
       - uses: actions/checkout@v4
         with:
@@ -32,6 +33,36 @@ jobs:
 
       - name: Extract version from tag
         uses: damienaicheh/extract-version-from-tag-action@v1.0.0
+
+      - name: Extract full version including suffix
+        shell: pwsh
+        run: |
+          if ("${{ github.ref }}" -like "refs/tags/*") {
+            # Extract full tag name (e.g., v0.15.1-srk.1)
+            $fullTag = "${{ github.ref_name }}"
+            # Remove 'v' prefix (e.g., 0.15.1-srk.1)
+            $fullVersion = $fullTag -replace '^v', ''
+            echo "FULL_VERSION=$fullVersion" >> $env:GITHUB_ENV
+            Write-Host "Full version: $fullVersion"
+            
+            # Extract base version (e.g., 0.15.1)
+            $baseVersion = $fullVersion -split '-' | Select-Object -First 1
+            echo "BASE_VERSION=$baseVersion" >> $env:GITHUB_ENV
+            Write-Host "Base version: $baseVersion"
+            
+            # Extract suffix if exists (e.g., srk.1)
+            if ($fullVersion -contains '-') {
+              $suffix = ($fullVersion -split '-', 2)[1]
+              echo "SUFFIX=$suffix" >> $env:GITHUB_ENV
+              Write-Host "Suffix: $suffix"
+            } else {
+              echo "SUFFIX=" >> $env:GITHUB_ENV
+            }
+          } else {
+            echo "FULL_VERSION=0.0.0-dev" >> $env:GITHUB_ENV
+            echo "BASE_VERSION=0.0.0" >> $env:GITHUB_ENV
+            echo "SUFFIX=dev" >> $env:GITHUB_ENV
+          }
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
@@ -44,30 +75,31 @@ jobs:
       - name: Build Docker Image TAR file
         run: |
           mkdir -p artifacts/build/images 
-          DOCKER_BUILDKIT=1 docker build . --build-arg "REVISION=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}" --build-arg "VERSION=${{ env.MAJOR }}.${{ env.MINOR }}" -t azbridge:${{ env.MAJOR }}.${{ env.MINOR }} -t azbridge
-          docker save azbridge:${{ env.MAJOR }}.${{ env.MINOR }} > artifacts/build/images/azbridge-oci-image-${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}.tar
+          # Use full version for revision and base version for main tag
+          DOCKER_BUILDKIT=1 docker build . --build-arg "REVISION=${{ env.FULL_VERSION }}" --build-arg "VERSION=${{ env.BASE_VERSION }}" -t azbridge:${{ env.FULL_VERSION }} -t azbridge:${{ env.BASE_VERSION }} -t azbridge
+          docker save azbridge:${{ env.FULL_VERSION }} > artifacts/build/images/azbridge-oci-image-${{ env.FULL_VERSION }}.tar
         if: matrix.os == 'ubuntu-latest'
 
       - name: Build for Windows-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'windows-latest'
       - name: Build for Windows-arm64
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'windows-latest'
       - name: Build for Windows-x86
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'windows-latest'
       - name: Build for macOS-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'macos-latest'
       - name: Build for macOS-arm64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'macos-latest'
       - name: Build for Linux-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'ubuntu-latest'
       - name: Build for Linux-arm64
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.FULL_VERSION }}
         if: matrix.os == 'ubuntu-latest'
 
       - name: Unit Test Windows x64
