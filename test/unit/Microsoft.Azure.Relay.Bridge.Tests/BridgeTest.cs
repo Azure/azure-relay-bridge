@@ -91,10 +91,18 @@ namespace Microsoft.Azure.Relay.Bridge.Test
 
             public void OnNext(KeyValuePair<string, object> value)
             {
-                DiagnosticsRecord record = (DiagnosticsRecord)value.Value;
+                try
+                {
+                    DiagnosticsRecord record = (DiagnosticsRecord)value.Value;
 
-                string message = $"[{DateTime.UtcNow}], {value.Key}, {record.Activity}, {record.Info}";
-                logger.WriteLine(message);
+                    string message = $"[{DateTime.UtcNow}], {value.Key}, {record.Activity}, {record.Info}";
+                    logger.WriteLine(message);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Ignore if there's no active test - this can happen when the subscription
+                    // from BridgeTest.RunScenarios persists and other test classes trigger diagnostics
+                }
            }
         }
 
