@@ -791,7 +791,7 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             Assert.Equal("Endpoint=sb://cvrelay.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=abcdefgh;", config.AzureRelayConnectionString);
             Assert.Equal("sb://cvrelay.servicebus.windows.net/", config.AzureRelayEndpoint);
             Assert.Equal("RootManageSharedAccessKey", config.AzureRelaySharedAccessKeyName);
-            Assert.Equal("P0CQgKxRl8S0ABAlmbitHDEWfwWUQzKB34J0w48SB/w=", config.AzureRelaySharedAccessKey);
+            Assert.Equal("abcdefgh", config.AzureRelaySharedAccessKey);
             Assert.Null(config.AzureRelaySharedAccessSignature);
             Assert.Equal("127.0.0.4", config.BindAddress);
             Assert.False(config.ClearAllForwardings);
