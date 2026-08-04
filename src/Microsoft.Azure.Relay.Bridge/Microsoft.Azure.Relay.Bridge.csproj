@@ -21,13 +21,7 @@
     <PackageReference Include="McMaster.Extensions.CommandLineUtils"  />
     <PackageReference Include="Microsoft.Azure.Relay"  />
     <PackageReference Include="Newtonsoft.Json"  />
-    <PackageReference Include="System.Net.Http"  />
-    <PackageReference Include="System.Memory"  />
-    <PackageReference Include="System.Net.NameResolution"  />
-    <PackageReference Include="System.Net.NetworkInformation"  />
     <PackageReference Include="YamlDotNet"  />
-    <PackageReference Include="System.Diagnostics.Tracing"  />
-    <PackageReference Include="System.Diagnostics.DiagnosticSource"  />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,7 +51,7 @@
 
   <Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
     <ItemGroup>
-      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net8.0\$(AssemblyName).dll" />
+      <WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net10.0\$(AssemblyName).dll" />
     </ItemGroup>
   </Target>
 

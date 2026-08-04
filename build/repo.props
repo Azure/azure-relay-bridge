@@ -1,9 +1,9 @@
 ﻿<Project>
 	<PropertyGroup>
 		<WindowsOnly>false</WindowsOnly>
-		<CoreFrameworks>net8.0</CoreFrameworks>
+		<CoreFrameworks>net10.0</CoreFrameworks>
 		<TargetFrameworks>$(CoreFrameworks)</TargetFrameworks>
-		<TargetFramework Condition="'$(TargetFramework)'==''">net8.0</TargetFramework>
+		<TargetFramework Condition="'$(TargetFramework)'==''">net10.0</TargetFramework>
 		<WindowsRuntimeIdentifiers Condition="'$(OS)'=='Windows_NT'">win-x64;win-x86;win-arm64;</WindowsRuntimeIdentifiers>
 		<UnixRuntimeIdentifiers Condition="'$(WindowsOnly)'=='false'">osx-x64;osx-arm64;linux-x64;linux-arm64</UnixRuntimeIdentifiers>
 		<RuntimeIdentifiers>$(WindowsRuntimeIdentifiers)$(UnixRuntimeIdentifiers)</RuntimeIdentifiers>

@@ -9,9 +9,6 @@
   <ItemGroup>
     <PackageReference Include="McMaster.Extensions.CommandLineUtils"  />
     <PackageReference Include="Newtonsoft.Json"  />
-    <PackageReference Include="System.Net.Http"  />
-    <PackageReference Include="System.Memory"  />
-    <PackageReference Include="System.Net.NameResolution"  />
     <PackageReference Include="YamlDotNet"  />
   </ItemGroup>
 

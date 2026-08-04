@@ -14,7 +14,7 @@ if "%ImageName%"=="" set ImageName=linux-x64
 if "%ImageSuffix%"=="" set ImageSuffix=deb
 if "%VersionSuffix%"=="" set VersionSuffix=preview
 if "%VersionPrefix%"=="" set VersionPrefix=1.0.0
-if "%TargetFramework%"=="" set TargetFramework=net8.0
+if "%TargetFramework%"=="" set TargetFramework=net10.0
 
 set PackageName=azbridge.%VersionPrefix%-%VersionSuffix%.%ImageName%.%ImageSuffix%
 pushd "%~dp0"

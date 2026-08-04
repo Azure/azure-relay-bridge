@@ -36,7 +36,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Restore dependencies
         run: dotnet restore
@@ -49,36 +49,36 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
 
       - name: Build for Windows-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=true /p:RuntimeIdentifier=win-x64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'windows-latest'
       - name: Build for Windows-arm64
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-arm64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'windows-latest'
       - name: Build for Windows-x86
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=win-x86 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'windows-latest'
       - name: Build for macOS-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-x64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'macos-latest'
       - name: Build for macOS-arm64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'macos-latest'
       - name: Build for Linux-x64
-        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-x64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'ubuntu-latest'
       - name: Build for Linux-arm64
-        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net8.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
+        run: dotnet msbuild /t:Restore,Package /p:WindowsOnly=false /p:RuntimeIdentifier=linux-arm64 /p:Configuration=Release /p:TargetFramework=net10.0 /p:VersionSuffix=rel /p:VersionPrefix=${{ env.MAJOR }}.${{ env.MINOR }}.${{ env.PATCH }}
         if: matrix.os == 'ubuntu-latest'
 
       - name: Unit Test Windows x64
         env:
           AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-        run: dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=win-x64 /p:Configuration=Debug
+        run: dotnet test /p:TargetFramework=net10.0 /p:RuntimeIdentifier=win-x64 /p:Configuration=Debug
         if: matrix.os == 'windows-latest'
       - name: Unit Test Linux x64
         env:
           AZBRIDGE_TEST_CXNSTRING: ${{ secrets.AZBRIDGE_TEST_CXNSTRING }}
-        run: dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=linux-x64 /p:Configuration=Debug
+        run: dotnet test /p:TargetFramework=net10.0 /p:RuntimeIdentifier=linux-x64 /p:Configuration=Debug
         if: matrix.os == 'ubuntu-latest'
       - name: Unit Test macOS arm64
         env:
@@ -87,13 +87,13 @@ jobs:
         run: |
           echo -e "$(ipconfig getifaddr en0) $(hostname -f) $(hostname -s)" | sudo tee -a /etc/hosts 
           ./test/unit/macos_unblock_testip.sh
-          dotnet test /p:TargetFramework=net8.0 /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Debug
+          dotnet test /p:TargetFramework=net10.0 /p:RuntimeIdentifier=osx-arm64 /p:Configuration=Debug
         if: matrix.os == 'macos-latest'
 
       - uses: actions/upload-artifact@v4
         with:
           name: XBuild-${{ matrix.os }}
-          path: artifacts/build/net8.0
+          path: artifacts/build/net10.0
 
       - uses: actions/upload-artifact@v4
         with:
