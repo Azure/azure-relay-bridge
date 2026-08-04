@@ -85,12 +85,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="McMaster.Extensions.CommandLineUtils"  />
-		<PackageReference Include="System.Console"  />
-		<PackageReference Include="System.IO"  />
-		<PackageReference Include="System.Memory"  />
-		<PackageReference Include="System.Net.Http"  />
-		<PackageReference Include="System.Net.NameResolution"  />
-		<PackageReference Include="System.Diagnostics.DiagnosticSource"  />
 		<PackageReference Include="Microsoft.Extensions.Logging"  />
 		<PackageReference Include="Microsoft.Extensions.Logging.Console"  />
 		<PackageReference Include="Serilog.Extensions.Logging.File"  />
@@ -143,20 +137,20 @@
 
 	<Target Name="GetTargetPath" Returns="@(WixGetTargetPath)">
 		<ItemGroup>
-			<WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net8.0\$(AssemblyName).exe" />
+			<WixGetTargetPath Include="$(MSBuildProjectDirectory)\$(OutputPath)\net10.0\$(AssemblyName).exe" />
 		</ItemGroup>
 	</Target>
 
 	<Target Name="PackageZip" DependsOnTargets="CreateZip" Condition="$(RuntimeIdentifier.EndsWith($(PlatformTarget))) AND $(RuntimeIdentifier.StartsWith('win'))">
 		<Copy SourceFiles="$(ZipPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net8.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
+	<Target Name="PackageTarball" DependsOnTargets="CreateTarball" Condition="('$(TargetFramework)' == 'net10.0') AND $(UnixRuntimeIdentifiers.Contains($(RuntimeIdentifier)))">
 		<Copy SourceFiles="$(TarballPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
+	<Target Name="PackageDebian" DependsOnTargets="CreateDeb" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net10.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
 		<Copy SourceFiles="$(DebPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
+	<Target Name="PackageRpm" DependsOnTargets="CreateRpm" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net10.0') AND ($(RuntimeIdentifier.StartsWith('linux')))">
 		<Copy SourceFiles="$(RpmPath)" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
 	<Target Name="PackageWindows" DependsOnTargets="Publish" Condition="'$(OS)' == 'Windows_NT' AND $(RuntimeIdentifier.StartsWith('win')) AND $(RuntimeIdentifier.EndsWith($(PlatformTarget)))">
@@ -171,7 +165,7 @@
 		<Exec Command="&quot;$(VS160COMNTOOLS)..\..\MSBuild\Current\Bin\msbuild&quot; ../azbridge-installer/azbridge-installer.wixproj /t:Publish /p:TargetFramework=$(TargetFramework);RuntimeIdentifier=$(RuntimeIdentifier);BridgeProjectFile=$(MSBuildProjectFullPath);BridgePublishPath=$(MSBuildProjectDirectory)\$(PublishDir);OutputPath=$(MSBuildProjectDirectory)\$(MsiDir);OutputName=$(_OutputName);AlreadyPublished=true" />
 		<Copy SourceFiles="$(MSBuildProjectDirectory)\$(MsiDir)\$(_OutputName).msi" DestinationFolder="$(BuildDir)/$(TargetFramework)" />
 	</Target>
-	<Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net8.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
+	<Target Name="PackageOSX" DependsOnTargets="Publish" Condition="'$(OS)' == 'Unix' AND ('$(TargetFramework)' == 'net10.0') AND ($(RuntimeIdentifier.StartsWith('osx')))">
 
 	</Target>
 	<Target Name="PublishPackages" DependsOnTargets="PackageDebian;PackageRpm;PackageWindows;PackageOSX;PackageZip;PackageTarball" Condition=" '$(RuntimeIdentifier)' != ''">

@@ -5,7 +5,7 @@
             "azbridge": {
                 "Exclusions": {
                   "DOC_MISSING": {
-                    "lib/net8.0/azbridge.dll": "no public API"
+                    "lib/net10.0/azbridge.dll": "no public API"
                   }
                 }
               }
