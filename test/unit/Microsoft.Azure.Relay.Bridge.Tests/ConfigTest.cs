@@ -861,5 +861,39 @@ namespace Microsoft.Azure.Relay.Bridge.Test
             }
         }
 
+        [Fact]
+        public void ConnectionStringEnvironmentVariableTest()
+        {
+            const string envVarName = "AZURE_BRIDGE_CONNECTIONSTRING";
+            const string envCxn = "Endpoint=sb://envrelay.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=abcdefgh";
+            string priorValue = Environment.GetEnvironmentVariable(envVarName);
+            try
+            {
+                // the environment variable is picked up when no -x is given
+                Environment.SetEnvironmentVariable(envVarName, envCxn);
+                CommandLineSettings.Run(new string[] { "-L", "3000:foobar" },
+                    (settings) =>
+                    {
+                        var cfg = Config.LoadConfig(settings);
+                        Assert.Equal("sb://envrelay.servicebus.windows.net/", cfg.AzureRelayEndpoint);
+                        return 0;
+                    });
+
+                // the -x command line option overrides the environment variable
+                const string cmdLineCxn = "Endpoint=sb://cmdrelay.servicebus.windows.net/;SharedAccessKeyName=send;SharedAccessKey=abcdefgh";
+                CommandLineSettings.Run(new string[] { "-x", cmdLineCxn, "-L", "3000:foobar" },
+                    (settings) =>
+                    {
+                        var cfg = Config.LoadConfig(settings);
+                        Assert.Equal("sb://cmdrelay.servicebus.windows.net/", cfg.AzureRelayEndpoint);
+                        return 0;
+                    });
+            }
+            finally
+            {
+                Environment.SetEnvironmentVariable(envVarName, priorValue);
+            }
+        }
+
     }
 }
