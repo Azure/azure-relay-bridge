@@ -547,10 +547,20 @@ namespace Microsoft.Azure.Relay.Bridge.Configuration
             {
                 config.AzureRelaySharedAccessSignature = commandLineSettings.Signature;
             }
+            // The connection string can also be supplied via the
+            // AZURE_BRIDGE_CONNECTIONSTRING environment variable. It is
+            // applied after the configuration files and can be overridden
+            // by the -x command line option below.
+            var envConnectionString = Environment.GetEnvironmentVariable("AZURE_BRIDGE_CONNECTIONSTRING");
+            if (!string.IsNullOrEmpty(envConnectionString))
+            {
+                config.AzureRelayConnectionString = envConnectionString;
+            }
             if (commandLineSettings.ConnectionString != null)
             {
                 config.AzureRelayConnectionString = commandLineSettings.ConnectionString;
             }
+
             if (commandLineSettings.KeepAliveInterval.HasValue)
             {
                 config.KeepAliveInterval = commandLineSettings.KeepAliveInterval.Value;
